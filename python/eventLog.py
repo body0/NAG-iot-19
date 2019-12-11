@@ -34,7 +34,7 @@ class Loger:
 
 """ @unique """
 """
-    LOG > informuje o stavu 
+    LOG > informuje o běžné akci uživatele
 """
 class EventType:
     LOG = 0

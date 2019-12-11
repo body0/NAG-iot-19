@@ -4,6 +4,11 @@
 """
 
 class Observable:
+    """
+        call 'callback' when emit is called
+        callback: (data: any) => () => void
+                - returs destructor for this substription
+    """
     def subscrie(self, callback):
         return
     
@@ -11,6 +16,11 @@ class Observable:
         pass
 
 class MemObservable(Observable):
+    """
+        call 'callback' when emit is called
+        callback: (data: any) => () => void
+                - returs destructor for this substription
+    """
     def subscrie(self, callback):
         return
     
