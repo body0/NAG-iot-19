@@ -1,6 +1,7 @@
 import common as Common
 import eventLog as EventLog
 import eventManager as EventManager
+import oledManager as OledManager
 
 import sys
 import time
@@ -15,11 +16,12 @@ import threading
             - GateService (service)
             - AuthService (service)
             - SlaveSrvice (service)
+            
             - Oled (wraper)
             - Camera (wraper)
             - SensorTimer (base class for each sensor, that needs to be periodicly updated)
 """
-class SlaveSrvice:
+class SlaveService:
     """
         ! SINGLETON !
         used to comunicate with arduino
@@ -27,15 +29,35 @@ class SlaveSrvice:
     def __init__(self):
         pass
 
+class LightService:
+    """
+        ! SINGLETON !
+        used to turn on and off 
+    """
+    def __init__(self):
+        self._Log = EventLog.LogerService()
+
+    def turnOnForFor(self, lightId, milis):
+        pass
+
+class LightsIds:
+    MAIN_HOUSE = 0
+    ALARM_BUZZER = 1
+    ALARM_LED = 2
+    AUTH_SUCCES_LED = 3  
+
 class GateService:
     """
         ! SINGLETON !
         user can autentificate by rf-id, password or camera
-        callback: (methond: AuthMethod) => void
+        callback: (isOpened: boolealn) => void
     """
     def __init__(self, onGateStateChangeCallback):
+        self._Log = EventLog.LogerService()
         self._OnGateStateChangeCallback = onGateStateChangeCallback
-
+    
+    def openFor(self, milis):
+        pass
 
 class AuthService:
     """
@@ -44,7 +66,8 @@ class AuthService:
         callback: (methond: AuthMethod) => void
     """
     def __init__(self, afterSuccesfullAuthCallback, afterFailedAuthCallback):
-        # self._AuthMode = AuthMethod
+        self._Log = EventLog.LogerService()
+        self._Lights = LightService()
         self.PasswordHash = '...'
         self.RfIdHash = '...'
         self._AfterSuccesfullAuthCallback = afterSuccesfullAuthCallback
@@ -52,6 +75,15 @@ class AuthService:
     
     def _hash(self, string):
         return
+
+    def _authFail():
+        self._Lights.turnOnForFor(LightsIds.ALARM_BUZZER, 1000)
+        self._Lights.turnOnForFor(LightsIds.ALARM_LED, 1000)
+        self._Log.emit('AUTH FAIL', EventLog.EventType.WARN)
+
+    def _authSucces()
+        self._Lights.turnOnForFor(LightsIds.AUTH_SUCCES_LED, 1000)
+        self._Log.emit('AUTH SUCCES', EventLog.EventType.LOG)
         
 class AuthMethod:
     RFID = 0
@@ -90,3 +122,32 @@ class SensorTimer:
         self._InterObs = Common.MemObservable()
         pass
     
+class OledService:
+    """
+        ! SINGLETON !
+    """
+    def __init__(self):
+        self._Log = EventLog.LogerService()
+        self._Oled = OledManager.OLEDManager()
+        self._Schema = {
+
+        }
+    
+    def setShemaEntry(self, name, text):
+        pass
+    
+    def showDiferentTextFor(self, text, milis):
+        pass
+
+class CameraService:
+    """
+        ! SINGLETON !
+    """
+    def __init__(self):
+        self._Log = EventLog.LogerService()
+    
+    def getPic():
+        pass
+
+    def auth():
+        pass
