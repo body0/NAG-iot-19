@@ -6,7 +6,12 @@
         - log to file
         - do not init any data creation, only receve them
 """
-class LogerService:
+LogerService = None
+class _LogerService:
+    def __init__(self):
+            if(LogerService != None):
+                raise Exception('Triing to instanciate singleton')
+
     """
         lisen for event to occure, then call callback
     """
@@ -32,32 +37,33 @@ class LogerService:
     """
     def emit(self, name, eventType=0):
         pass
+LogerService = _LogerService()
 
+"""
+    HTTP CLIENT
+
+        - send data to server
+        - auth to server
+"""
+def sendToUpstream(self, eventName, data):
     """
-        HTTP CLIENT
-
-            - send data to server
-            - auth to server
+    :param eventName: name of variable on website
+    :param data: integer data, that will be posted to server
+    :return: status code
     """
-    def sendToUpstream(self, eventName, data):
-        """
-        :param eventName: name of variable on website
-        :param data: integer data, that will be posted to server
-        :return: status code
-        """
-        jsonData = {'value': data}
-        header = {
-            'accept': 'application/json',
-            'Content-Type': 'application/json',
-            'x-Api-Key': 'qAC9kAwXDBKTc3cS'
-        }
-        try:
-            req = requests.post("https://api.nag-iot.zcu.cz/v1/value/" + eventName, json=jsonData, headers=header)
-            return req.status_code
-        except:  # time out
-            return 500
+    jsonData = {'value': data}
+    header = {
+        'accept': 'application/json',
+        'Content-Type': 'application/json',
+        'x-Api-Key': 'qAC9kAwXDBKTc3cS'
+    }
+    try:
+        req = requests.post("https://api.nag-iot.zcu.cz/v1/value/" + eventName, json=jsonData, headers=header)
+        return req.status_code
+    except:  # time out
+        return 500
 
-""" @unique """
+
 """
     LOG > informuje o běžné akci uživatele
     WARN > informuje o podezřelé/nestandartní akci uživatele

@@ -35,12 +35,11 @@ class OLEDManager:
 
         update()
 
-    def addFunc(self, fun):
-        """
-        :param fun:
-        :return:
-        """
-        self.Fun.append(fun)
+    def addLineCallback(self, callback):
+        self.Fun.append(callback)
+        
+    def claer(self):
+        self.Fun = []
 
     def draw(self):
         """
@@ -94,11 +93,7 @@ class OLEDManager:
             sys.stdout.flush()
 
 
-class SynchDisplay(Adafruit_SSD1306.SSD1306_128_64):
-    """
-    SyncDisplay Class
-    make display calls with the display function atomic
-    """
+""" class SynchDisplay(Adafruit_SSD1306.SSD1306_128_64):
     def __init__(self):
         super(Adafruit_SSD1306.SSD1306_128_64, self).__init__(rst=24, width=128, height=64)
         self.writeLock = threading.Lock()
@@ -108,14 +103,14 @@ class SynchDisplay(Adafruit_SSD1306.SSD1306_128_64):
         super(SyncDisplay, self).display()
         self.writeLock.release()
 
-    # def image(self, image):
-    #     try:
-    #         self.writeLock.acquire()
-    #         super(SyncDisplay, self).image(image)
-    #         time.sleep(0.1)
-    #         self.writeLock.release()
-    #     except Exception as e:
-    #         print("E: {}".format(e))
+    def image(self, image):
+        try:
+            self.writeLock.acquire()
+            super(SyncDisplay, self).image(image)
+            time.sleep(0.1)
+            self.writeLock.release()
+        except Exception as e:
+            print("E: {}".format(e)) """
 
 
 if __name__ == "__main__":
