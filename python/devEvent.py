@@ -1,4 +1,5 @@
 import eventLog as EventLog
+import common as Common
 
 import RPi.GPIO as IO
 
@@ -41,7 +42,7 @@ class Button:
         return IO.input(self._Channel)
 
     def subscribe(self, fun):
-        self._CallBacks.append(fun)
+        self._InterObs.subscrie(fun)
 
     def clearAllSubscriptions(self):
         self._InterObs = Common.MemObservable()

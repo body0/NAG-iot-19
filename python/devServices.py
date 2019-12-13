@@ -31,6 +31,16 @@ class _ServiceFactory:
             if(ServiceFactory != None):
                 raise Exception('Triing to instanciate singleton')
 
+            self.SlaveService = SlaveService()
+            self.LightService = LightService()
+            self.GateService = GateService()
+            self.AuthService = AuthService()
+            self.OledService = OledService()
+            self.CameraService = CameraService()
+            self.UserInputs = UserInputs()
+
+    def getSlaveService(self):
+        return self.SlaveService
     class SlaveService:
         """
             ! SINGLETON !
@@ -39,6 +49,29 @@ class _ServiceFactory:
         def __init__(self):
             pass
 
+    def getUserInputs(self):
+        return self
+    class UserInputs:
+        def __init__(self):
+            self._LightsButton = DevEvent.Button(-1)
+            self._GateButton = DevEvent.Button(-1)
+
+            """ def _generateInputButtonTuple(pinID):
+                button =  DevEvent.Button(pinID)
+                observable = Common.Observable()
+                button.subscribe(lambda data: observable.emit(data))
+                return (button, observable) """
+
+        def subscribe(self, inputId, callback):
+            if inputId == InputIds.LIGTHS_BUTTON:
+                self._LightsButton.subscribe(callback)
+            elif inputId == InputIds.GATE_BUTTON:
+                self._GateButton.subscribe(callback)
+            else:
+                self._Log.emit('lightId not found in LightsIds', EventLog.EventType.SYSTEM_WARN)
+    
+    def getLightService(self):
+        return self.LightService
     class LightService:
         """
             ! SINGLETON !
@@ -72,32 +105,60 @@ class _ServiceFactory:
             self.led[1] = t
             t.start()
 
+    def getGateService(self):
+        return self.GateService
     class GateService:
         """
             ! SINGLETON !
             user can autentificate by rf-id, password or camera
             callback: (isOpened: boolealn) => void
         """
-        def __init__(self, onGateStateChangeCallback):
+        def __init__(self):
             self._Log = EventLog.LogerService()
-            self._OnGateStateChangeCallback = onGateStateChangeCallback
+            self._OnGateStateChangeObserver = Common.Observable()
+            self._isBloking = False
+            self._isOpen = False
+
+        def subscribe(self, onGateStateChangeCallback):
+            self._OnGateStateChangeObserver.subscrie(onGateStateChangeCallback)
         
+        def clearAllSubscriptions(self):
+            self._AfterSuccesfullAuthObservable = Common.Observable()
+            self._AfterFailedAuthObservable = Common.Observable()
+
         def openFor(self, milis):
             pass
 
+        def isBloking(self):
+            return self._isBloking
+
+        def isOpen(self):
+            return self._isOpen
+
+    def getAuthService(self):
+        return self.AuthService
     class AuthService:
         """
             ! SINGLETON !
             user can autentificate by rf-id, password or camera
             callback: (methond: AuthMethod) => void
         """
-        def __init__(self, afterSuccesfullAuthCallback, afterFailedAuthCallback):
+        def __init__(self):
             self._Log = EventLog.LogerService()
             self._Lights = LightService()
             self.PasswordHash = '...'
             self.RfIdHash = '...'
-            self._AfterSuccesfullAuthCallback = afterSuccesfullAuthCallback
-            self._AfterFailedAuthCallback = afterFailedAuthCallback
+            self._AfterSuccesfullAuthObservable = Common.Observable()
+            self._AfterFailedAuthObservable = Common.Observable()
+            
+
+        def subscribe(self, afterSuccesfullAuthCallback, afterFailedAuthCallback):
+            self._AfterSuccesfullAuthObservable.subscribe(afterSuccesfullAuthCallback) 
+            self._AfterFailedAuthObservable.subscribe(afterFailedAuthCallback)
+        
+        def clearAllSubscriptions(self):
+            self._AfterSuccesfullAuthObservable = Common.Observable()
+            self._AfterFailedAuthObservable = Common.Observable()
         
         def _hash(self, string):
             return hashlib.sha224(str.encode(string)).hexdigest()
@@ -110,8 +171,9 @@ class _ServiceFactory:
         def _authSucces()
             self._Lights.turnOnForFor(LightsIds.AUTH_SUCCES_LED, 1000)
             self._Log.emit('AUTH SUCCES', EventLog.EventType.LOG)
-            
-        
+
+    def getOledService(self):
+        return self.OledService 
     class OledService:
         """
             ! SINGLETON !
@@ -157,6 +219,8 @@ class _ServiceFactory:
                     self._Oled.addLineCallback(lambda : entry[0] + ': ' + str(entry[1]))
                 self._Timer = None
 
+    def getCameraService(self):
+        return self.CameraService
     class CameraService:
         """
             ! SINGLETON !
@@ -181,6 +245,10 @@ class LightsIds:
     ALARM_BUZZER = 1
     ALARM_LED = 2
     AUTH_SUCCES_LED = 3  
+
+class InputIds:
+    LIGTHS_BUTTON = 0
+    GATE_BUTTON = 1
 
 class SensorTimer:
     def __init__(self, loadNewValCallback):
@@ -208,7 +276,7 @@ class SensorTimer:
             return
         update()
 
-    def stopAndClean(self):
+    def stopAndClearAllSubscriptions(self):
         self._Timer.cancel()
         self._Timer == None
         self._InterObs = Common.MemObservable()

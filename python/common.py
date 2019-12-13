@@ -1,3 +1,4 @@
+import threading
 """ 
     COMMON PYTHON CONSTRUCTION
         - observable
@@ -29,3 +30,13 @@ class MemObservable(Observable):
 
     def getLast(self):
         return
+
+class Timeout:
+    def __init__(self, calback, milis):
+        t = threading.Timer(milis, calback)
+        self._Timer = t
+        t.setDaemon(True)
+        t.start()
+
+    def cansel(self):
+        self._Timer.cancel()
