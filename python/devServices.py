@@ -82,6 +82,7 @@ class _ServiceFactory:
             self._Buzer = (DevEvent.LED(-1), None)
             self._RedLed = (DevEvent.LED(-1), None)
             self._GreenLed = (DevEvent.LED(-1), None)
+            self._WhiteLed = (DevEvent.LED(-1), None)
 
         def turnOnForFor(self, lightId, milis):
             if lightId == LightsIds.MAIN_HOUSE:
@@ -92,6 +93,8 @@ class _ServiceFactory:
                 self._turnOnLedFor(self._Buzer)
             elif lightId == LightsIds.AUTH_SUCCES_LED:
                 self._turnOnLedFor(self._GreenLed)
+            elif lightId == LightsIds.LIGHT:
+                self._turnOnLedFor(self.WhiteLed)
             else:
                 self._Log.emit('lightId not found in LightsIds', EventLog.EventType.SYSTEM_WARN)
         
