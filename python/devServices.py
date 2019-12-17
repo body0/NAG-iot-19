@@ -47,12 +47,30 @@ class _ServiceFactory:
             used to comunicate with arduino
         """
         def __init__(self):
-            adress = 0xAA
+            self.adress = 0xAA
             bus = smbus.SMBus(0)
             
         def ledOn(self, led = 0):         
 			if led < 16:
-				bus.write_byte(self.adress & (led | 0XF0))
+				bus.write_byte(self.adress, SlaveCommands.LED_ON | led)
+			else:
+				raise Exception("Leds : Invalid number!")
+		
+		def ledOff(self, led = 0):
+			if led < 16:
+				bus.write_byte(self.adress, SlaveCommands.LED_OFF | led)
+			else:
+				raise Exception("Leds : Invalid number!")
+					
+		def gate(self, position = "CLOSED"):
+			if position == "CLOSE":
+				bus.write_byte(self.adress, SlaveCommands.GATE)
+			elif position == "OPEN":
+				bus.write_byte(self.adress, SlaveCommands.GATE | 0x0F)
+			else:
+				raise Exception("Gate: Invalid position!")
+			
+			
     def getUserInputs(self):
         return self
     class UserInputs:
@@ -260,7 +278,9 @@ class InputIds:
 class SlaveCommands:
 	LED_ON = 0x10 
 	LED_OFF = 0x20	
-
+	GATE = 0x30
+	
+	
 class SensorTimer:
     def __init__(self, loadNewValCallback):
         self._InterObs = Common.MemObservable()
