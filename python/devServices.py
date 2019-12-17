@@ -47,8 +47,12 @@ class _ServiceFactory:
             used to comunicate with arduino
         """
         def __init__(self):
-            pass
-
+            adress = 0xAA
+            bus = smbus.SMBus(0)
+            
+        def ledOn(self, led = 0):         
+			if led < 16:
+				bus.write_byte(self.adress & (led | 0XF0))
     def getUserInputs(self):
         return self
     class UserInputs:
@@ -171,7 +175,7 @@ class _ServiceFactory:
             self._Lights.turnOnForFor(LightsIds.ALARM_LED, 1000)
             self._Log.emit('AUTH FAIL', EventLog.EventType.WARN)
 
-        def _authSucces()
+        def _authSucces():
             self._Lights.turnOnForFor(LightsIds.AUTH_SUCCES_LED, 1000)
             self._Log.emit('AUTH SUCCES', EventLog.EventType.LOG)
 
@@ -186,15 +190,15 @@ class _ServiceFactory:
             self._Oled = OledManager.OLEDManager()
             self._Schema = [
                 ("Light", "UNKNOWN"),
-                ("Humidity": "UNKNOWN"),
-                ("Temperature": "UNKNOWN"),
-                ("GateState": "Down")
+                ("Humidity", "UNKNOWN"),
+                ("Temperature", "UNKNOWN"),
+                ("GateState", "Down")
             ]
             self._Timer = None
 
-             self._Oled.claer()
-                for entry in self._Schema:
-                    self._Oled.addLineCallback(lambda : entry[0] + ': ' + str(entry[1]))
+            self._Oled.clear()
+            for entry in self._Schema:
+                self._Oled.addLineCallback(lambda : entry[0] + ': ' + str(entry[1]))
         
         def setShemaEntry(self, name, text):
             for entry in self._Schema:
@@ -252,6 +256,10 @@ class LightsIds:
 class InputIds:
     LIGTHS_BUTTON = 0
     GATE_BUTTON = 1
+
+class SlaveCommands:
+	LED_ON = 0x10 
+	LED_OFF = 0x20	
 
 class SensorTimer:
     def __init__(self, loadNewValCallback):
