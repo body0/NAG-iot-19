@@ -48,31 +48,56 @@ class _ServiceFactory:
         """
         def __init__(self):
             self.adress = 0xAA
-            bus = smbus.SMBus(0)
+            self.bus = smbus.SMBus(0)
             
         def ledOn(self, led = 0):         
 			if led < 16:
-				bus.write_byte(self.adress, SlaveCommands.LED_ON | led)
+				self.bus.write_byte(self.adress, SlaveCommands.LED_ON | led)
 			else:
 				raise Exception("Leds : Invalid number!")
 		
 		def ledOff(self, led = 0):
 			if led < 16:
-				bus.write_byte(self.adress, SlaveCommands.LED_OFF | led)
+				self.bus.write_byte(self.adress, SlaveCommands.LED_OFF | led)
 			else:
 				raise Exception("Leds : Invalid number!")
 					
-		def gate(self, position = "CLOSED"):
+		def gate(self, position = "CLOSE"):
 			if position == "CLOSE":
-				bus.write_byte(self.adress, SlaveCommands.GATE)
+				self.bus.write_byte(self.adress, SlaveCommands.GATE)
 			elif position == "OPEN":
-				bus.write_byte(self.adress, SlaveCommands.GATE | 0x0F)
+				self.bus.write_byte(self.adress, SlaveCommands.GATE | 0x0F)
 			else:
 				raise Exception("Gate: Invalid position!")
 			
+	def getSlaveLED(self):
+		return self.SlaveLED
+	class SlaveLED:
+		def __init__(self, index):
+			self.index = index
+			self.led = SlaveService()
 			
+		def on(self):
+			self.led.ledOff(index)
+		
+		def off(self):
+			self.led.ledOn(index)
+			 
+	def getSlaveGate(self):
+		return self.SlaveGate
+	class SlaveGate:
+		def __init_(self):
+			self.gate = SlaveService()
+			
+		def open(self):
+			self.gate.gate(OPEN)
+			
+		def close(self):
+			self.gate.gate(CLOSE)	
+			
+						
     def getUserInputs(self):
-        return self
+        return self.UserInputs
     class UserInputs:
         def __init__(self):
             self._LightsButton = DevEvent.Button(-1)
