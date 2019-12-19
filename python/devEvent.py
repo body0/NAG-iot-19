@@ -6,7 +6,7 @@ import RPi.GPIO as IO
 import sys
 import time
 import threading
-""" 
+"""
     LOW-LEVEL MANAGER FOR GPIO
 
         - init and ceanup of gpio
@@ -179,6 +179,21 @@ class LED:
 
     def off(self):
         self.write(0)
+
+class Sevro:
+    """
+    Servo Class
+    """
+    def __init__(self, channel, minDutyCycle = 5, maxDutyCycle = 10):
+        IO.setup(channel, IO.OUT)
+        self.servo = IO.PWM(channel, 50) # GPIO chan for PWM with 50Hz
+        self.servo.start(7.5)
+
+        self.minDutyCycle = minDutyCycle
+        self.maxDutyCycle = maxDutyCycle
+
+    def write(self, angle):
+        self.servo.ChangeDutyCycle((angle / 38) + 5)
 
 def wait_for_interrupts():
     """

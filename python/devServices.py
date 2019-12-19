@@ -48,10 +48,57 @@ class _ServiceFactory:
             used to comunicate with arduino
         """
         def __init__(self):
-            pass
-
+            self.adress = 0xAA
+            self.bus = smbus.SMBus(0)
+            
+        def ledOn(self, led = 0):         
+			if led < 16:
+				self.bus.write_byte(self.adress, SlaveCommands.LED_ON | led)
+			else:
+				raise Exception("Leds : Invalid number!")
+		
+		def ledOff(self, led = 0):
+			if led < 16:
+				self.bus.write_byte(self.adress, SlaveCommands.LED_OFF | led)
+			else:
+				raise Exception("Leds : Invalid number!")
+					
+		def gate(self, position = "CLOSE"):
+			if position == "CLOSE":
+				self.bus.write_byte(self.adress, SlaveCommands.GATE)
+			elif position == "OPEN":
+				self.bus.write_byte(self.adress, SlaveCommands.GATE | 0x0F)
+			else:
+				raise Exception("Gate: Invalid position!")
+			
+	def getSlaveLED(self):
+		return self.SlaveLED
+	class SlaveLED:
+		def __init__(self, index):
+			self.index = index
+			self.led = SlaveService()
+			
+		def on(self):
+			self.led.ledOff(index)
+		
+		def off(self):
+			self.led.ledOn(index)
+			 
+	def getSlaveGate(self):
+		return self.SlaveGate
+	class SlaveGate:
+		def __init_(self):
+			self.gate = SlaveService()
+			
+		def open(self):
+			self.gate.gate(OPEN)
+			
+		def close(self):
+			self.gate.gate(CLOSE)	
+			
+						
     def getUserInputs(self):
-        return self
+        return self.UserInputs
     class UserInputs:
         def __init__(self):
             self._LightsButton = DevEvent.Button(-1)
@@ -86,6 +133,7 @@ class _ServiceFactory:
             self._Buzer = (DevEvent.LED(-1), None)
             self._RedLed = (DevEvent.LED(-1), None)
             self._GreenLed = (DevEvent.LED(-1), None)
+            self._WhiteLed = (DevEvent.LED(-1), None)
 
         def turnOnForFor(self, lightId, milis):
             if lightId == LightsIds.MAIN_HOUSE:
@@ -96,6 +144,8 @@ class _ServiceFactory:
                 self._turnOnLedFor(self._Buzer)
             elif lightId == LightsIds.AUTH_SUCCES_LED:
                 self._turnOnLedFor(self._GreenLed)
+            elif lightId == LightsIds.LIGHT:
+                self._turnOnLedFor(self.WhiteLed)
             else:
                 self._Log.emit('lightId not found in LightsIds', EventLog.EventType.SYSTEM_WARN)
         
@@ -174,7 +224,7 @@ class _ServiceFactory:
             self._Lights.turnOnForFor(LightsIds.ALARM_LED, 1000)
             self._Log.emit('AUTH FAIL', EventLog.EventType.WARN)
 
-        def _authSucces()
+        def _authSucces():
             self._Lights.turnOnForFor(LightsIds.AUTH_SUCCES_LED, 1000)
             self._Log.emit('AUTH SUCCES', EventLog.EventType.LOG)
 
@@ -189,15 +239,15 @@ class _ServiceFactory:
             self._Oled = OledManager.OLEDManager()
             self._Schema = [
                 ("Light", "UNKNOWN"),
-                ("Humidity": "UNKNOWN"),
-                ("Temperature": "UNKNOWN"),
-                ("GateState": "Down")
+                ("Humidity", "UNKNOWN"),
+                ("Temperature", "UNKNOWN"),
+                ("GateState", "Down")
             ]
             self._Timer = None
 
-             self._Oled.claer()
-                for entry in self._Schema:
-                    self._Oled.addLineCallback(lambda : entry[0] + ': ' + str(entry[1]))
+            self._Oled.clear()
+            for entry in self._Schema:
+                self._Oled.addLineCallback(lambda : entry[0] + ': ' + str(entry[1]))
         
         def setShemaEntry(self, name, text):
             for entry in self._Schema:
@@ -260,6 +310,12 @@ class InputIds:
     GATE_BUTTON = 1
     NUM_PAD = 2
 
+class SlaveCommands:
+	LED_ON = 0x10 
+	LED_OFF = 0x20	
+	GATE = 0x30
+	
+	
 class SensorTimer:
     def __init__(self, loadNewValCallback):
         self._InterObs = Common.MemObservable()
