@@ -9,14 +9,115 @@
 // Be sure that you only ever include this mixin once!
 @include mat-core();
 
+
+$md-secondary: (
+    50 : #fff3e3,
+    100 : #fee0b8,
+    200 : #fecc89,
+    300 : #fdb859,
+    400 : #fca836,
+    500 : #fc9912,
+    600 : #fc9110,
+    700 : #fb860d,
+    800 : #fb7c0a,
+    900 : #fa6b05,
+    A100 : #ffffff,
+    A200 : #fff4ee,
+    A400 : #ffd4bb,
+    A700 : #ffc3a2,
+    contrast: (
+        50 : #000000,
+        100 : #000000,
+        200 : #000000,
+        300 : #000000,
+        400 : #000000,
+        500 : #000000,
+        600 : #000000,
+        700 : #000000,
+        800 : #000000,
+        900 : #000000,
+        A100 : #000000,
+        A200 : #000000,
+        A400 : #000000,
+        A700 : #000000,
+    )
+);
+
+$md-primary: (
+    50 : #e4e7f5,
+    100 : #bcc4e6,
+    200 : #8f9dd5,
+    300 : #6276c4,
+    400 : #4158b8,
+    500 : #1f3bab,
+    600 : #1b35a4,
+    700 : #172d9a,
+    800 : #122691,
+    900 : #0a1980,
+    A100 : #b0b7ff,
+    A200 : #7d89ff,
+    A400 : #4a5aff,
+    A700 : #3043ff,
+    contrast: (
+        50 : #000000,
+        100 : #000000,
+        200 : #000000,
+        300 : #ffffff,
+        400 : #ffffff,
+        500 : #ffffff,
+        600 : #ffffff,
+        700 : #ffffff,
+        800 : #ffffff,
+        900 : #ffffff,
+        A100 : #000000,
+        A200 : #000000,
+        A400 : #ffffff,
+        A700 : #ffffff,
+    )
+);
+$md-warn: (
+    50 : #fee8e7,
+    100 : #fcc7c3,
+    200 : #faa19b,
+    300 : #f77b72,
+    400 : #f65f54,
+    500 : #f44336,
+    600 : #f33d30,
+    700 : #f13429,
+    800 : #ef2c22,
+    900 : #ec1e16,
+    A100 : #ffffff,
+    A200 : #ffe9e9,
+    A400 : #ffb8b6,
+    A700 : #ff9f9c,
+    contrast: (
+        50 : #000000,
+        100 : #000000,
+        200 : #000000,
+        300 : #000000,
+        400 : #000000,
+        500 : #ffffff,
+        600 : #ffffff,
+        700 : #ffffff,
+        800 : #ffffff,
+        900 : #ffffff,
+        A100 : #000000,
+        A200 : #000000,
+        A400 : #000000,
+        A700 : #000000,
+    )
+);
+
+
+
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
-$NAG-primary: mat-palette($mat-indigo);
-$NAG-accent: mat-palette($mat-pink, A200, A100, A400);
+$NAG-primary: mat-palette($md-primary);
+$NAG-accent: mat-palette($md-secondary);
 
 // The warn palette is optional (defaults to red).
-$NAG-warn: mat-palette($mat-red);
+$NAG-warn: mat-palette($md-warn);
 
 // Create the theme object (a Sass map containing all of the palettes).
 $NAG-theme: mat-light-theme($NAG-primary, $NAG-accent, $NAG-warn);
@@ -25,4 +126,5 @@ $NAG-theme: mat-light-theme($NAG-primary, $NAG-accent, $NAG-warn);
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 @include angular-material-theme($NAG-theme);
+
 

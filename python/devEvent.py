@@ -134,15 +134,14 @@ class NumBoard:
             if countFound == 0:
                 return
 
-            for fun in self._CallBacks:
-                fun(table[foundCor[0]][foundCor[1]])
+            self._InterObs.emit(table[foundCor[0]][foundCor[1]])
 
         setAllOut(1)
         for i in inCh:
             IO.add_event_detect(i, IO.RISING, callback=_interupt, bouncetime=bounceTime)
 
     def subscribe(self, fun):
-        self._CallBacks.append(fun)        
+        self._InterObs.subscrie(fun)        
 
     def clear(self):
         self._InterObs = Common.MemObservable()

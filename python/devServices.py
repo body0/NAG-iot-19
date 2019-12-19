@@ -2,6 +2,7 @@ import common as Common
 import eventLog as EventLog
 import devEvent as DevEvent
 import oledManager as OledManager
+import camera as Camera
 
 import sys
 import time
@@ -55,6 +56,7 @@ class _ServiceFactory:
         def __init__(self):
             self._LightsButton = DevEvent.Button(-1)
             self._GateButton = DevEvent.Button(-1)
+            # self._numPad = DevEvent.NumBoard([-1, -1, -1], [-])
 
             """ def _generateInputButtonTuple(pinID):
                 button =  DevEvent.Button(pinID)
@@ -67,6 +69,8 @@ class _ServiceFactory:
                 self._LightsButton.subscribe(callback)
             elif inputId == InputIds.GATE_BUTTON:
                 self._GateButton.subscribe(callback)
+            elif inputId == InputId.NUM_PAD:
+                pass
             else:
                 self._Log.emit('lightId not found in LightsIds', EventLog.EventType.SYSTEM_WARN)
     
@@ -150,6 +154,8 @@ class _ServiceFactory:
             self.RfIdHash = '...'
             self._AfterSuccesfullAuthObservable = Common.Observable()
             self._AfterFailedAuthObservable = Common.Observable()
+
+            
             
 
         def subscribe(self, afterSuccesfullAuthCallback, afterFailedAuthCallback):
@@ -227,12 +233,15 @@ class _ServiceFactory:
         """
         def __init__(self):
             self._Log = EventLog.LogerService()
+            self._Camera = Camera.Camera("assets/OpenCv/encode.picle")
         
-        def getPic():
-            pass
+        def getPic(self):
+            self.camera.get_pic(file_name="temp_pic.jpg")
+            return "temp_pic.jpg"
 
-        def auth():
-            pass
+        def auth(self, success_callback=None, err_callback=None):
+            self.camera.async_authorize(success_callback=success_callback, err_callback=err_callback)
+
 ServiceFactory = _ServiceFactory()
 
 class AuthMethod:
@@ -249,6 +258,7 @@ class LightsIds:
 class InputIds:
     LIGTHS_BUTTON = 0
     GATE_BUTTON = 1
+    NUM_PAD = 2
 
 class SensorTimer:
     def __init__(self, loadNewValCallback):

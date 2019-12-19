@@ -10,11 +10,19 @@ class Observable:
         callback: (data: any) => () => void
                 - returs destructor for this substription
     """
+    def __init__(self):
+        self._Subscriptions = {}
+        self._LastKey = 0;
+
     def subscrie(self, callback):
-        return
+        key = str(self._LastKey)
+        self._Subscriptions[] = callback
+        self._LastKey += 1
+        return lambda : del self._Subscriptions[key]
     
     def emit(self, data):
-        pass
+        for callback in self._Subscriptions:
+            callback(data)
 
 class MemObservable(Observable):
     """
@@ -22,14 +30,14 @@ class MemObservable(Observable):
         callback: (data: any) => () => void
                 - returs destructor for this substription
     """
-    def subscrie(self, callback):
-        return
-    
-    def emit(self, data):
-        pass
+    def __init__(self):
+        self._LastValue = None
 
+    def emit(self, data):
+        self._LastValue = None
+        
     def getLast(self):
-        return
+        return self._LastValue
 
 class Timeout:
     def __init__(self, calback, milis):

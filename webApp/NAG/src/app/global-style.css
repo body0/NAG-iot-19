@@ -1,0 +1,35 @@
+p {
+    margin: 0;
+}
+h2 {
+    margin: .8rem .0rem .4rem .0rem;
+    font-size: 1.3rem;
+    font-weight: 400;
+}
+.floating{
+    /* z-index: 50; */
+    max-width: 850px;
+    position: relative;
+    width: 90%;
+    border-radius: .3rem; /* NOT TRUE: if cahnge, must be changed in bleDeviceInfo too (graphData - haight) */
+    margin: 1rem auto;
+    background-color: white;
+    /* background-color: rgb(255, 255, 255, 0.8); */
+    background-color: rgb(255, 255, 255, 0.8);
+    /* padding: 0 0 .7rem 0; */
+    box-shadow:  2px 2px 6px #555555;
+    overflow: auto;
+}
+.floating > div{
+    margin: .2rem 1rem 1.7rem 1rem;
+    /* margin-top: 0.1rem;
+    margin-bottom: 1.7rem; */
+}
+.floating-header {
+    margin: 0;
+    padding: 1rem;
+   /*  background-color: #065679; */
+    background-color: #022231;
+    color: #e0e0e0;
+    box-shadow:  2px 2px 4px #555555;
+}
