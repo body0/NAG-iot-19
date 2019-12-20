@@ -35,6 +35,7 @@ class MemObservable(Observable):
 
     def emit(self, data):
         self._LastValue = None
+        super().emit(data)
         
     def getLast(self):
         return self._LastValue

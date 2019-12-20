@@ -4,7 +4,9 @@
 
 export const environment = {
   production: false,
-  apiBase: 'localhot:4200/api'
+  apiBaseUrl: 'localhot:5000/api',
+  logWebSocketBaseUrl: 'localhost:5000',
+  changeWebSocketBaseUrl: 'localhost:5001'
 };
 
 /*
