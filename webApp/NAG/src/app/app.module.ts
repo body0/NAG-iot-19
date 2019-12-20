@@ -10,6 +10,7 @@ import { StatisticComponent } from './statistic/statistic.component';
 import { NavComponent } from './nav/nav.component';
 import { LayoutModule } from '@angular/cdk/layout';
 import { MatToolbarModule, MatButtonModule, MatSidenavModule, MatIconModule, MatListModule } from '@angular/material';
+import { SettingsComponent } from './settings/settings.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { MatToolbarModule, MatButtonModule, MatSidenavModule, MatIconModule, Mat
     LoginComponent,
     ActualStateComponent,
     StatisticComponent,
-    NavComponent
+    NavComponent,
+    SettingsComponent
   ],
   imports: [
     BrowserModule,
