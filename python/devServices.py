@@ -130,10 +130,12 @@ class _ServiceFactory:
         """
         def __init__(self):
             self._Log = EventLog.LogerService()
-            self._Buzer = (DevEvent.LED(-1), None)
-            self._RedLed = (DevEvent.LED(-1), None)
-            self._GreenLed = (DevEvent.LED(-1), None)
-            self._WhiteLed = (DevEvent.LED(-1), None)
+            self._InterObs = Common.Observable()
+
+            self._Buzer = [DevEvent.LED(-1), None, LedState.OFF]
+            self._RedLed = [DevEvent.LED(-1), None, LedState.OFF]
+            self._GreenLed = [DevEvent.LED(-1), None, LedState.OFF]
+            self._WhiteLed = [DevEvent.LED(-1), None, LedState.OFF]
 
         def turnOnForFor(self, lightId, milis):
             if lightId == LightsIds.MAIN_HOUSE:
@@ -148,16 +150,56 @@ class _ServiceFactory:
                 self._turnOnLedFor(self.WhiteLed)
             else:
                 self._Log.emit('lightId not found in LightsIds', EventLog.EventType.SYSTEM_WARN)
-        
+
         def _turnOnLedFor(self, led):
-            led[0].on()
             if led[1] != None:
                 led[1].cancel()
+            led[0].on()
+            led[2] = LedState.ON
+            self._InterObs.emit(None)
 
-            t = threading.Timer(milis, lambda : led[1].off())
+            def afterLedOff():
+                led[1].off()
+                led[2] = LedState.OFF
+                self._InterObs.emit(None)
+            
+            t = threading.Timer(milis, afterLedOff)
             t.setDaemon(True)
             self.led[1] = t
             t.start()
+
+        def _oscilateFor(self, led, period, rounds):
+            if led[1] != None:
+                led[1].cancel()
+            led[0].on()
+            led[2] = LedState.OSCILATING
+            self._InterObs.emit(None)
+            
+            roundsRemaining = rounds * 2
+            lastState = False
+            def update():
+                roundsRemaining -= 1
+                if rounds <= 0:
+                    self._InterObs.emit(None)
+                    led[0].off()
+                    led[2] = LedState.OFF
+                else:
+                    lastState = !lastState
+                    if(lastState):
+                        led[0].on()
+                    else:
+                        led[0].off()
+                    t = threading.Timer(period, update)
+                    t.setDaemon(True)
+                    self.led[1] = t
+                    t.start()
+            update()
+
+        def getLedState(self):
+
+
+        def subscribe(self, callback):
+            self.subscribe(callback)
 
     def getGateService(self):
         return self.GateService
@@ -203,10 +245,7 @@ class _ServiceFactory:
             self.PasswordHash = '...'
             self.RfIdHash = '...'
             self._AfterSuccesfullAuthObservable = Common.Observable()
-            self._AfterFailedAuthObservable = Common.Observable()
-
-            
-            
+            self._AfterFailedAuthObservable = Common.Observable()         
 
         def subscribe(self, afterSuccesfullAuthCallback, afterFailedAuthCallback):
             self._AfterSuccesfullAuthObservable.subscribe(afterSuccesfullAuthCallback) 
@@ -220,12 +259,9 @@ class _ServiceFactory:
             return hashlib.sha224(str.encode(string)).hexdigest()
 
         def _authFail():
-            self._Lights.turnOnForFor(LightsIds.ALARM_BUZZER, 1000)
-            self._Lights.turnOnForFor(LightsIds.ALARM_LED, 1000)
             self._Log.emit('AUTH FAIL', EventLog.EventType.WARN)
 
         def _authSucces():
-            self._Lights.turnOnForFor(LightsIds.AUTH_SUCCES_LED, 1000)
             self._Log.emit('AUTH SUCCES', EventLog.EventType.LOG)
 
     def getOledService(self):
@@ -300,10 +336,15 @@ class AuthMethod:
     CAMERA = 2
 
 class LightsIds:
-    MAIN_HOUSE = 0
-    ALARM_BUZZER = 1
-    ALARM_LED = 2
-    AUTH_SUCCES_LED = 3  
+    MAIN_HOUSE = 'House Lights'
+    ALARM_BUZZER = 'Alarn'
+    ALARM_LED = 'Alarm Led'
+    AUTH_SUCCES_LED = 'Green Led' 
+
+class LedState:
+    OFF = 'OFF'
+    ON = 'ON'
+    OSCILATING = 'BLINKING'
 
 class InputIds:
     LIGTHS_BUTTON = 0
