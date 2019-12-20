@@ -1,9 +1,19 @@
 import { Injectable } from '@angular/core';
+import { HttpHeaders } from '@angular/common/http';
+import { HttpClient } from 'selenium-webdriver/http';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataLoaderService {
 
-  constructor() { }
+  private static readonly httpOptions = {
+    headers: new HttpHeaders({
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
+    })
+  };
+  
+  constructor( private http: HttpClient) { }
 }
