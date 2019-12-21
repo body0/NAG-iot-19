@@ -1,28 +1,9 @@
 <form novalidate [formGroup]="LoginForm">
   <mat-form-field>
-    <input matInput placeholder="Email" formControlName="email" [errorStateMatcher]="matcher">
-    <mat-error *ngIf="EmailFormControl.hasError('email') && !EmailFormControl.hasError('required')">
-      Please enter a valid email address
-    </mat-error>
-    <mat-error *ngIf="EmailFormControl.hasError('required')">
-      Email is <strong>required</strong>
+    <input matInput ="Acces Password" formControlName="password" type="password">
+    <mat-error *ngIf="LoginForm.controls.password.hasError('required')">
+      Authorization is <strong>required</strong>
     </mat-error>
   </mat-form-field>
-  <mat-form-field>
-    <input matInput placeholder="Password" formControlName="password" [type]="(showPassword) ? 'text' : 'password'">
-    <mat-error *ngIf="EmailFormControl.hasError('required')">
-      Password is <strong>required</strong>
-    </mat-error>
-    <button mat-button *ngIf="showPassword" matSuffix mat-icon-button aria-label="visibility_off"
-      (click)="showPassword=false">
-      <mat-icon>visibility_off</mat-icon>
-    </button>
-    <button mat-button *ngIf="!showPassword" matSuffix mat-icon-button aria-label="visibility"
-      (click)="showPassword=true">
-      <mat-icon>visibility</mat-icon>
-    </button>
-  </mat-form-field>
-  <mat-divider></mat-divider>
-  <pre class="action-error">{{ActionFailMesage}}</pre>
   <button mat-raised-button type="submit" [disabled]='!LoginForm.valid' (click)="logIn()">Login</button>
 </form>

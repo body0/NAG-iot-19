@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
   apiBaseUrl: 'https://localhot/api',
-  logWebSocketBaseUrl: 'localhost:5000',
-  changeWebSocketBaseUrl: 'localhost:5001'
+  logWebSocketBaseUrl: 'wss://localhost:5000',
+  changeWebSocketBaseUrl: 'wss://localhost:5001'
 };

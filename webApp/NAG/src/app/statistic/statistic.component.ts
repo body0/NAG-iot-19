@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DataLoaderService, LightStatus } from '../data-loader.service';
 
 @Component({
   selector: 'app-statistic',
@@ -7,9 +8,17 @@ import { Component, OnInit } from '@angular/core';
 })
 export class StatisticComponent implements OnInit {
 
-  constructor() { }
+  Lights: LightStatus[] = [];
+
+  constructor(private dataLoader: DataLoaderService) {
+    
+   }
 
   ngOnInit() {
+  }
+
+  turnOnLight(lightName): void {
+
   }
 
 }

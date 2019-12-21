@@ -13,7 +13,6 @@ const MaterialDependenci = [
   MatIconModule,
   MatListModule,
   MatCheckboxModule,
-  FormsModule,
   MatExpansionModule,
   MatDialogModule,
   MatDividerModule,

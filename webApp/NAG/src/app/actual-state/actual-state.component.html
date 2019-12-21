@@ -1,5 +1,54 @@
 <div class="floating">
-    <h2 class="floating-header">
-      Hallo
-    </h2>
+  <h2 class="floating-header">
+    Lights status
+  </h2>
+  <div *ngIf="State">
+    <div class="lightsGrid">
+      <h2>Lights</h2>
+      <div *ngFor="let light of Lights">
+        <span>{{light.name}}</span>
+        <span *ngIf="light.status" style="color: #87bc47;">
+          <mat-icon>fiber_manual_record</mat-icon>
+          <span>On</span>
+        </span>
+        <span *ngIf="!light.status" style="color: #f44336;">
+          <mat-icon>fiber_manual_record</mat-icon>
+          <span>Off</span>
+        </span>
+      </div>
+    </div>
+    <div class="gateGrid">
+      <h2>Gate</h2>
+      <span *ngIf="State.Gate.status" style="color: #87bc47;">
+        <mat-icon>fiber_manual_record</mat-icon>
+        <span>On</span>
+      </span>
+      <span *ngIf="!State.Gate.status" style="color: #f44336;">
+        <mat-icon>fiber_manual_record</mat-icon>
+        <span>Off</span>
+        <span style="color: initial;">&nbsp;({{State.Gate.lastOpened | date}})</span>
+      </span>
+    </div>
+    <div class="sensors">
+      <h2>Sensors</h2>
+      <p>
+        <span class="lineName">Light:</span>
+        <span>	&nbsp;{{State.LightLum}}</span>
+      </p>
+    </div>
+    <div class="accesGrid">
+      <h2>Auth</h2>
+      <p>
+        <span class="lineName">Last Sucesfull auth:</span>
+        <span>	&nbsp;{{State.LastSuccesfullAuth | date}}</span>
+      </p>
+      <p>
+        <span class="lineName">Last Failed auth:</span>
+        <span>	&nbsp;{{State.LastFailedAuth | date}}</span>
+      </p>
+    </div>
   </div>
+  <div *ngIf="!State">
+    <h2>Loading...</h2>
+  </div>
+</div>
