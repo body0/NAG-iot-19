@@ -10,16 +10,16 @@ import threading
 
 import hashlib
 
-""" 
+"""
     COMPLEX EXTERNAL DEVICE
-        
+
         - Define higher-level senzor information and pin numbers
-        - Do not define data flow betwen service and upstream 
+        - Do not define data flow betwen service and upstream
         - Classes
             - GateService (service)
             - AuthService (service)
             - SlaveSrvice (service)
-            
+
             - Oled (wraper)
             - Camera (wraper)
             - SensorTimer (base class for each sensor, that needs to be periodicly updated)
@@ -50,19 +50,23 @@ class _ServiceFactory:
         def __init__(self):
             self.adress = 0xAA
             self.bus = smbus.SMBus(0)
-            
-        def ledOn(self, led = 0):         
+
+        def ledOn(self, led = 0):
 			if led < 16:
 				self.bus.write_byte(self.adress, SlaveCommands.LED_ON | led)
 			else:
 				raise Exception("Leds : Invalid number!")
-		
+
 		def ledOff(self, led = 0):
 			if led < 16:
 				self.bus.write_byte(self.adress, SlaveCommands.LED_OFF | led)
 			else:
 				raise Exception("Leds : Invalid number!")
-					
+
+        def ledOnFor(self, led = 0, milis = 1000):
+            ledOn(led)
+            
+
 		def gate(self, position = "CLOSE"):
 			if position == "CLOSE":
 				self.bus.write_byte(self.adress, SlaveCommands.GATE)
@@ -70,33 +74,8 @@ class _ServiceFactory:
 				self.bus.write_byte(self.adress, SlaveCommands.GATE | 0x0F)
 			else:
 				raise Exception("Gate: Invalid position!")
-			
-	def getSlaveLED(self):
-		return self.SlaveLED
-	class SlaveLED:
-		def __init__(self, index):
-			self.index = index
-			self.led = SlaveService()
-			
-		def on(self):
-			self.led.ledOff(index)
-		
-		def off(self):
-			self.led.ledOn(index)
-			 
-	def getSlaveGate(self):
-		return self.SlaveGate
-	class SlaveGate:
-		def __init_(self):
-			self.gate = SlaveService()
-			
-		def open(self):
-			self.gate.gate(OPEN)
-			
-		def close(self):
-			self.gate.gate(CLOSE)	
-			
-						
+
+
     def getUserInputs(self):
         return self.UserInputs
     class UserInputs:
@@ -120,13 +99,13 @@ class _ServiceFactory:
                 pass
             else:
                 self._Log.emit('lightId not found in LightsIds', EventLog.EventType.SYSTEM_WARN)
-    
+
     def getLightService(self):
         return self.LightService
     class LightService:
         """
             ! SINGLETON !
-            used to turn on and off 
+            used to turn on and off
         """
         def __init__(self):
             self._Log = EventLog.LogerService()
@@ -162,7 +141,7 @@ class _ServiceFactory:
                 led[1].off()
                 led[2] = LedState.OFF
                 self._InterObs.emit(None)
-            
+
             t = threading.Timer(milis, afterLedOff)
             t.setDaemon(True)
             self.led[1] = t
@@ -174,7 +153,7 @@ class _ServiceFactory:
             led[0].on()
             led[2] = LedState.OSCILATING
             self._InterObs.emit(None)
-            
+
             roundsRemaining = rounds * 2
             lastState = False
             def update():
@@ -217,7 +196,7 @@ class _ServiceFactory:
 
         def subscribe(self, onGateStateChangeCallback):
             self._OnGateStateChangeObserver.subscrie(onGateStateChangeCallback)
-        
+
         def clearAllSubscriptions(self):
             self._AfterSuccesfullAuthObservable = Common.Observable()
             self._AfterFailedAuthObservable = Common.Observable()
@@ -245,16 +224,16 @@ class _ServiceFactory:
             self.PasswordHash = '...'
             self.RfIdHash = '...'
             self._AfterSuccesfullAuthObservable = Common.Observable()
-            self._AfterFailedAuthObservable = Common.Observable()         
+            self._AfterFailedAuthObservable = Common.Observable()
 
         def subscribe(self, afterSuccesfullAuthCallback, afterFailedAuthCallback):
-            self._AfterSuccesfullAuthObservable.subscribe(afterSuccesfullAuthCallback) 
+            self._AfterSuccesfullAuthObservable.subscribe(afterSuccesfullAuthCallback)
             self._AfterFailedAuthObservable.subscribe(afterFailedAuthCallback)
-        
+
         def clearAllSubscriptions(self):
             self._AfterSuccesfullAuthObservable = Common.Observable()
             self._AfterFailedAuthObservable = Common.Observable()
-        
+
         def _hash(self, string):
             return hashlib.sha224(str.encode(string)).hexdigest()
 
@@ -265,7 +244,7 @@ class _ServiceFactory:
             self._Log.emit('AUTH SUCCES', EventLog.EventType.LOG)
 
     def getOledService(self):
-        return self.OledService 
+        return self.OledService
     class OledService:
         """
             ! SINGLETON !
@@ -284,14 +263,14 @@ class _ServiceFactory:
             self._Oled.clear()
             for entry in self._Schema:
                 self._Oled.addLineCallback(lambda : entry[0] + ': ' + str(entry[1]))
-        
+
         def setShemaEntry(self, name, text):
             for entry in self._Schema:
                 if(entry[0] == name):
                     entry[1] = text
                     return True
             return False
-        
+
         def showDiferentTextFor(self, textCallbackList, milis):
             if self._Timer != None:
                 self._Timer.cancel()
@@ -320,7 +299,7 @@ class _ServiceFactory:
         def __init__(self):
             self._Log = EventLog.LogerService()
             self._Camera = Camera.Camera("assets/OpenCv/encode.picle")
-        
+
         def getPic(self):
             self.camera.get_pic(file_name="temp_pic.jpg")
             return "temp_pic.jpg"
@@ -339,7 +318,7 @@ class LightsIds:
     MAIN_HOUSE = 'House Lights'
     ALARM_BUZZER = 'Alarn'
     ALARM_LED = 'Alarm Led'
-    AUTH_SUCCES_LED = 'Green Led' 
+    AUTH_SUCCES_LED = 'Green Led'
 
 class LedState:
     OFF = 'OFF'
@@ -352,11 +331,11 @@ class InputIds:
     NUM_PAD = 2
 
 class SlaveCommands:
-	LED_ON = 0x10 
-	LED_OFF = 0x20	
+	LED_ON = 0x10
+	LED_OFF = 0x20
 	GATE = 0x30
-	
-	
+
+
 class SensorTimer:
     def __init__(self, loadNewValCallback):
         self._InterObs = Common.MemObservable()
