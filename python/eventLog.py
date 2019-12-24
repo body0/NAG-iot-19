@@ -6,11 +6,18 @@
         - log to file
         - do not init any data creation, only receve them
 """
-LogerService = None
+_LogerServiceInstance = None
+def getLoginServise():
+    global _LogerServiceInstance
+    if _LogerServiceInstance == None:
+        _LogerServiceInstance = _LogerService()
+    return _LogerServiceInstance
+
 class _LogerService:
     def __init__(self):
-            if(LogerService != None):
+            if(_LogerServiceInstance != None):
                 raise Exception('Triing to instanciate singleton')
+            self.
 
     """
         lisen for event to occure, then call callback
@@ -37,7 +44,6 @@ class _LogerService:
     """
     def emit(self, name, eventType=0):
         pass
-LogerService = _LogerService()
 
 """
     HTTP CLIENT
@@ -81,3 +87,15 @@ class EventType:
     SYSTEM_ERR = 4
 
     DEBUG = 5
+
+
+if __name__ == '__main__':
+    log = getLoginServise()
+    def myPrint(prefix):
+        def prefixPrint(data):
+            print(prefix, data)
+        return prefixPrint
+    print('pre all', log.getLastAny())
+    log.subscribeAny(myPrint('sub all'))
+    log.emit('SETTINGS_LOADED', EventType.LOG)
+    print('post all', log.getLastAny())

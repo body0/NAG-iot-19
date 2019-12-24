@@ -16,9 +16,11 @@ class Observable:
 
     def subscrie(self, callback):
         key = str(self._LastKey)
-        self._Subscriptions[] = callback
+        self._Subscriptions[key] = callback
         self._LastKey += 1
-        return lambda : del self._Subscriptions[key]
+        def destructor():
+            del self._Subscriptions[key]
+        return destructor
     
     def emit(self, data):
         for callback in self._Subscriptions:

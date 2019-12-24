@@ -95,7 +95,6 @@ class _ServiceFactory:
 			
 		def close(self):
 			self.gate.gate(CLOSE)	
-			
 						
     def getUserInputs(self):
         return self.UserInputs
@@ -129,7 +128,7 @@ class _ServiceFactory:
             used to turn on and off 
         """
         def __init__(self):
-            self._Log = EventLog.LogerService()
+            self._Log = EventLog.getLoginServise()
             self._InterObs = Common.Observable()
 
             self._Buzer = [DevEvent.LED(-1), None, LedState.OFF]
@@ -167,6 +166,7 @@ class _ServiceFactory:
             t.setDaemon(True)
             self.led[1] = t
             t.start()
+            self._Log.emit('LIGHT STATE CHANGE', EventLog.EventType.LOG)
 
         def _oscilateFor(self, led, period, rounds):
             if led[1] != None:
@@ -210,7 +210,7 @@ class _ServiceFactory:
             callback: (isOpened: boolealn) => void
         """
         def __init__(self):
-            self._Log = EventLog.LogerService()
+            self._Log = EventLog.getLoginServise()
             self._OnGateStateChangeObserver = Common.Observable()
             self._isBloking = False
             self._isOpen = False
@@ -223,13 +223,30 @@ class _ServiceFactory:
             self._AfterFailedAuthObservable = Common.Observable()
 
         def openFor(self, milis):
-            pass
+            if self._isOpen:
+                return
+            self._isOpen = True
+
+            def tryClose():
+                while(self._isBloking):
+                    time.sleep(100)
+                self._open()
+                self._Log.emit('GATE STATE CHANGE', EventLog.EventType.LOG)
+            t = threading.Timer(milis, tryClose)
+            t.setDaemon(True)
+            self.led[1] = t
+            t.start()
+
+            self._Log.emit('GATE STATE CHANGE', EventLog.EventType.LOG)
 
         def isBloking(self):
             return self._isBloking
 
         def isOpen(self):
             return self._isOpen
+
+        def _open():
+            pass
 
     def getAuthService(self):
         return self.AuthService
@@ -240,7 +257,7 @@ class _ServiceFactory:
             callback: (methond: AuthMethod) => void
         """
         def __init__(self):
-            self._Log = EventLog.LogerService()
+            self._Log = EventLog.getLoginServise()
             self._Lights = LightService()
             self.PasswordHash = '...'
             self.RfIdHash = '...'
@@ -271,7 +288,7 @@ class _ServiceFactory:
             ! SINGLETON !
         """
         def __init__(self):
-            self._Log = EventLog.LogerService()
+            self._Log = EventLog.getLoginServise()
             self._Oled = OledManager.OLEDManager()
             self._Schema = [
                 ("Light", "UNKNOWN"),
@@ -318,7 +335,7 @@ class _ServiceFactory:
             ! SINGLETON !
         """
         def __init__(self):
-            self._Log = EventLog.LogerService()
+            self._Log = EventLog.getLoginServise()
             self._Camera = Camera.Camera("assets/OpenCv/encode.picle")
         
         def getPic(self):

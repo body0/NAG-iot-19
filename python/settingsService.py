@@ -7,7 +7,7 @@ SettingsService = None
 class _SettingsService:
 
     def __init__(self):
-         if(SettingsService != None):
+        if(SettingsService != None):
                 raise Exception('Triing to instanciate singleton')
 
         # self._Salt = b'$2b$12$FgMh.0MG9vtsavK5rQPtKu'
@@ -18,16 +18,17 @@ class _SettingsService:
         }
 
         self._Settings = self._DefalutSettings
+        self._Log = EventLog.getLoginServise()
 
         try:
             file = open(self._SettingsPath, "r")
             self._Settings = json.load(file)
             file.close()
-            EventLog.LogerService.emit('SETTINGS_LOADED', EventLog.EventType.LOG)
-        except IOError:
-            EventLog.LogerService.emit('CANNOT_READ_SETTINGS', EventLog.EventType.SYSTEM_WARN)
+            self._Log.emit('SETTINGS_LOADED', EventLog.EventType.LOG)
+        except FileNotFoundError:
+            self._Log.emit('CANNOT_READ_SETTINGS', EventLog.EventType.SYSTEM_WARN)
         except Exception:
-            EventLog.LogerService.emit('CANNOT_PARSE_SETTINGS', EventLog.EventType.SYSTEM_WARN)
+            self._Log.emit('CANNOT_PARSE_SETTINGS', EventLog.EventType.SYSTEM_WARN)
 
     def getSettings(self):
         return self._Settings
@@ -40,15 +41,15 @@ class _SettingsService:
 
     def matchAccesPassword(self, password):
         if bcrypt.checkpw(password, self._Settings['AccesPasswordHash']):
-            EventLog.LogerService.emit('SETTINGS_AUTH_SUCCES', EventLog.EventType.LOG)
+            self._Log.emit('SETTINGS_AUTH_SUCCES', EventLog.EventType.LOG)
             return True
         else:
-            EventLog.LogerService.emit('SETTINGS_AUTH_FAILL', EventLog.EventType.WARN)
+            self._Log.emit('SETTINGS_AUTH_FAILL', EventLog.EventType.WARN)
             return False
 
     def saveSettings(self):
         file = open(self._SettingsPath, "w")
-        json.dumps(self._Settings, file)
+        json.dump(self._Settings, file)
         file.close()
 
 SettingsService = _SettingsService()

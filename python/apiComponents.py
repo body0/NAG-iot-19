@@ -29,9 +29,10 @@ class EventSinkAppState:
             def SystemStateUpdateFactoryFunc(value):
                 self.SystemState[updatedString] = value
             return SystemStateUpdateFactoryFunc
-
-        EventLog.LogerService.subscribeByName('GateState', SystemStateUpdateFactory('GateState'))
-        EventLog.LogerService.subscribeByName('Hum', SystemStateUpdateFactory('Hum'))
+        loger = EventLog.getLoginServise()
+        loger.subscribeByName('GateState', SystemStateUpdateFactory('GateState'))
+        loger.subscribeByName('Hum', SystemStateUpdateFactory('Hum'))
+        loger.subscribeByName('LIGHT STATE CHANGE', SystemStateUpdateFactory('GateState'))
 
     def get(self, name):
         return self.SystemState[name]
