@@ -1,4 +1,5 @@
 import devServices as DevServices
+import eventLog as EventLog
 
 """ 
     BUSNIESS LOGIC
@@ -10,6 +11,8 @@ s
 
 # INIT ALL SERVICES
 def init():
+        loger = EventLog.getLoginServise()
+
         gate = DevServices.ServiceFactory.getGateService()
         auth = DevServices.ServiceFactory.getAuthService()
         oled = DevServices.ServiceFactory.getOledService()
@@ -17,7 +20,7 @@ def init():
 
         def onGateStateChangeCallback(state):
                 pass
-        gate.subscribe(onGateStateChangeCallback)
+        loger.subscribeByName('Gate State Change', onGateStateChangeCallback)
 
         def afterAuthSucces():
                 lights.turnOnForFor(DevServices.LightsIds.AUTH_SUCCES_LED, 1000)
@@ -26,7 +29,8 @@ def init():
                 lights.turnOnForFor(DevServices.LightsIds.ALARM_BUZZER, 1000)
                 lights.turnOnForFor(DevServices.LightsIds.ALARM_LED, 1000)
                 oled.showDiferentTextFor([lambda : 'AUTH FAIL'], 1000)
-        auth.subscribe(afterAuthSucces, afterAuthFails)
+        loger.subscribeByName('Auth Failed', afterAuthFails)
+        loger.subscribeByName('Auth succes', afterAuthSucces)
 
 # INIT I2C SENZOR
 # ALL CALLVACKS

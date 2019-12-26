@@ -149,5 +149,5 @@ if __name__ == '__main__':
         return prefixPrint
     print('pre all', log.getLastAny())
     log.subscribeAny(myPrint('sub all'))
-    log.emit('SETTINGS_LOADED', EventType.LOG)
+    log.emit('debug', EventType.LOG)
     print('post all', log.getLastAny())

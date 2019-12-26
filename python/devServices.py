@@ -209,17 +209,9 @@ class _ServiceFactory:
         """
         def __init__(self):
             self._Log = EventLog.getLoginServise()
-            self._OnGateStateChangeObserver = Common.Observable()
             self._isBloking = False
             self._isOpen = False
             self._slaveService = getSlaveService()
-
-        def subscribe(self, onGateStateChangeCallback):
-            self._OnGateStateChangeObserver.subscrie(onGateStateChangeCallback)
-
-        def clearAllSubscriptions(self):
-            self._AfterSuccesfullAuthObservable = Common.Observable()
-            self._AfterFailedAuthObservable = Common.Observable()
 
         def openFor(self, milis):
             if self._isOpen:
@@ -230,13 +222,13 @@ class _ServiceFactory:
                 while(self._isBloking):
                     time.sleep(100)
                 self._open()
-                self._Log.emit('GATE STATE CHANGE', EventLog.EventType.LOG)
+                self._Log.emit('Gate State Change', EventLog.EventType.LOG, pld=False)
             t = threading.Timer(milis, tryClose)
             t.setDaemon(True)
             self.led[1] = t
             t.start()
 
-            self._Log.emit('GATE STATE CHANGE', EventLog.EventType.LOG)
+            self._Log.emit('Gate State Change', EventLog.EventType.LOG, pld=True)
 
         def isBloking(self):
             return self._isBloking
@@ -266,22 +258,14 @@ class _ServiceFactory:
             self._AfterSuccesfullAuthObservable = Common.Observable()
             self._AfterFailedAuthObservable = Common.Observable()
 
-        def subscribe(self, afterSuccesfullAuthCallback, afterFailedAuthCallback):
-            self._AfterSuccesfullAuthObservable.subscribe(afterSuccesfullAuthCallback)
-            self._AfterFailedAuthObservable.subscribe(afterFailedAuthCallback)
-
-        def clearAllSubscriptions(self):
-            self._AfterSuccesfullAuthObservable = Common.Observable()
-            self._AfterFailedAuthObservable = Common.Observable()
-
         def _hash(self, string):
             return hashlib.sha224(str.encode(string)).hexdigest()
 
         def _authFail():
-            self._Log.emit('AUTH FAIL', EventLog.EventType.WARN)
+            self._Log.emit('Auth Failed', EventLog.EventType.WARN)
 
         def _authSucces():
-            self._Log.emit('AUTH SUCCES', EventLog.EventType.LOG)
+            self._Log.emit('Auth Succes', EventLog.EventType.LOG)
 
     def getOledService(self):
         return self.OledService

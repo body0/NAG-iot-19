@@ -4,30 +4,34 @@ from devServices import LedState
 import datetime as Datetime
 
 class EventSinkAppState:
+
+    DefaultState = {
+        'Lights': {
+            'House Lights': {
+                'status': LedState.OFF
+            },
+            'Alarn': {
+                'status': LedState.OFF
+            },
+            'Alarm Led': {
+                'status': LedState.OFF
+            },
+            'Green Led': {
+                'status': LedState.OFF
+            }
+        },
+        'Gate': {
+            'status': LedState.OFF,
+            'lastOpened': '1970-01-01T00:00:00'
+        },
+        'LastSuccesfullAuth': '1970-01-01T00:00:00',
+        'LastFailedAuth': '1970-01-01T00:00:00',
+        'LightLum': -1
+    }
+
     def __init__(self):
-        self.SystemState = {
-            'Lights': {
-                'House Lights': {
-                    'status': LedState.OFF
-                },
-                'Alarn': {
-                    'status': LedState.OFF
-                },
-                'Alarm Led': {
-                    'status': FalLedState.OFFse
-                },
-                'Green Led': {
-                    'status': LedState.OFF
-                }
-            },
-            'Gate': {
-                'status': LedState.OFF,
-                'lastOpened': '1970-01-01T00:00:00'
-            },
-            'LastSuccesfullAuth': '1970-01-01T00:00:00',
-            'LastFailedAuth': '1970-01-01T00:00:00',
-            'LightLum': -1
-        }
+        self.SystemState = self.DefaultState
+
         def systemStateUpdateFactory(updatedString):
             def systemStateUpdateFactoryFunc(value):
                 self.SystemState[updatedString] = value
@@ -47,14 +51,14 @@ class EventSinkAppState:
 
         def updateGate(state):
             self.SystemState['Gate'] = {
-                'status': False,
+                'status': state,
                 'lastOpened': Datetime.datetime
             }
         
         loger = EventLog.getLoginServise()
-        loger.subscribeByName('GateState', systemStateUpdateFactory('GateState'))
+        loger.subscribeByName('Gate State Change', updateGate)
         loger.subscribeByName('Hum', systemStateUpdateFactory('Hum'))
-        loger.subscribeByName('LIGHT STATE CHANGE', systemStateUpdateFactory('GateState'))
+        loger.subscribeByName('Light state change', lightUpdate)
 
     def get(self, name):
         return self.SystemState[name]

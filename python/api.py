@@ -26,11 +26,12 @@ def settingsGet():
     serializedSettings = json.dumps(settings)
     return serializedSettings
 
-@app.route('/api/settingsUpdate')
+@app.route('/api/settingsUpdate',  methods=['POST'])
 def settingsUpdate(): 
     try:
         newSettings = json.loads()
         settingsServiceInst.saveNewSettings(newSettings)
+        return 'Succes'
     except 
         return 'Cannot Parse', 400
     except:
