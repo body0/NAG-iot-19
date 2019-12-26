@@ -6,15 +6,16 @@ import json
 SettingsService = None
 class _SettingsService:
 
+    _SettingsPath = './assets/settings.json'
+
     def __init__(self):
         if(SettingsService != None):
                 raise Exception('Triing to instanciate singleton')
 
         # self._Salt = b'$2b$12$FgMh.0MG9vtsavK5rQPtKu'
-        self._SettingsPath = './assets/settings.json'
         self._DefalutSettings = {
-            'AccesPasswordHash': b'$2b$12$FgMh.0MG9vtsavK5rQPtKuNlfSqNaEkL2X/WaTd9wf/47/PBAn5sC',
-            'SilentAlarm': False
+            SettingsKeys.ACCES_PASSWORK_HASH: b'$2b$12$FgMh.0MG9vtsavK5rQPtKuNlfSqNaEkL2X/WaTd9wf/47/PBAn5sC',
+            SettingsKeys.SILENT_ALARM: False
         }
 
         self._Settings = self._DefalutSettings
@@ -26,18 +27,21 @@ class _SettingsService:
             file.close()
             self._Log.emit('SETTINGS_LOADED', EventLog.EventType.LOG)
         except FileNotFoundError:
-            self._Log.emit('CANNOT_READ_SETTINGS', EventLog.EventType.SYSTEM_WARN)
+            self._Log.emit('CANNOT_READ_SETTINGS', EventLog.EventType.SYSTEM_WARN,  pld='File Not Found')
         except Exception:
-            self._Log.emit('CANNOT_PARSE_SETTINGS', EventLog.EventType.SYSTEM_WARN)
+            self._Log.emit('CANNOT_READ_SETTINGS', EventLog.EventType.SYSTEM_WARN, pld='Unknown Err')
 
     def getSettings(self):
         return self._Settings
+
+    def getSettingsAtribute(self, key):
+        return self._Settings[key]
 
     def recomputePassword(self, password):
         salt = bcrypt.gensalt()
         hash = bcrypt.hashpw(bytes(password, 'utf-8'), salt)
         self._Settings['AccesPasswordHash'] = hash
-        self.saveSettings()
+        self.saveUsedSettings()
 
     def matchAccesPassword(self, password):
         if bcrypt.checkpw(password, self._Settings['AccesPasswordHash']):
@@ -47,9 +51,30 @@ class _SettingsService:
             self._Log.emit('SETTINGS_AUTH_FAILL', EventLog.EventType.WARN)
             return False
 
-    def saveSettings(self):
-        file = open(self._SettingsPath, "w")
-        json.dump(self._Settings, file)
-        file.close()
+    def saveNewSettings(self, newSettings):
+        if not testJsonStructure(newSettings):
+            raise Exception('Wrong Settings')
+
+        self._Settings = newSettings
+        self.saveUsedSettings()
+
+    def saveUsedSettings(self):
+        try:
+            file = open(self._SettingsPath, "w")
+            json.dump(self._Settings, file)
+            file.close()
+            self._Log.emit('SETTINGS_WRITE', EventLog.EventType.LOG)
+        except Exception:
+            self._Log.emit('CANNOT_WRITE_SETTINGS', EventLog.EventType.SYSTEM_WARN, pld='Unknown Err')
 
 SettingsService = _SettingsService()
+
+class SettingsKeys:
+    SILENT_ALARM ='SilentAlarm',
+    ACCES_PASSWORK_HASH ='AccesPasswordHash'
+
+def testJsonStructure(jsonObj):
+    for settingsKey in SettingsKeys:
+        if settingsKey not in jsonObj:
+            return False
+    return True

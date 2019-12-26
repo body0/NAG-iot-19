@@ -1,10 +1,13 @@
 import apiComponents as ApiComponents
+import settingsService as SettingsService
+
 import json
 from flask import Flask, Response
 from flask_socketio import SocketIO
 
 app = Flask(__name__)
 systemStatus = ApiComponents.EventSinkAppState()
+settingsServiceInst = SettingsService.SettingsService
 
 @app.route('/api')
 def hello_world():
@@ -17,6 +20,21 @@ def get_status():
     resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp
 
+@app.route('/api/settingsGet')
+def settingsGet():
+    settings = settingsServiceInst.getSettings()
+    serializedSettings = json.dumps(settings)
+    return serializedSettings
+
+@app.route('/api/settingsUpdate')
+def settingsUpdate(): 
+    try:
+        newSettings = json.loads()
+        settingsServiceInst.saveNewSettings(newSettings)
+    except 
+        return 'Cannot Parse', 400
+    except:
+        return 'Wrong Json Format', 400
 
 socketio = SocketIO(app, cors_allowed_origins="*")
 

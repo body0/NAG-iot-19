@@ -52,29 +52,28 @@ class _ServiceFactory:
             self.bus = smbus.SMBus(0)
 
         def ledOn(self, led = 0):
-			if led < 16:
-				self.bus.write_byte(self.adress, SlaveCommands.LED_ON | led)
+            if led < 16:
+                self.bus.write_byte(self.adress, SlaveCommands.LED_ON | led)
 			else:
-				raise Exception("Leds : Invalid number!")
+                raise Exception("Leds : Invalid number!")
 
 		def ledOff(self, led = 0):
 			if led < 16:
 				self.bus.write_byte(self.adress, SlaveCommands.LED_OFF | led)
 			else:
 				raise Exception("Leds : Invalid number!")
+        
+        def openGate(self):
+            self.setGate(True)
 
-        def ledOnFor(self, led = 0, milis = 1000):
-            ledOn(led)
-            
+         def closeGate(self):
+            self.setGate(False)
 
-		def gate(self, position = "CLOSE"):
-			if position == "CLOSE":
-				self.bus.write_byte(self.adress, SlaveCommands.GATE)
-			elif position == "OPEN":
-				self.bus.write_byte(self.adress, SlaveCommands.GATE | 0x0F)
+		def setGate(self, position = True):
+			if position:
+                self.bus.write_byte(self.adress, SlaveCommands.GATE | 0x0F)
 			else:
-				raise Exception("Gate: Invalid position!")
-
+				self.bus.write_byte(self.adress, SlaveCommands.GATE)
 
     def getUserInputs(self):
         return self.UserInputs
@@ -109,7 +108,6 @@ class _ServiceFactory:
         """
         def __init__(self):
             self._Log = EventLog.getLoginServise()
-            self._InterObs = Common.Observable()
 
             self._Buzer = [DevEvent.LED(-1), None, LedState.OFF]
             self._RedLed = [DevEvent.LED(-1), None, LedState.OFF]
@@ -130,41 +128,48 @@ class _ServiceFactory:
             else:
                 self._Log.emit('lightId not found in LightsIds', EventLog.EventType.SYSTEM_WARN)
 
-        def _turnOnLedFor(self, led):
+        def _turnOnLedFor(self, led, name):
             if led[1] != None:
                 led[1].cancel()
             led[0].on()
             led[2] = LedState.ON
-            self._InterObs.emit(None)
 
             def afterLedOff():
                 led[1].off()
                 led[2] = LedState.OFF
-                self._InterObs.emit(None)
+                self._Log.emit('Light state change', EventLog.EventType.LOG, {
+                    'name': name,
+                    'state': False
+                })
 
             t = threading.Timer(milis, afterLedOff)
             t.setDaemon(True)
-            self.led[1] = t
+            self.led[1] = t  
+            self._Log.emit('Light state change', EventLog.EventType.LOG, {
+                'name': name,
+                'state': True
+            })
             t.start()
-            self._Log.emit('LIGHT STATE CHANGE', EventLog.EventType.LOG)
 
-        def _oscilateFor(self, led, period, rounds):
+        def _oscilateFor(self, led, name,  period=1000, rounds=5):
             if led[1] != None:
                 led[1].cancel()
             led[0].on()
             led[2] = LedState.OSCILATING
-            self._InterObs.emit(None)
 
             roundsRemaining = rounds * 2
             lastState = False
             def update():
                 roundsRemaining -= 1
                 if rounds <= 0:
-                    self._InterObs.emit(None)
                     led[0].off()
                     led[2] = LedState.OFF
+                     self._Log.emit('Light state change', EventLog.EventType.LOG, {
+                        'name': name,
+                        'state': False
+                    })
                 else:
-                    lastState = !lastState
+                    lastState = not lastState
                     if(lastState):
                         led[0].on()
                     else:
@@ -173,13 +178,26 @@ class _ServiceFactory:
                     t.setDaemon(True)
                     self.led[1] = t
                     t.start()
+
+             self._Log.emit('Light state change', EventLog.EventType.LOG, {
+                'name': name,
+                'state': True
+            })
             update()
 
         def getLedState(self):
-
-
-        def subscribe(self, callback):
-            self.subscribe(callback)
+            if lightId == LightsIds.MAIN_HOUSE:
+                pass
+            elif lightId == LightsIds.ALARM_LED:
+                return self._RedLed[2]
+            elif lightId == LightsIds.ALARM_BUZZER:
+                return self._Buzer[2]
+            elif lightId == LightsIds.AUTH_SUCCES_LED:
+                return self._GreenLed[2]
+            elif lightId == LightsIds.LIGHT:
+                return self.WhiteLed[2]
+            else:
+                self._Log.emit('lightId not found in LightsIds', EventLog.EventType.SYSTEM_WARN)
 
     def getGateService(self):
         return self.GateService
@@ -194,6 +212,7 @@ class _ServiceFactory:
             self._OnGateStateChangeObserver = Common.Observable()
             self._isBloking = False
             self._isOpen = False
+            self._slaveService = getSlaveService()
 
         def subscribe(self, onGateStateChangeCallback):
             self._OnGateStateChangeObserver.subscrie(onGateStateChangeCallback)
@@ -225,8 +244,11 @@ class _ServiceFactory:
         def isOpen(self):
             return self._isOpen
 
-        def _open():
-            pass
+        def _open(self):
+            self._slaveService.openGate()
+
+        def _close(self):
+            self._slaveService.closeGate()
 
     def getAuthService(self):
         return self.AuthService

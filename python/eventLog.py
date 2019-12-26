@@ -1,3 +1,6 @@
+import common as Common
+import datetime as Datetime
+
 """ 
     EVENT LOG
 
@@ -5,6 +8,10 @@
         - register every event and call aproptiet callbacks
         - log to file
         - do not init any data creation, only receve them
+
+        WARN
+            - subscribe: O(1)
+            - getLast: O(n) // n = number of event stored in _Queue (max length = MAX_RECORD_QUEUE)
 """
 _LogerServiceInstance = None
 def getLoginServise():
@@ -14,36 +21,72 @@ def getLoginServise():
     return _LogerServiceInstance
 
 class _LogerService:
+
+    MAX_RECORD_QUEUE = 20
+
     def __init__(self):
             if(_LogerServiceInstance != None):
                 raise Exception('Triing to instanciate singleton')
-            self.
+            self._AnyObserver = Common.Observable()
+            self._NameObserverMap = {}
+            self._TypeObserverMap = {
+                'LOG': Common.Observable(),
+                'WARN': Common.Observable(),
+                'SYSTEM_LOG': Common.Observable(),
+                'SYSTEM_WARN': Common.Observable(),
+                'SYSTEM_ERR': Common.Observable(),
+                'DEBUG': Common.Observable(),
+            }
+            self._Queue = []
 
     """
         lisen for event to occure, then call callback
     """
     def subscribeByName(self, name, callback):
-        return
+        if name not in self._NameObserverMap:
+            self._NameObserverMap[name] = Common.Observable()
+        return self._NameObserverMap[name].subscrie(callback)
     def subscribeByTypeList(self, eventTypeList, callback):
-        return
+        return self._TypeObserverMap[eventTypeList].subscrie(callback)
     def subscribeAny(self, callback):
-        return
+        return self._AnyObserver.subscrie(callback)
 
     """
         get last 'size' events (-1 for all events)
     """
     def getLastByName(self, name, size=-1):
-        return
-    def getLastByTypeList(self, eventTypeList, size=-1):
-        return
+        arr = []
+        for event in self._Queue:
+            if size > -1 and i >= size:
+                break
+            if event.Name == name:
+                arr.append(event)
+        return arr
+    def getLastByTypeList(self, eventType, size=-1):
+        arr = []
+        for event in self._Queue:
+            if size > -1 and i >= size:
+                break
+            if event.Type == eventType:
+                arr.append(event)
+        return arr
     def getLastAny(self, size=-1):
-        return
+        if size < 0:
+            return self._Queue
+        else:
+            return self._Queue[len(self._Queue) - size, len(self._Queue) - 1]
 
     """
         register new event
     """
-    def emit(self, name, eventType=0):
-        pass
+    def emit(self, name, eventType=5, pld=None):
+        newEvent = Event(name, eventType, pld)
+        self._TypeObserverMap[eventType].emit(newEvent)
+        self._NameObserverMap[name].emit(newEvent)
+        self._AnyObserver.emit(newEvent)
+        while len(self._Queue) > self.MAX_RECORD_QUEUE:
+            self._Queue.remove(0)
+        self._Queue.append(newEvent)
 
 """
     HTTP CLIENT
@@ -68,6 +111,15 @@ def sendToUpstream(self, eventName, data):
         return req.status_code
     except:  # time out
         return 500
+
+
+class Event:
+
+    def __init__(self, name, eventType, pld):
+        self.Name = name
+        self.Type = eventType
+        self.Pld = pld
+        self.Timestamp = Datetime.datetime
 
 
 """
