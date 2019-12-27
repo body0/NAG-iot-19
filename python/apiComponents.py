@@ -44,7 +44,7 @@ class EventSinkAppState:
             ):
                 loger.emit('Wrong Light Format', EventLog.EventType.SYSTEM_WARN)
                 return
-            
+
             self.SystemState['Lights'][lightInfo.name] = {
                 'status': lightInfo.status
             }
@@ -54,7 +54,7 @@ class EventSinkAppState:
                 'status': state,
                 'lastOpened': Datetime.datetime
             }
-        
+
         loger = EventLog.getLoginServise()
         loger.subscribeByName('Gate State Change', updateGate)
         loger.subscribeByName('Hum', systemStateUpdateFactory('Hum'))
