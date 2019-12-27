@@ -51,3 +51,35 @@ class Timeout:
 
     def cansel(self):
         self._Timer.cancel()
+
+class SensorTimer:
+    def __init__(self, loadNewValCallback):
+        self._InterObs = MemObservable()
+        self._LoadNewValCallback = loadNewValCallback
+        self._Timer = None
+
+    def subscribe(self, callback):
+        self._InterObs.subscrie(callback)
+
+    """
+        start periodicly calling init callback in new thread
+        :param period:  update value every 'perion' second
+    """
+    def start(self, period):
+        def update():
+            newVal = self._LoadNewValCallback()
+            self._InterObs.emit(newVal)
+            t = threading.Timer(period, update)
+            t.setDaemon(True)
+            self._Timer = t
+            t.start()
+
+        if self._Timer == None:
+            return
+        update()
+
+    def stopAndClearAllSubscriptions(self):
+        self._Timer.cancel()
+        self._Timer == None
+        self._InterObs = MemObservable()
+        pass
