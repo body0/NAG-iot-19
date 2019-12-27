@@ -1,22 +1,32 @@
 import eventLog as EventLog
 
+from enum import Enum
 import bcrypt
 import json
 
+
+class SettingsKeys(Enum):
+    SILENT_ALARM = 'SilentAlarm',
+    ACCES_PASSWORK_HASH = 'AccesPasswordHash'
+    RFID_HASH = 'RFIdHash'
+
 SettingsService = None
+def getSettingsService():
+    return SettingsService
 class _SettingsService:
 
     _SettingsPath = './assets/settings.json'
+    _DefalutSettings = {
+        SettingsKeys.ACCES_PASSWORK_HASH: b'$2b$12$FgMh.0MG9vtsavK5rQPtKuNlfSqNaEkL2X/WaTd9wf/47/PBAn5sC',
+        SettingsKeys.SILENT_ALARM: False,
+        SettingsKeys.RFID_HASH: '...'
+    }
 
     def __init__(self):
         if(SettingsService != None):
                 raise Exception('Triing to instanciate singleton')
 
         # self._Salt = b'$2b$12$FgMh.0MG9vtsavK5rQPtKu'
-        self._DefalutSettings = {
-            SettingsKeys.ACCES_PASSWORK_HASH: b'$2b$12$FgMh.0MG9vtsavK5rQPtKuNlfSqNaEkL2X/WaTd9wf/47/PBAn5sC',
-            SettingsKeys.SILENT_ALARM: False
-        }
 
         self._Settings = self._DefalutSettings
         self._Log = EventLog.getLoginServise()
@@ -68,10 +78,6 @@ class _SettingsService:
             self._Log.emit('CANNOT_WRITE_SETTINGS', EventLog.EventType.SYSTEM_WARN, pld='Unknown Err')
 
 SettingsService = _SettingsService()
-
-class SettingsKeys:
-    SILENT_ALARM ='SilentAlarm',
-    ACCES_PASSWORK_HASH ='AccesPasswordHash'
 
 def testJsonStructure(jsonObj):
     for settingsKey in SettingsKeys:

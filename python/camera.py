@@ -1,14 +1,24 @@
 import time 
-from picamera import PiCamera  # Raspberry Pi Camera
 import threading
 
-import cv2  # OpenCV
-import face_recognition  # https://github.com/ageitgey/face_recognition 
-import argparse
-import pickle
+_LibLoaded = False
+try:
+    from picamera import PiCamera  # Raspberry Pi Camera
+    import cv2  # OpenCV
+    import face_recognition  # https://github.com/ageitgey/face_recognition 
+    import argparse
+    import pickle
+    _LibLoaded = True
+except: 
+    print('[ERR]: Can not load dependency (openCV; face recognition)')
 
+def isDepLoaded():
+    return _LibLoaded
+    
 class Camera:
     def __init__(self, encode_face_dir, threshold=0.9):
+        if not _LibLoaded:
+            raise Exception('Can not load dependency (openCV; face recognition)')
         self.camera = PiCamera()
         self.threshold = threshold
         with open(encode_face_dir, "rb") as f:

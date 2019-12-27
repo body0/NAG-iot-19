@@ -1,7 +1,9 @@
-def getSlaveService(self):
-    return self.SlaveServiceS
+import smbus
 
-class SlaveService:
+def getSlaveService():
+    return SlaveService
+
+class _SlaveService:
     """
         ! SINGLETON !
         used to comunicate with arduino
@@ -9,7 +11,7 @@ class SlaveService:
 
     def __init__(self):
         self.adress = 0xAA
-        self.bus = smbus.SMBus(0)
+        #self.bus = smbus.SMBus(0)
 
     def ledOn(self, led=0):
         if led < 16:
@@ -39,3 +41,5 @@ class SlaveCommands:
     LED_ON = 0x10
     LED_OFF = 0x20
     GATE = 0x30
+
+SlaveService = _SlaveService()

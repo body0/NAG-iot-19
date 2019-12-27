@@ -13,29 +13,29 @@ import datetime as Datetime
             - subscribe: O(1)
             - getLast: O(n) // n = number of event stored in _Queue (max length = MAX_RECORD_QUEUE)
 """
-_LogerServiceInstance = None
+LogerService = None
 def getLoginServise():
-    global _LogerServiceInstance
+    """ global _LogerServiceInstance
     if _LogerServiceInstance == None:
-        _LogerServiceInstance = _LogerService()
-    return _LogerServiceInstance
+        _LogerServiceInstance = _LogerService() """
+    return LogerService
 
 class _LogerService:
 
     MAX_RECORD_QUEUE = 20
 
     def __init__(self):
-            if(_LogerServiceInstance != None):
+            if(LogerService != None):
                 raise Exception('Triing to instanciate singleton')
             self._AnyObserver = Common.Observable()
             self._NameObserverMap = {}
             self._TypeObserverMap = {
-                'LOG': Common.Observable(),
-                'WARN': Common.Observable(),
-                'SYSTEM_LOG': Common.Observable(),
-                'SYSTEM_WARN': Common.Observable(),
-                'SYSTEM_ERR': Common.Observable(),
-                'DEBUG': Common.Observable(),
+                EventType.DEBUG: Common.Observable(),
+                EventType.LOG: Common.Observable(),
+                EventType.WARN: Common.Observable(),
+                EventType.SYSTEM_LOG: Common.Observable(),
+                EventType.SYSTEM_WARN: Common.Observable(),
+                EventType.SYSTEM_ERR: Common.Observable(),
             }
             self._Queue = []
 
@@ -56,7 +56,8 @@ class _LogerService:
     """
     def getLastByName(self, name, size=-1):
         arr = []
-        for event in self._Queue:
+        for i in range(len(self._Queue)):
+            event = self._Queue[i]
             if size > -1 and i >= size:
                 break
             if event.Name == name:
@@ -64,7 +65,8 @@ class _LogerService:
         return arr
     def getLastByTypeList(self, eventType, size=-1):
         arr = []
-        for event in self._Queue:
+        for i in range(len(self._Queue)):
+            event = self._Queue[i]
             if size > -1 and i >= size:
                 break
             if event.Type == eventType:
@@ -74,7 +76,7 @@ class _LogerService:
         if size < 0:
             return self._Queue
         else:
-            return self._Queue[len(self._Queue) - size, len(self._Queue) - 1]
+            return self._Queue[len(self._Queue) - size : len(self._Queue) - 1]
 
     """
         register new event
@@ -87,6 +89,7 @@ class _LogerService:
         while len(self._Queue) > self.MAX_RECORD_QUEUE:
             self._Queue.remove(0)
         self._Queue.append(newEvent)
+
 
 """
     HTTP CLIENT
@@ -131,15 +134,24 @@ class Event:
     DEBUG > dočasné
 """
 class EventType:
-    LOG = 0
-    WARN = 1
+    DEBUG = '0'
 
-    SYSTEM_LOG = 2
-    SYSTEM_WARN = 3
-    SYSTEM_ERR = 4
+    LOG = '1'
+    WARN = '2'
 
-    DEBUG = 5
+    SYSTEM_LOG = '3'
+    SYSTEM_WARN = '4'
+    SYSTEM_ERR = '5'
 
+""" 
+    ===== INIT =====
+"""
+
+LogerService = _LogerService()
+
+""" 
+    ===== DEBUG =====
+"""
 
 if __name__ == '__main__':
     log = getLoginServise()

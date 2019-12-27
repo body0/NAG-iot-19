@@ -12,7 +12,7 @@ class Observable:
     """
     def __init__(self):
         self._Subscriptions = {}
-        self._LastKey = 0;
+        self._LastKey = 0
 
     def subscrie(self, callback):
         key = str(self._LastKey)
