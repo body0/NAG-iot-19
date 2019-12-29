@@ -3,7 +3,7 @@ import eventLog as EventLog
 import devEvent as DevEvent
 import slaveService as SlaveService
 import settingsService as SettingsService
-import oledManager as OledManager
+#import oledManager as OledManager
 import camera as Camera
 
 from enum import Enum
@@ -63,8 +63,8 @@ def getUserInputs():
 
 class _UserInputs:
     def __init__(self):
-        self._LightsButton = DevEvent.Button(-1)
-        self._GateButton = DevEvent.Button(-1)
+        self._LightsButton = DevEvent.Button(14)
+        self._GateButton = DevEvent.Button(15)
         self._Log = EventLog.getLoginServise()
         # self._numPad = DevEvent.NumBoard([-1, -1, -1], [-])
 
@@ -94,9 +94,9 @@ class _LightService:
     def __init__(self):
         self._Log = EventLog.getLoginServise()
 
-        self._Buzer = [DevEvent.LED(-1), None, LedState.OFF]
-        self._RedLed = [DevEvent.LED(-1), None, LedState.OFF]
-        self._GreenLed = [DevEvent.LED(-1), None, LedState.OFF]
+        self._Buzer = [DevEvent.LED(10), None, LedState.OFF]
+        self._RedLed = [DevEvent.LED(11), None, LedState.OFF]
+        self._GreenLed = [DevEvent.LED(12), None, LedState.OFF]
         #self._WhiteLed = [DevEvent.LED(-1), None, LedState.OFF]
 
     def turnOnLedFor(self, lightId, milis):
@@ -292,7 +292,9 @@ class _CameraService:
     """
     def __init__(self):
         self._Log = EventLog.getLoginServise()
-        self._Camera = Camera.Camera("assets/OpenCv/encode.picle")
+        self._Camera = None
+        if Camera.isDepLoaded():
+            self._Camera = Camera.Camera("assets/OpenCv/encode.picle")
 
     def getPic(self):
         self._Camera.get_pic(file_name="temp_pic.jpg")

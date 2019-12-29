@@ -83,8 +83,10 @@ class _LogerService:
     """
     def emit(self, name, eventType=5, pld=None):
         newEvent = Event(name, eventType, pld)
+        
+        if name in self._NameObserverMap:
+            self._NameObserverMap[name].emit(newEvent)
         self._TypeObserverMap[eventType].emit(newEvent)
-        self._NameObserverMap[name].emit(newEvent)
         self._AnyObserver.emit(newEvent)
         while len(self._Queue) > self.MAX_RECORD_QUEUE:
             self._Queue.remove(0)
