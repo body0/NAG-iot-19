@@ -6,7 +6,9 @@ import json
 
 
 class SettingsKeys(Enum):
-    SILENT_ALARM = 'SilentAlarm',
+    SILENT_ALARM = 'SilentAlarm'
+
+class SettingsHashKeys(Enum):
     ACCES_PASSWORK_HASH = 'AccesPasswordHash'
     RFID_HASH = 'RFIdHash'
 
@@ -17,16 +19,18 @@ class _SettingsService:
 
     _SettingsPath = './assets/settings.json'
     _DefalutSettings = {
-        SettingsKeys.ACCES_PASSWORK_HASH: b'$2b$12$FgMh.0MG9vtsavK5rQPtKuNlfSqNaEkL2X/WaTd9wf/47/PBAn5sC',
-        SettingsKeys.SILENT_ALARM: False,
-        SettingsKeys.RFID_HASH: '...'
+        'Basic': {
+            SettingsKeys.SILENT_ALARM.value: False
+        },
+        'Hashed': {
+            SettingsHashKeys.ACCES_PASSWORK_HASH.value: b'$2b$12$FgMh.0MG9vtsavK5rQPtKuNlfSqNaEkL2X/WaTd9wf/47/PBAn5sC',
+            SettingsHashKeys.RFID_HASH.value: '...'
+        }
     }
 
     def __init__(self):
         if(SettingsService != None):
                 raise Exception('Triing to instanciate singleton')
-
-        # self._Salt = b'$2b$12$FgMh.0MG9vtsavK5rQPtKu'
 
         self._Settings = self._DefalutSettings
         self._Log = EventLog.getLoginServise()
@@ -41,11 +45,14 @@ class _SettingsService:
         except Exception:
             self._Log.emit('CANNOT_READ_SETTINGS', EventLog.EventType.SYSTEM_WARN, pld='Unknown Err')
 
-    def getSettings(self):
-        return self._Settings
+    def getFrontEndSettings(self):
+        return self._Settings['Basic']
 
     def getSettingsAtribute(self, key):
-        return self._Settings[key]
+        return self._Settings['Basic'][key]
+    
+    def matchRfid(self, id):
+        pass
 
     def recomputePassword(self, password):
         salt = bcrypt.gensalt()
@@ -54,10 +61,12 @@ class _SettingsService:
         self.saveUsedSettings()
 
     def matchAccesPassword(self, password):
+        print('IN_A', password, self._Settings['Hashed'][SettingsHashKeys.ACCES_PASSWORK_HASH.value])
         if bcrypt.checkpw(password, self._Settings['AccesPasswordHash']):
             self._Log.emit('SETTINGS_AUTH_SUCCES', EventLog.EventType.LOG)
             return True
         else:
+            print('IN')
             self._Log.emit('SETTINGS_AUTH_FAILL', EventLog.EventType.WARN)
             return False
 
@@ -65,7 +74,7 @@ class _SettingsService:
         if not testJsonStructure(newSettings):
             raise Exception('Wrong Settings')
 
-        self._Settings = newSettings
+        self._Settings['Basic'] = newSettings
         self.saveUsedSettings()
 
     def saveUsedSettings(self):
@@ -81,6 +90,8 @@ SettingsService = _SettingsService()
 
 def testJsonStructure(jsonObj):
     for settingsKey in SettingsKeys:
-        if settingsKey not in jsonObj:
+        if settingsKey.value not in jsonObj:
             return False
+    """ if SettingsKeys.SILENT_ALARM.value not in jsonObj:
+        return False """
     return True

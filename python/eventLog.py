@@ -73,6 +73,7 @@ class _LogerService:
                 arr.append(event)
         return arr
     def getLastAny(self, size=-1):
+        #print('arr', self._Queue)
         if size < 0:
             return self._Queue
         else:
@@ -83,7 +84,6 @@ class _LogerService:
     """
     def emit(self, name, eventType=5, pld=None):
         newEvent = Event(name, eventType, pld)
-        
         if name in self._NameObserverMap:
             self._NameObserverMap[name].emit(newEvent)
         self._TypeObserverMap[eventType].emit(newEvent)
@@ -91,6 +91,7 @@ class _LogerService:
         while len(self._Queue) > self.MAX_RECORD_QUEUE:
             self._Queue.remove(0)
         self._Queue.append(newEvent)
+        #print('aft', self._Queue)    
 
 
 """
@@ -126,6 +127,13 @@ class Event:
         self.Pld = pld
         self.Timestamp = Datetime.datetime
 
+    def getDictionary(self):
+        return {
+            'Name': self.Name,
+            'Type': self.Type,
+            'Pld': self.Pld,
+            'Timestamp': self.Timestamp
+        }
 
 """
     LOG > informuje o běžné akci uživatele

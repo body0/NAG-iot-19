@@ -1,41 +1,93 @@
 import apiComponents as ApiComponents
 import settingsService as SettingsService
+import eventLog as EventLog
 
+import random
+import string
 import json
-from flask import Flask, Response
+import datetime
+
+from flask import Flask, Response, request
+from flask_cors import CORS
 from flask_socketio import SocketIO
+import jwt
+
+
+def generateRandomString():
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(10))
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = generateRandomString()
+CORS(app)
+loger = EventLog.getLoginServise()
 systemStatus = ApiComponents.EventSinkAppState()
 settingsServiceInst = SettingsService.SettingsService
+
 
 @app.route('/api')
 def hello_world():
     return 'Api root'
 
+@app.route('/api/login', methods=['POST'])
+def login():
+    try:
+        if settingsServiceInst.matchAccesPassword(request.json['password']):
+            raise Exception('Wrong password')
+        token = jwt.encode({
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+        })
+        resp = Response(token)
+        return resp
+    
+    except Exception as e:
+        print('[WARN]: Can not auth.', e)
+        resp = Response('Can not auth.')
+        resp.status_code = 401
+        return resp
+
 @app.route('/api/state')
-def get_status():
+def statusGet():
     state = systemStatus.getAll()
-    resp = Response(json.dumps(state))
-    resp.headers['Access-Control-Allow-Origin'] = '*'
+    serializedState = json.dumps(state)
+    resp = Response(serializedState)
     return resp
 
-@app.route('/api/settingsGet')
+@app.route('/api/settings')
 def settingsGet():
-    settings = settingsServiceInst.getSettings()
+    settings = settingsServiceInst.getFrontEndSettings()
     serializedSettings = json.dumps(settings)
-    return serializedSettings
+    resp = Response(serializedSettings)
+    return resp
 
-@app.route('/api/settingsUpdate',  methods=['POST'])
+@app.route('/api/events')
+def eventGet():
+    events = loger.getLastAny()
+    eventsDir = map(lambda event: event.getDictionary(), events)
+    #print('Events', list(eventsDir))
+    list(eventsDir)
+    serializedEvents = json.dumps(list(eventsDir))
+    resp = Response(serializedEvents)
+    return resp
+
+@app.route('/api/settingsUpdate', methods=['POST'])
 def settingsUpdate(): 
     try:
-        newSettings = json.loads()
+        print(request.json)
+        newSettings = request.json
         settingsServiceInst.saveNewSettings(newSettings)
-        return 'Succes'
-    except 
-        return 'Cannot Parse', 400
-    except:
-        return 'Wrong Json Format', 400
+        resp = Response('Succes')
+        return resp
+    except ValueError as e:
+        print('[WARN]:', e)
+        resp = Response('Cannot Parse')
+        resp.status_code = 400
+        return resp
+    except Exception as e:
+        print('[WARN]:', e)
+        resp = Response('Wrong Json Format')
+        resp.status_code = 400
+        return resp
 
 socketio = SocketIO(app, cors_allowed_origins="*")
 

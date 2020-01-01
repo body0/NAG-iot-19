@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { DataLoaderService } from '../data-loader.service';
 
 @Component({
   selector: 'app-nav',
@@ -15,6 +16,18 @@ export class NavComponent {
       map(result => result.matches)
     );
 
-  constructor(private breakpointObserver: BreakpointObserver) {}
+  IsLogin = false;
+
+  constructor(
+    private breakpointObserver: BreakpointObserver,
+    private dataLoader: DataLoaderService) {
+    dataLoader.subscribeOnLoginChange(state => {
+      this.IsLogin = state;
+    });
+  }
+
+  logOut() {
+    this.dataLoader.logout();
+  }
 
 }

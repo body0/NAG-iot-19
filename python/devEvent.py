@@ -6,6 +6,7 @@ import RPi.GPIO as IO
 import sys
 import time
 import threading
+import atexit
 """
     LOW-LEVEL MANAGER FOR GPIO
 
@@ -212,7 +213,20 @@ def wait_for_interrupts():
         print("ERROR OCCURRED:\n{}".format(e))
         eventLoger.emit('PROGRAM EXIT', EventLog.EventType.SYSTEM_ERR)
         sys.stdout.flush()
-    finally:
+    """ finally:
         print("INFO: cleaning ...")
         eventLoger.emit('CLEANING', EventLog.EventType.SYSTEM_LOG)
-        IO.cleanup()
+        cleanup() """
+
+#_IsCleanded = False
+def cleanup():
+    #global _IsCleanded
+    #if _IsCleanded:
+    #    return
+    #_IsCleanded = True
+    eventLoger = EventLog.LogerService()
+    print("INFO: cleaning ...")
+    eventLoger.emit('CLEANING', EventLog.EventType.SYSTEM_LOG)
+    IO.cleanup()
+    
+atexit.register(cleanup)

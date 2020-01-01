@@ -6,7 +6,6 @@ import settingsService as SettingsService
 #import oledManager as OledManager
 import camera as Camera
 
-from enum import Enum
 import sys
 import time
 import threading
@@ -30,31 +29,6 @@ import hashlib
 
 
 """ 
-====== ENUM ======
-"""
-
-class AuthMethod(Enum):
-    RFID = 0
-    NUM = 1
-    CAMERA = 2
-
-class LightsIds(Enum):
-    MAIN_HOUSE = 'House Lights'
-    ALARM_BUZZER = 'Alarn'
-    ALARM_LED = 'Alarm Led'
-    AUTH_SUCCES_LED = 'Green Led'
-
-class LedState(Enum):
-    OFF = 'OFF'
-    ON = 'ON'
-    OSCILATING = 'BLINKING'
-
-class InputIds(Enum):
-    LIGTHS_BUTTON = 0
-    GATE_BUTTON = 1
-    NUM_PAD = 2
-
-""" 
     ===== SERVICES =====
 """
 
@@ -75,11 +49,11 @@ class _UserInputs:
             return (button, observable) """
 
     def subscribe(self, inputId, callback):
-        if inputId == InputIds.LIGTHS_BUTTON:
+        if inputId == Common.InputIds.LIGTHS_BUTTON:
             self._LightsButton.subscribe(callback)
-        elif inputId == InputIds.GATE_BUTTON:
+        elif inputId == Common.InputIds.GATE_BUTTON:
             self._GateButton.subscribe(callback)
-        elif inputId == InputIds.NUM_PAD:
+        elif inputId == Common.InputIds.NUM_PAD:
             pass
         else:
             self._Log.emit('lightId not found in LightsIds', EventLog.EventType.SYSTEM_WARN)
@@ -94,9 +68,9 @@ class _LightService:
     def __init__(self):
         self._Log = EventLog.getLoginServise()
 
-        self._Buzer = [DevEvent.LED(10), None, LedState.OFF]
-        self._RedLed = [DevEvent.LED(11), None, LedState.OFF]
-        self._GreenLed = [DevEvent.LED(12), None, LedState.OFF]
+        self._Buzer = [DevEvent.LED(10), None, Common.LedState.OFF]
+        self._RedLed = [DevEvent.LED(11), None, Common.LedState.OFF]
+        self._GreenLed = [DevEvent.LED(12), None, Common.LedState.OFF]
         #self._WhiteLed = [DevEvent.LED(-1), None, LedState.OFF]
 
     def turnOnLedFor(self, lightId, milis):
@@ -105,11 +79,11 @@ class _LightService:
             if led[1] != None:
                 led[1].cancel()
             led[0].on()
-            led[2] = LedState.ON
+            led[2] = Common.LedState.ON
 
             def afterLedOff():
                 led[1].off()
-                led[2] = LedState.OFF
+                led[2] = Common.LedState.OFF
                 self._Log.emit('Light state change', EventLog.EventType.LOG, {
                     'name': lightId,
                     'state': False
@@ -124,13 +98,13 @@ class _LightService:
             })
             t.start()
 
-        if lightId == LightsIds.MAIN_HOUSE:
+        if lightId == Common.LightsIds.MAIN_HOUSE:
             pass
-        elif lightId == LightsIds.ALARM_LED:
+        elif lightId == Common.LightsIds.ALARM_LED:
             _turnOnLedFor(self._RedLed)
-        elif lightId == LightsIds.ALARM_BUZZER:
+        elif lightId == Common.LightsIds.ALARM_BUZZER:
             _turnOnLedFor(self._Buzer)
-        elif lightId == LightsIds.AUTH_SUCCES_LED:
+        elif lightId == Common.LightsIds.AUTH_SUCCES_LED:
             _turnOnLedFor(self._GreenLed)
         else:
             self._Log.emit('lightId not found in LightsIds', EventLog.EventType.SYSTEM_WARN)
@@ -141,7 +115,7 @@ class _LightService:
                 def update():
                     if roundsRemaining <= 0:
                         led[0].off()
-                        led[2] = LedState.OFF
+                        led[2] = Common.LedState.OFF
                         self._Log.emit('Light state change', EventLog.EventType.LOG, pld={
                             'name': lightId,
                             'state': False
@@ -159,7 +133,7 @@ class _LightService:
             if led[1] != None:
                 led[1].cancel()
             led[0].on()
-            led[2] = LedState.OSCILATING
+            led[2] = Common.LedState.OSCILATING
             self._Log.emit('Light state change', EventLog.EventType.LOG, pld={
                 'name': lightId,
                 'state': True
@@ -168,25 +142,25 @@ class _LightService:
             t.setDaemon(True)
             t.start()
         
-        if lightId == LightsIds.MAIN_HOUSE:
+        if lightId == Common.LightsIds.MAIN_HOUSE:
             pass
-        elif lightId == LightsIds.ALARM_LED:
+        elif lightId == Common.LightsIds.ALARM_LED:
             _oscilateFor(self._RedLed)
-        elif lightId == LightsIds.ALARM_BUZZER:
+        elif lightId == Common.LightsIds.ALARM_BUZZER:
             _oscilateFor(self._Buzer)
-        elif lightId == LightsIds.AUTH_SUCCES_LED:
+        elif lightId == Common.LightsIds.AUTH_SUCCES_LED:
             _oscilateFor(self._GreenLed)
         else:
             self._Log.emit('lightId not found in LightsIds', EventLog.EventType.SYSTEM_WARN)
 
     def getLedState(self, lightId):
-        if lightId == LightsIds.MAIN_HOUSE:
+        if lightId == Common.LightsIds.MAIN_HOUSE:
             pass
-        elif lightId == LightsIds.ALARM_LED:
+        elif lightId == Common.LightsIds.ALARM_LED:
             return self._RedLed[2]
-        elif lightId == LightsIds.ALARM_BUZZER:
+        elif lightId == Common.LightsIds.ALARM_BUZZER:
             return self._Buzer[2]
-        elif lightId == LightsIds.AUTH_SUCCES_LED:
+        elif lightId == Common.LightsIds.AUTH_SUCCES_LED:
             return self._GreenLed[2]
         else:
             self._Log.emit('lightId not found in LightsIds', EventLog.EventType.SYSTEM_WARN)

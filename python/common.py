@@ -1,7 +1,34 @@
 import threading
+from enum import Enum
+
 """ 
-    COMMON PYTHON CONSTRUCTION
-        - observable
+====== ENUM ======
+"""
+
+class AuthMethod(Enum):
+    RFID = 0
+    NUM = 1
+    CAMERA = 2
+
+class LightsIds(Enum):
+    MAIN_HOUSE = 'House Lights'
+    ALARM_BUZZER = 'Alarn'
+    ALARM_LED = 'Alarm Led'
+    AUTH_SUCCES_LED = 'Green Led'
+
+class LedState(Enum):
+    OFF = 'OFF'
+    ON = 'ON'
+    OSCILATING = 'BLINKING'
+
+class InputIds(Enum):
+    LIGTHS_BUTTON = 0
+    GATE_BUTTON = 1
+    NUM_PAD = 2
+
+
+""" 
+====== CLASSES ======
 """
 
 class Observable:

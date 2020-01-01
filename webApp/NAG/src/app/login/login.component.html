@@ -1,9 +1,18 @@
-<form novalidate [formGroup]="LoginForm">
-  <mat-form-field>
-    <input matInput ="Acces Password" formControlName="password" type="password">
-    <mat-error *ngIf="LoginForm.controls.password.hasError('required')">
-      Authorization is <strong>required</strong>
-    </mat-error>
-  </mat-form-field>
-  <button mat-raised-button type="submit" [disabled]='!LoginForm.valid' (click)="logIn()">Login</button>
-</form>
+
+<div class="floating">
+  <h2 class="floating-header">
+    Lights status
+  </h2>
+  <form novalidate [formGroup]="LoginForm">
+    <mat-form-field>
+      <input matInput ="Acces Password" formControlName="password" type="password">
+      <mat-error *ngIf="LoginForm.controls.password.hasError('required')">
+        Authorization is <strong>required</strong>
+      </mat-error>
+      <mat-error *ngIf="ErrMsg">
+        {{ErrMsg}}
+      </mat-error>
+    </mat-form-field>
+    <button mat-raised-button type="submit" [disabled]='!LoginForm.valid' (click)="login()">Login</button>
+  </form>
+</div>

@@ -1,5 +1,5 @@
 import eventLog as EventLog
-from devServices import LedState
+import common as Common
 
 import datetime as Datetime
 
@@ -8,20 +8,20 @@ class EventSinkAppState:
     DefaultState = {
         'Lights': {
             'House Lights': {
-                'status': LedState.OFF
+                'status': Common.LedState.OFF.value
             },
             'Alarn': {
-                'status': LedState.OFF
+                'status': Common.LedState.OFF.value
             },
             'Alarm Led': {
-                'status': LedState.OFF
+                'status': Common.LedState.OFF.value
             },
             'Green Led': {
-                'status': LedState.OFF
+                'status': Common.LedState.OFF.value
             }
         },
         'Gate': {
-            'status': LedState.OFF,
+            'status': False,
             'lastOpened': '1970-01-01T00:00:00'
         },
         'LastSuccesfullAuth': '1970-01-01T00:00:00',
@@ -46,7 +46,7 @@ class EventSinkAppState:
                 return
 
             self.SystemState['Lights'][lightInfo.name] = {
-                'status': lightInfo.status
+                'status': lightInfo.status.value
             }
 
         def updateGate(state):
