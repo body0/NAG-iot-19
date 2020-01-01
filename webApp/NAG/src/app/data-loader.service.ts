@@ -38,7 +38,7 @@ export class DataLoaderService {
   constructor(
     private Http: HttpClient,
     private router: Router) {
-    this.loadAll();
+    // this.loadAll();
 
     const ws = io.connect(DataLoaderService.SocketUrl);
     ws.on('connect', () => {
@@ -57,7 +57,7 @@ export class DataLoaderService {
     });
 
     // == TEST ==
-    this.updateSettings({
+    /* this.updateSettings({
       SilentAlarm: true
     })
       .then(pld => {
@@ -65,7 +65,7 @@ export class DataLoaderService {
       })
       .catch(e => {
         console.log('POSE ERR:', e);
-      });
+      }); */
   }
 
   public subscribeOnLoginChange(callback: (state: boolean) => void): Subscription {
@@ -110,7 +110,9 @@ export class DataLoaderService {
       body,
       DataLoaderService.HttpOptions)
       .toPromise();
+    console.log('[INFO]: token loaded');
     this.Token = token.token;
+    this.loadAll();
     this.IsLogin.next(true);
     this.router.navigate(['/state']);
   }
@@ -118,6 +120,19 @@ export class DataLoaderService {
     this.Token = null;
     this.IsLogin.next(false);
     this.router.navigate(['/login']);
+  }
+
+  private getAuthHeder() {
+    if (!this.Token) {
+      throw new Error('No token awailible');
+    }
+    return {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + this.Token,
+      })
+    };
   }
 
   private addEvent(event: Event) {
@@ -164,7 +179,7 @@ export class DataLoaderService {
   }
 
   private loadNewStateData() {
-    this.Http.get(DataLoaderService.ApiBase + '/state')
+    this.Http.get(DataLoaderService.ApiBase + '/state', this.getAuthHeder())
       .toPromise()
       .then((body: any) => {
         console.log(body);
@@ -193,7 +208,7 @@ export interface LightStatus {
 }
 
 export interface SettingsState {
-    SilentAlarm: boolean;
+  SilentAlarm: boolean;
 }
 
 export interface Event {

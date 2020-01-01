@@ -6,6 +6,7 @@ import random
 import string
 import json
 import datetime
+from functools import wraps
 
 from flask import Flask, Response, request
 from flask_cors import CORS
@@ -29,15 +30,33 @@ settingsServiceInst = SettingsService.SettingsService
 def hello_world():
     return 'Api root'
 
+
+def tokenRequired(f):
+    @wraps(f)
+    def _verify(*args, **kwargs):
+        try:
+            authHeader = request.headers.get('Authorization', '').split()[1]
+            jwt.decode(authHeader.encode('utf-8'), app.config['SECRET_KEY'])
+            return f(*args, **kwargs)
+        except Exception:
+            resp = Response('Can not auth.')
+            resp.status_code = 401
+            return resp
+    return _verify
+
 @app.route('/api/login', methods=['POST'])
 def login():
     try:
-        if settingsServiceInst.matchAccesPassword(request.json['password']):
+        if not settingsServiceInst.matchAccesPassword(request.json['password']):
             raise Exception('Wrong password')
+        print('OK',bool(settingsServiceInst.matchAccesPassword(request.json['password'])))
         token = jwt.encode({
             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
-        })
-        resp = Response(token)
+        }, app.config['SECRET_KEY'])
+        jsonResp = {
+            'token': token.decode('utf-8')
+        }
+        resp = Response(json.dumps(jsonResp))
         return resp
     
     except Exception as e:
@@ -47,6 +66,7 @@ def login():
         return resp
 
 @app.route('/api/state')
+@tokenRequired
 def statusGet():
     state = systemStatus.getAll()
     serializedState = json.dumps(state)

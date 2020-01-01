@@ -23,7 +23,7 @@ class _SettingsService:
             SettingsKeys.SILENT_ALARM.value: False
         },
         'Hashed': {
-            SettingsHashKeys.ACCES_PASSWORK_HASH.value: b'$2b$12$FgMh.0MG9vtsavK5rQPtKuNlfSqNaEkL2X/WaTd9wf/47/PBAn5sC',
+            SettingsHashKeys.ACCES_PASSWORK_HASH.value: '$2b$12$FgMh.0MG9vtsavK5rQPtKuNlfSqNaEkL2X/WaTd9wf/47/PBAn5sC',
             SettingsHashKeys.RFID_HASH.value: '...'
         }
     }
@@ -38,12 +38,14 @@ class _SettingsService:
         try:
             file = open(self._SettingsPath, "r")
             self._Settings = json.load(file)
+            print('Settings Loaded', self._Settings)
             file.close()
             self._Log.emit('SETTINGS_LOADED', EventLog.EventType.LOG)
         except FileNotFoundError:
             self._Log.emit('CANNOT_READ_SETTINGS', EventLog.EventType.SYSTEM_WARN,  pld='File Not Found')
         except Exception:
             self._Log.emit('CANNOT_READ_SETTINGS', EventLog.EventType.SYSTEM_WARN, pld='Unknown Err')
+            self.saveUsedSettings()
 
     def getFrontEndSettings(self):
         return self._Settings['Basic']
@@ -61,13 +63,17 @@ class _SettingsService:
         self.saveUsedSettings()
 
     def matchAccesPassword(self, password):
-        print('IN_A', password, self._Settings['Hashed'][SettingsHashKeys.ACCES_PASSWORK_HASH.value])
-        if bcrypt.checkpw(password, self._Settings['AccesPasswordHash']):
+        if (not type(password) == str) or len(password) == 0:
+            return False
+        #print('IN_A', password, self._Settings)
+        #print(self._Settings['Hashed'][SettingsHashKeys.ACCES_PASSWORK_HASH.value].encode('utf-8'))
+        if bcrypt.checkpw(password.encode('utf-8'), self._Settings['Hashed'][SettingsHashKeys.ACCES_PASSWORK_HASH.value].encode('utf-8')):
             self._Log.emit('SETTINGS_AUTH_SUCCES', EventLog.EventType.LOG)
+            print('IN True')
             return True
         else:
-            print('IN')
             self._Log.emit('SETTINGS_AUTH_FAILL', EventLog.EventType.WARN)
+            print('IN False')
             return False
 
     def saveNewSettings(self, newSettings):

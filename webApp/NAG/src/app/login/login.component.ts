@@ -24,6 +24,7 @@ export class LoginComponent implements OnInit {
     const password = this.LoginForm.controls.password.value;
     this.dataLoader.login(password)
     .catch(err => {
+      console.log('hallo')
       this.ErrMsg = 'Cannot Auth.';
     });
   }
