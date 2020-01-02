@@ -1,0 +1,4 @@
+PyJWT
+Flask-Cors
+flask-socketio
+bcrypt

@@ -224,7 +224,7 @@ def cleanup():
     #if _IsCleanded:
     #    return
     #_IsCleanded = True
-    eventLoger = EventLog.LogerService()
+    eventLoger = EventLog.getLoginServise()
     print("INFO: cleaning ...")
     eventLoger.emit('CLEANING', EventLog.EventType.SYSTEM_LOG)
     IO.cleanup()

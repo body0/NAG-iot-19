@@ -1,5 +1,7 @@
 import common as Common
 import datetime as Datetime
+import os
+import requests
 
 """ 
     EVENT LOG
@@ -13,6 +15,9 @@ import datetime as Datetime
             - subscribe: O(1)
             - getLast: O(n) // n = number of event stored in _Queue (max length = MAX_RECORD_QUEUE)
 """
+
+ApiKey = os.environ['KEYAPI']
+
 LogerService = None
 def getLoginServise():
     """ global _LogerServiceInstance
@@ -100,7 +105,7 @@ class _LogerService:
         - send data to server
         - auth to server
 """
-def sendToUpstream(self, eventName, data):
+def sendToUpstream(eventName, data):
     """
     :param eventName: name of variable on website
     :param data: integer data, that will be posted to server
@@ -110,12 +115,13 @@ def sendToUpstream(self, eventName, data):
     header = {
         'accept': 'application/json',
         'Content-Type': 'application/json',
-        'x-Api-Key': 'qAC9kAwXDBKTc3cS'
+        'X-Api-Key': ApiKey
     }
     try:
-        req = requests.post("https://api.nag-iot.zcu.cz/v1/value/" + eventName, json=jsonData, headers=header)
+        req = requests.post("https://api.nag-iot.zcu.cz/v2/value/" + eventName, json=jsonData, headers=header)
         return req.status_code
-    except:  # time out
+    except Exception as e:  # time out
+        print(e)
         return 500
 
 
@@ -170,6 +176,8 @@ if __name__ == '__main__':
             print(prefix, data)
         return prefixPrint
     print('pre all', log.getLastAny())
-    log.subscribeAny(myPrint('sub all'))
+    #log.subscribeAny(myPrint('sub all'))
+    log.subscribeAny(lambda arg: print(arg))
     log.emit('debug', EventType.LOG)
     print('post all', log.getLastAny())
+    print('API', sendToUpstream('dev', -1), 'KEY', ApiKey)

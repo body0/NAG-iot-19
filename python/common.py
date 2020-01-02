@@ -50,8 +50,8 @@ class Observable:
         return destructor
     
     def emit(self, data):
-        for callback in self._Subscriptions:
-            callback(data)
+        for callbackName in self._Subscriptions:
+            self._Subscriptions[callbackName](data)
 
 class MemObservable(Observable):
     """
