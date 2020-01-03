@@ -15,8 +15,10 @@ import requests
             - subscribe: O(1)
             - getLast: O(n) // n = number of event stored in _Queue (max length = MAX_RECORD_QUEUE)
 """
+ApiKey = ''
+if 'KEYAPI' in os.environ:
+    ApiKey = os.environ['KEYAPI']
 
-ApiKey = os.environ['KEYAPI']
 
 LogerService = None
 def getLoginServise():

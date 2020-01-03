@@ -21,7 +21,6 @@ class LcdDisplay:
         self.draw()
 
     def draw(self):
-        print('Draw')
         def splitToLines(msg):
             MAX_LINE = 20
             arr = []
@@ -45,7 +44,6 @@ class LcdDisplay:
             self.Lcd.lcd_clear()
             for i in range(len(arrToPrint)):
                 msg = arrToPrint[i]
-                print('msg', msg)
                 writeLine(i, msg)
 
         if self._Timer != None:
@@ -56,7 +54,6 @@ class LcdDisplay:
             writeLine(1, self.OverideMsg)
         else:
             def moveLine():
-                print('Move')
                 arr = []
                 for fun in self.Cycle:
                     arr = arr + splitToLines(fun())
@@ -66,7 +63,7 @@ class LcdDisplay:
                         line = arr[(self._OfsetCount + i) % len(arr)]
                         toPrintArr.append(line)
                     printAll(toPrintArr)
-                    print('NEXT', self._OfsetCount, len(arr))
+                    #print('NEXT', self._OfsetCount, len(arr))
                     self._OfsetCount += 1
                     self._OfsetCount %= len(arr)
                 else:

@@ -25,8 +25,8 @@ class LedState(Enum):
 class InputIds(Enum):
     LIGTHS_BUTTON = 0
     GATE_BUTTON = 1
-    NUM_PAD = 2
-
+    PIR_SENSOR = 2
+    IR_TRANSISTOR = 3
 
 """ 
 ====== CLASSES ======

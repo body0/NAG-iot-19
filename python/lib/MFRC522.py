@@ -132,8 +132,8 @@ class Reader:
         self.spi.open(spi_bus, spi_device)
         self.reset_pin = reset_pin
 
-        if hasattr(GPIO, "setmode"):
-            GPIO.setmode(GPIO.BOARD)
+        """ if hasattr(GPIO, "setmode"):
+            GPIO.setmode(GPIO.BOARD) """
 
         try:
             GPIO.setup(self.reset_pin, GPIO.OUT)

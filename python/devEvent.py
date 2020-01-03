@@ -2,8 +2,11 @@ import eventLog as EventLog
 import common as Common
 
 import RPi.GPIO as IO
-import lib.MFRC522 as MFRC522
+from mfrc522 import MFRC522 
+import spidev
+import pigpio
 
+import math
 import sys
 import time
 import threading
@@ -23,12 +26,15 @@ class Button:
     """
     Button Class
     """
-    def __init__(self, channel, bounceTime=300):
+    def __init__(self, channel, bounceTime=300, hasPullDown=True):
         """
         :param channel: inpot pin
         :param bounceTime: minimum time betwen trigering
         """
-        IO.setup(channel, IO.IN, pull_up_down=IO.PUD_DOWN)
+        if hasPullDown:
+            IO.setup(channel, IO.IN, pull_up_down=IO.PUD_DOWN)
+        else:
+            IO.setup(channel, IO.IN)
         self._Channel = channel
         self._InterObs = Common.MemObservable()
 
@@ -161,6 +167,7 @@ class LED:
         self.PWM = IO.PWM(channel, frequency)
         self.PWM.start(0)
         self.Intensity = 0
+        self.off()
 
     def write(self, intensity):
         """
@@ -182,31 +189,104 @@ class LED:
     def off(self):
         self.write(0)
 
+class LEDZeroLogic(LED):
+    """
+    LED Class
+    """
+    def __init__(self, channel, frequency=50):
+        super().__init__(channel, frequency)
+
+    def write(self, intensity):
+        super().write(255 -intensity)
+
+    def on(self):
+        self.write(255)
+
+    def off(self):
+        self.write(0)
+
 class Sevro:
     """
     Servo Class
     """
+
+
     def __init__(self, channel, minDutyCycle = 5, maxDutyCycle = 10):
-        IO.setup(channel, IO.OUT)
-        self.servo = IO.PWM(channel, 50) # GPIO chan for PWM with 50Hz
-        self.servo.start(7.5)
+        #IO.setup(channel, IO.OUT)
+        #self.servo = IO.PWM(channel, 50) # GPIO chan for PWM with 50Hz
+        #self.servo.start(7.5)
 
         self.minDutyCycle = minDutyCycle
         self.maxDutyCycle = maxDutyCycle
+        self.pi = pigpio.pi()
+        self.Channel = channel
+        #2070 - close
+        self.pi.set_servo_pulsewidth(self.Channel, 1000)
 
-    def write(self, angle):
-        print((angle / 18) + 2.5)
-        self.servo.ChangeDutyCycle((angle / 18) + 2.5)
+    def open(self):
+        self.pi.set_servo_pulsewidth(self.Channel, 1000)
+
+    def close(self):
+        self.pi.set_servo_pulsewidth(self.Channel, 2070)
+    """ def write(self, angle):
+        #print((angle / 18) + 2.5)
+        #self.servo.ChangeDutyCycle((angle / 18) + 2.5)
+        #angle = float(input('Please enter a angle: '))
+        pw = self.angleToPulseWidth(angle)
+        self.pi.set_servo_pulsewidth(self.Channel, pw) """
+
+    """ def angleToPulseWidth(self, angle):
+        MIN_ANG=-180.0 #degrees
+        MAX_ANG=180.0  #degrees
+
+        MIN_PW=1000 # microseconds
+        MAX_PW=2000 # microseconds
+        RAD2DEG=180.0/math.pi
+        ANG_RANGE=MAX_ANG-MIN_ANG
+        PW_RANGE=MAX_PW-MIN_PW
+        PWAR=float(PW_RANGE)/ANG_RANGE
+        
+        assert MIN_ANG <= angle <= MAX_ANG
+        return MIN_PW + ((angle - MIN_ANG) * PWAR) """
 
 class RfId:
-    def __init__(self):
-        self._MIFAREReader = MFRC522.MFRC522()
+    def __init__(self, spi_bus, spi_device, reset_pin):
+        self._Reader = MFRC522(bus=spi_bus, device=spi_device, pin_rst=reset_pin)
+        self._IsScannig = True
+        self._InterObs = Common.Observable()
+
+        def loop():
+            (status, _) = self._Reader.MFRC522_Request(self._Reader.PICC_REQIDL)
+            print('S0', status)
+
+            if self._IsScannig and status == self._Reader.MI_OK:
+                (status, uid) = self._Reader.MFRC522_Anticoll()
+
+                print('S1', status)
+                if status == self._Reader.MI_OK:
+                    print("UID: "+str(uid[0])+","+str(uid[1])+","+str(uid[2])+","+str(uid[3]))
+                    strUID = str(uid[0])+","+str(uid[1])+","+str(uid[2])+","+str(uid[3])
+                    self._InterObs.emit(strUID)
+
+        timer = Common.SensorTimer(loop)
+        timer.start(0.1)
+
+    def enable(self):
+        self._IsScannig = True
+
+    def disable(self):
+        self._IsScannig = False
+
+    def subscribe(self, callback):
+        return self._InterObs.subscrie(callback)
+
+
 
 def wait_for_interrupts():
     """
     wait until callbacks are ivoked or program is terminated (then init clean up step)
     """
-    eventLoger = EventLog.LogerService()
+    eventLoger = EventLog.getLoginServise()
     try:
         # infinite sleep on main thread
         while True:
@@ -235,15 +315,23 @@ def cleanup():
     eventLoger.emit('CLEANING', EventLog.EventType.SYSTEM_LOG)
     IO.cleanup()
     
+    
 atexit.register(cleanup)
 
 if __name__ == "__main__":
     #b = Button(27)
     #b.subscribe(lambda : print('hallo'))
 
-    ser = Sevro(17)
-
-    ser.write(0)
-    """ for i in range(180):
-        ser.write(i)
+    rfid = RfId(0, 0, 25)
+    #ser = Sevro(12)
+    """ for i in range(18):
+        ser.write(i * 10)
         time.sleep(0.2) """
+    """     ser.write(90)
+        time.sleep(1)
+        ser.write(45)
+        time.sleep(1)
+        ser.write(0)
+        time.sleep(1) """
+
+    wait_for_interrupts()
