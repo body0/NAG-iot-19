@@ -1,0 +1,16 @@
+.main-conetnt {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.main-conetnt > form{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+label {
+    margin-right: 15px;
+}
+mat-checkbox {
+    margin: 10px 0;
+}

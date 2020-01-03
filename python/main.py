@@ -2,7 +2,10 @@ import devServices as DevServices
 import eventLog as EventLog
 import common as Common
 import settingsService as SettingsService
+import lib.lightSensor as LightSensor
+import lib.BMP085 as BMP085
 
+import time
 """ 
     BUSNIESS LOGIC
 """
@@ -15,22 +18,57 @@ def init():
         gate = DevServices.getGateService()
         #auth = DevServices.getAuthService()
         lights = DevServices.getLightService()
+        userInput = DevServices.getUserInputs()
 
         def onGateStateChangeCallback(state):
                 pass
+
         loger.subscribeByName('Gate State Change', onGateStateChangeCallback)
 
         def afterAuthSucces():
-                lights.turnOnForFor(Common.LightsIds.AUTH_SUCCES_LED, 1000)
-                gate.openFor(100000)
+                lights.turnOnForFor(Common.LightsIds.AUTH_SUCCES_LED, 1)
+                gate.openFor(10)
         def afterAuthFails():
                 if not settings.getSettingsAtribute(SettingsService.SettingsKeys.SILENT_ALARM):
-                        lights.turnOnForFor(Common.LightsIds.ALARM_BUZZER, 1000)
+                        lights.turnOnForFor(Common.LightsIds.ALARM_BUZZER, 1)
                 lights.turnOnForFor(Common.LightsIds.ALARM_LED, 1000)
                 #oled.showDiferentTextFor([lambda : 'AUTH FAIL'], 1000)
         loger.subscribeByName('Auth Failed', afterAuthFails)
         loger.subscribeByName('Auth succes', afterAuthSucces)
 
-# INIT I2C SENZOR
-# ALL CALLVACKS
-# INIT API
+        def gateButtonTrig():
+                gate.openFor(10)
+        userInput.subscribe(Common.InputIds.GATE_BUTTON, gateButtonTrig)
+
+        # INIT I2C SENZOR
+        print('INIT SENSORS')
+        def loadLight():
+                value = LightSensor.readLight()
+                value = float("{0:.2f}".format(value))
+                EventLog.sendToUpstream('light', value)
+                loger.emit('Light', EventLog.EventType.SYSTEM_LOG, value)
+                #print('Value -L', value)
+
+        lightSensor = Common.SensorTimer(loadLight)
+        lightSensor.start(1.5)
+
+        bmp085 = BMP085.BMP085()
+        def loadPres():
+                value = bmp085.read_pressure()
+                loger.emit('Pres', EventLog.EventType.SYSTEM_LOG, value)
+                #print('Value -P', value)
+        pressSensor = Common.SensorTimer(loadPres)
+        pressSensor.start(1.5)
+        def loadTemp():
+                value = bmp085.read_temperature()
+                loger.emit('Temp', EventLog.EventType.SYSTEM_LOG, value)
+                #print('Value -T', value)
+        tempSensor = Common.SensorTimer(loadTemp)
+        tempSensor.start(1.5)
+
+        # INIT API
+
+#DUBUG
+print('DEBUG')
+init()
+time.sleep(20)

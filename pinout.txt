@@ -1,0 +1,5 @@
+servo 12
+servo button 27
+zelenob bili bez cerveny - i2c s cervenou spi
+polivkz ma kazdy rad
+miso je super a mozna i zelenej

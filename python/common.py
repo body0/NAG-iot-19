@@ -11,7 +11,8 @@ class AuthMethod(Enum):
     CAMERA = 2
 
 class LightsIds(Enum):
-    MAIN_HOUSE = 'House Lights'
+    IN_HOUSE = 'House Lights'
+    OUT_HOUSE = 'Garden Lights'
     ALARM_BUZZER = 'Alarn'
     ALARM_LED = 'Alarm Led'
     AUTH_SUCCES_LED = 'Green Led'
@@ -51,7 +52,14 @@ class Observable:
     
     def emit(self, data):
         for callbackName in self._Subscriptions:
-            self._Subscriptions[callbackName](data)
+            try:
+                self._Subscriptions[callbackName](data)
+            except Exception as e:
+                print('[ERR]: callback did not exit cleanly: ', e)
+                if hasattr(data, 'Name'):
+                    print(data.Name)
+                else:
+                    print(data)
 
 class MemObservable(Observable):
     """
@@ -60,6 +68,7 @@ class MemObservable(Observable):
                 - returs destructor for this substription
     """
     def __init__(self):
+        super(MemObservable, self).__init__()
         self._LastValue = None
 
     def emit(self, data):
@@ -101,7 +110,7 @@ class SensorTimer:
             self._Timer = t
             t.start()
 
-        if self._Timer == None:
+        if self._Timer != None:
             return
         update()
 

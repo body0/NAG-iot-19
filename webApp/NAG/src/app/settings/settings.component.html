@@ -2,10 +2,11 @@
   <h2 class="floating-header">
     Settings
   </h2>
-  <form novalidate [formGroup]="Form">
-    <mat-form-field>
-      <input matInput ="Acces Password" formControlName="SilendAlarm">
-    </mat-form-field>
-    <button mat-raised-button type="submit" (click)="submit()">Submint</button>
-  </form>
-</div>LoginForm
+  <div class="main-conetnt">
+    <form novalidate [formGroup]="Form">
+      <mat-checkbox formControlName="SilendAlarm" labelPosition="before">Silent Alarm</mat-checkbox>
+      <mat-checkbox formControlName="DisableCamera" labelPosition="before">Disable Camera</mat-checkbox>
+      <button mat-raised-button type="submit" (click)="submit()">Submint</button>
+    </form>
+  </div>
+</div>

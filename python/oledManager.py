@@ -117,8 +117,8 @@ if __name__ == "__main__":
     disp = Adafruit_SSD1306.SSD1306_128_64(rst=24)
     disp.begin()
     oled = OLEDManager(disp, 0.5)
-    oled.addFunc(lambda: "hello")
-    oled.addFunc(lambda: "")
+    oled.addLineCallback(lambda: "hello")
+    oled.addLineCallback(lambda: "")
     oled.draw()
 
 # testFun()

@@ -2,33 +2,42 @@ import time
 import threading
 
 _LibLoaded = False
+_CameraLoaded = False
+def isDepLoaded():
+    return _LibLoaded
+
+def isCameraReady():
+    return _LibLoaded and _CameraLoaded
+
 try:
-    from picamera import PiCamera  # Raspberry Pi Camera
+    """ from picamera import PiCamera  # Raspberry Pi Camera
     import cv2  # OpenCV
     import face_recognition  # https://github.com/ageitgey/face_recognition 
     import argparse
     import pickle
-    _LibLoaded = True
+    _LibLoaded = True """
 except: 
     print('[ERR]: Can not load dependency (openCV; face recognition)')
 
-def isDepLoaded():
-    return _LibLoaded
     
 class Camera:
     def __init__(self, encode_face_dir, threshold=0.9):
         if not _LibLoaded:
             raise Exception('Can not load dependency (openCV; face recognition)')
-        self.camera = PiCamera()
-        self.threshold = threshold
-        with open(encode_face_dir, "rb") as f:
-            self.data = pickle.loads(f.read())
-        self.name_count = {}
-        for enc in self.data["names"]:
-            if enc in self.data:
-                self.name_count[enc] += 1
-            else:
-                self.name_count[enc] = 1
+        try:
+            self.camera = PiCamera()
+            self.threshold = threshold
+            with open(encode_face_dir, "rb") as f:
+                self.data = pickle.loads(f.read())
+            self.name_count = {}
+            for enc in self.data["names"]:
+                if enc in self.data:
+                    self.name_count[enc] += 1
+                else:
+                    self.name_count[enc] = 1
+            _CameraLoaded = True
+        except Exception as e:
+            print('[ERR]: Can not load camera.')
 
     def get_pic(self, file_name="temp.jpg"):
         """

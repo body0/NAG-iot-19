@@ -2,6 +2,7 @@ import eventLog as EventLog
 import common as Common
 
 import RPi.GPIO as IO
+import lib.MFRC522 as MFRC522
 
 import sys
 import time
@@ -194,7 +195,12 @@ class Sevro:
         self.maxDutyCycle = maxDutyCycle
 
     def write(self, angle):
-        self.servo.ChangeDutyCycle((angle / 38) + 5)
+        print((angle / 18) + 2.5)
+        self.servo.ChangeDutyCycle((angle / 18) + 2.5)
+
+class RfId:
+    def __init__(self):
+        self._MIFAREReader = MFRC522.MFRC522()
 
 def wait_for_interrupts():
     """
@@ -230,3 +236,14 @@ def cleanup():
     IO.cleanup()
     
 atexit.register(cleanup)
+
+if __name__ == "__main__":
+    #b = Button(27)
+    #b.subscribe(lambda : print('hallo'))
+
+    ser = Sevro(17)
+
+    ser.write(0)
+    """ for i in range(180):
+        ser.write(i)
+        time.sleep(0.2) """

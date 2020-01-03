@@ -11,6 +11,7 @@ export class SettingsComponent implements OnInit {
 
   Form = new FormGroup({
     SilendAlarm: new FormControl(true),
+    DisableCamera: new FormControl(false),
     // RFID: new FormControl('')
   });
 

@@ -94,7 +94,7 @@ class _LogerService:
         self._TypeObserverMap[eventType].emit(newEvent)
         self._AnyObserver.emit(newEvent)
         while len(self._Queue) > self.MAX_RECORD_QUEUE:
-            self._Queue.remove(0)
+            self._Queue.pop(0)
         self._Queue.append(newEvent)
         #print('aft', self._Queue)    
 

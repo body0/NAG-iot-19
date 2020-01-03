@@ -5,6 +5,7 @@ import slaveService as SlaveService
 import settingsService as SettingsService
 #import oledManager as OledManager
 import camera as Camera
+import lcdDisplayManager as LcdDisplayManager
 
 import sys
 import time
@@ -34,11 +35,10 @@ import hashlib
 
 def getUserInputs():
     return UserInputs
-
 class _UserInputs:
     def __init__(self):
         self._LightsButton = DevEvent.Button(14)
-        self._GateButton = DevEvent.Button(15)
+        self._GateButton = DevEvent.Button(27)
         self._Log = EventLog.getLoginServise()
         # self._numPad = DevEvent.NumBoard([-1, -1, -1], [-])
 
@@ -63,18 +63,21 @@ def getLightService():
 class _LightService:
     """
         ! SINGLETON !
-        used to turn on and off
+        used to turn on and off lights (led, led strip, led connected to arduino)
     """
     def __init__(self):
         self._Log = EventLog.getLoginServise()
 
-        self._Buzer = [DevEvent.LED(10), None, Common.LedState.OFF]
-        self._RedLed = [DevEvent.LED(11), None, Common.LedState.OFF]
-        self._GreenLed = [DevEvent.LED(12), None, Common.LedState.OFF]
+        self._Led = {
+            Common.LightsIds.IN_HOUSE.value: [DevEvent.LED(11), None, Common.LedState.OFF],
+            Common.LightsIds.OUT_HOUSE.value: [DevEvent.LED(16), None, Common.LedState.OFF],
+            Common.LightsIds.ALARM_BUZZER.value: [DevEvent.LED(13), None, Common.LedState.OFF],
+            Common.LightsIds.ALARM_LED.value: [DevEvent.LED(14), None, Common.LedState.OFF],
+            Common.LightsIds.ALARM_BUZZER: [DevEvent.LED(15), None, Common.LedState.OFF]
+        }
         #self._WhiteLed = [DevEvent.LED(-1), None, LedState.OFF]
 
     def turnOnLedFor(self, lightId, milis):
-
         def _turnOnLedFor(led):
             if led[1] != None:
                 led[1].cancel()
@@ -98,14 +101,12 @@ class _LightService:
             })
             t.start()
 
-        if lightId == Common.LightsIds.MAIN_HOUSE:
-            pass
-        elif lightId == Common.LightsIds.ALARM_LED:
-            _turnOnLedFor(self._RedLed)
-        elif lightId == Common.LightsIds.ALARM_BUZZER:
-            _turnOnLedFor(self._Buzer)
-        elif lightId == Common.LightsIds.AUTH_SUCCES_LED:
-            _turnOnLedFor(self._GreenLed)
+        if (lightId == Common.LightsIds.IN_HOUSE or 
+            lightId == Common.LightsIds.OUT_HOUSE or
+            lightId == Common.LightsIds.ALARM_BUZZER or
+            lightId == Common.LightsIds.ALARM_LED or
+            lightId == Common.LightsIds.AUTH_SUCCES_LED):
+            _turnOnLedFor(self._Led[lightId.value])
         else:
             self._Log.emit('lightId not found in LightsIds', EventLog.EventType.SYSTEM_WARN)
 
@@ -142,29 +143,24 @@ class _LightService:
             t.setDaemon(True)
             t.start()
         
-        if lightId == Common.LightsIds.MAIN_HOUSE:
-            pass
-        elif lightId == Common.LightsIds.ALARM_LED:
-            _oscilateFor(self._RedLed)
-        elif lightId == Common.LightsIds.ALARM_BUZZER:
-            _oscilateFor(self._Buzer)
-        elif lightId == Common.LightsIds.AUTH_SUCCES_LED:
-            _oscilateFor(self._GreenLed)
+        if (lightId == Common.LightsIds.IN_HOUSE or 
+            lightId == Common.LightsIds.OUT_HOUSE or
+            lightId == Common.LightsIds.ALARM_BUZZER or
+            lightId == Common.LightsIds.ALARM_LED or
+            lightId == Common.LightsIds.AUTH_SUCCES_LED):
+            _oscilateFor(self._Led[lightId.value])
         else:
             self._Log.emit('lightId not found in LightsIds', EventLog.EventType.SYSTEM_WARN)
 
     def getLedState(self, lightId):
-        if lightId == Common.LightsIds.MAIN_HOUSE:
-            pass
-        elif lightId == Common.LightsIds.ALARM_LED:
-            return self._RedLed[2]
-        elif lightId == Common.LightsIds.ALARM_BUZZER:
-            return self._Buzer[2]
-        elif lightId == Common.LightsIds.AUTH_SUCCES_LED:
-            return self._GreenLed[2]
+        if (lightId == Common.LightsIds.IN_HOUSE or 
+            lightId == Common.LightsIds.OUT_HOUSE or
+            lightId == Common.LightsIds.ALARM_BUZZER or
+            lightId == Common.LightsIds.ALARM_LED or
+            lightId == Common.LightsIds.AUTH_SUCCES_LED):
+            self._Led[lightId.value][2]
         else:
             self._Log.emit('lightId not found in LightsIds', EventLog.EventType.SYSTEM_WARN)
-
 
 def getGateService():
     return GateService
@@ -178,7 +174,8 @@ class _GateService:
         self._Log = EventLog.getLoginServise()
         self._isBloking = False
         self._isOpen = False
-        self._slaveService = SlaveService.getSlaveService()
+        #self._slaveService = SlaveService.getSlaveService()
+        self._Servo = DevEvent.Sevro(12)
 
     def openFor(self, milis):
         if self._isOpen:
@@ -204,12 +201,13 @@ class _GateService:
 
     def _open(self):
         self._isOpen = True
-        self._slaveService.openGate()
+        #self._slaveService.openGate()
+        self._Servo.write(90)
 
     def _close(self):
         self._isOpen = False
-        self._slaveService.closeGate()
-
+        #self._slaveService.closeGate()
+        self._Servo.write(163)
 
 def getAuthService():
     return AuthService
@@ -234,7 +232,6 @@ class _AuthService:
     def _authSucces(self):
         self._Log.emit('Auth Succes', EventLog.EventType.LOG)
 
-
 def getDisplayService():
     return DisplayService
 class _DisplayService:
@@ -243,20 +240,45 @@ class _DisplayService:
     """
     def __init__(self):
         self._Log = EventLog.getLoginServise()
-        self._Schema = [
-            ("Light", "UNKNOWN"),
-            ("Humidity", "UNKNOWN"),
-            ("Temperature", "UNKNOWN"),
-            ("GateState", "Down")
-        ]
-        self._Timer = None
+        self._Schema = {
+            "Light": "UNKNOWN",
+            "Presure": "UNKNOWN",
+            "Temperature": "UNKNOWN",
+            "Gate State": "Down"
+        }
+        self._Log = EventLog.getLoginServise()
 
-    def setShemaEntry(self, name, text):
-        pass
+        self._Log.subscribeByName('Light', lambda pld: self.setEntry('Light', pld))
+        self._Log.subscribeByName('Pres', lambda pld: self.setEntry('Presure', pld))
+        self._Log.subscribeByName('Temp', lambda pld: self.setEntry('Temperature', pld))
+
+        def gateStateChange(newState):
+            if newState:
+                self._Schema['Gate State'] = 'Up'
+            else:
+                self._Schema['Gate State'] = 'Down'
+
+        self._Log.subscribeByName('Gate State Change', gateStateChange)
+
+        self._Display = LcdDisplayManager.LcdDisplay()
+        def lineLoader(curentLine):
+            return lambda: curentLine + ' ' + self._Schema[curentLine]
+        for line in self._Schema:
+            print('add line', line, self._Schema[line])
+            self._Display.addCycleLine(lineLoader(line))
+        self._Display.draw()
+        """ def reDraw():
+            self._Display.draw()
+        displayTimer = Common.SensorTimer(reDraw)
+        displayTimer.start(5) """
+
+    def setEntry(self, name, text):
+        #print('SET', name, text.Pld)
+        self._Schema[name] = str(text.Pld)
+        #self._Display.draw()
 
     def showDiferentTextFor(self, textCallbackList, milis):
-        pass
-
+        self._Display.overwriteMsg(textCallbackList)
 
 def getCameraService():
     return CameraService
@@ -267,7 +289,7 @@ class _CameraService:
     def __init__(self):
         self._Log = EventLog.getLoginServise()
         self._Camera = None
-        if Camera.isDepLoaded():
+        if Camera.isCameraReady():
             self._Camera = Camera.Camera("assets/OpenCv/encode.picle")
 
     def getPic(self):
@@ -288,3 +310,11 @@ CameraService = _CameraService()
 AuthService = _AuthService()
 GateService = _GateService()
 DisplayService = _DisplayService()
+
+
+if __name__ == "__main__":
+    GateService._open()
+    #DisplayService.setEntry()
+    """ time.sleep(10)
+    GateService._close()
+    time.sleep(20) """
