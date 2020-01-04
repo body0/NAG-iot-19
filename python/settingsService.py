@@ -7,6 +7,8 @@ import json
 
 class SettingsKeys(Enum):
     SILENT_ALARM = 'SilentAlarm'
+    OUT_LIGHT_LUM_TRIG = 'OutLightTrig'
+    DISABLE_CAMWEA = 'DisableCamera'
 
 class SettingsHashKeys(Enum):
     ACCES_PASSWORK_HASH = 'AccesPasswordHash'
@@ -20,7 +22,9 @@ class _SettingsService:
     _SettingsPath = './assets/settings.json'
     _DefalutSettings = {
         'Basic': {
-            SettingsKeys.SILENT_ALARM.value: False
+            SettingsKeys.SILENT_ALARM.value: False,
+            SettingsKeys.DISABLE_CAMWEA.value: False,
+            SettingsKeys.OUT_LIGHT_LUM_TRIG.value: 8
         },
         'Hashed': {
             SettingsHashKeys.ACCES_PASSWORK_HASH.value: '$2b$12$FgMh.0MG9vtsavK5rQPtKuNlfSqNaEkL2X/WaTd9wf/47/PBAn5sC',

@@ -50,12 +50,14 @@ def init():
         userInput.subscribe(Common.InputIds.GATE_BUTTON, gateButtonTrig)
 
         def lightButtonTrig(_):
-                print('B')
+                #print('B')
                 lights.turnOnLedFor(Common.LightsIds.IN_HOUSE, 10)
         userInput.subscribe(Common.InputIds.LIGTHS_BUTTON, lightButtonTrig)
 
         def pirButtonTrig(_):
                 #print('C')
+                if not settings.getSettingsAtribute(SettingsService.SettingsKeys.SILENT_ALARM):
+                        lights.turnOnForFor(Common.LightsIds.ALARM_BUZZER, 5)
                 lights.turnOnLedFor(Common.LightsIds.ALARM_LED, 5)
         userInput.subscribe(Common.InputIds.PIR_SENSOR, pirButtonTrig)
 
@@ -67,7 +69,7 @@ def init():
                 value=float("{0:.2f}".format(value))
                 EventLog.sendToUpstream('light', value)
                 print('VALUE', value)
-                if value < 6:
+                if value < settings.getSettingsAtribute(SettingsService.SettingsKeys.OUT_LIGHT_LUM_TRIG):
                         lights.on(Common.LightsIds.OUT_HOUSE)
                 else:
                         lights.off(Common.LightsIds.OUT_HOUSE)
@@ -90,8 +92,6 @@ def init():
                 # print('Value -T', value)
         tempSensor=Common.SensorTimer(loadTemp)
         tempSensor.start(1.5)
-
-        # INIT API
 
 # DUBUG
 print('DEBUG')
