@@ -63,6 +63,7 @@ class _SettingsService:
         self.saveUsedSettings()
 
     def matchAccesPassword(self, password):
+        print('Triing auth', password, self._Settings['Hashed'][SettingsHashKeys.ACCES_PASSWORK_HASH.value])
         if (not type(password) == str) or len(password) == 0:
             return False
         #print('IN_A', password, self._Settings)
