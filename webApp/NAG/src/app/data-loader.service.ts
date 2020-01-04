@@ -209,6 +209,8 @@ export interface LightStatus {
 
 export interface SettingsState {
   SilentAlarm: boolean;
+  OutLightTrig: number;
+  DisableCamera: boolean;
 }
 
 export interface Event {

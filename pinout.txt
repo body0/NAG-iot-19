@@ -3,3 +3,12 @@ servo button 27
 zelenob bili bez cerveny - i2c s cervenou spi
 polivkz ma kazdy rad
 miso je super a mozna i zelenej
+
+RFID reset: 25
+pir: 5
+infra led: 24
+
+
+red led: 18 (active low)
+gren led: 23 (active low)
+house in: 17

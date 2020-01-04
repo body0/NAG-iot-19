@@ -30,7 +30,6 @@ settingsServiceInst = SettingsService.SettingsService
 def hello_world():
     return 'Api root'
 
-
 def tokenRequired(f):
     @wraps(f)
     def _verify(*args, **kwargs):
@@ -128,3 +127,13 @@ def onNewLog():
 if __name__ == '__main__':
     socketio.run(app, port=5000)
     #app.run(app, port=5000)
+
+    login = EventLog.getLoginServise()
+
+    def newSettigns():
+        socketio.emit('NEW_STATE_AVAILIBLE')
+    login.subscribeByName('Settings Change', newSettigns)
+
+    def newEvent():
+        socketio.emit('EVENT_EMITED')
+    login.subscribeAny(newEvent)
