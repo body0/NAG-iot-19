@@ -12,3 +12,5 @@ infra led: 24
 red led: 18 (active low)
 gren led: 23 (active low)
 house in: 17
+buzer: 19
+ledOut: 6

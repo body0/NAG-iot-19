@@ -1,9 +1,14 @@
 {
     "Basic": {
-        "SilentAlarm": true
+        "SilentAlarm": false,
+        "OutLightTrig": 4,
+        "DisableCamera": false
     },
     "Hashed": {
         "AccesPasswordHash": "$2b$12$.LBkF5v5oEkUipyEdFCo2OJduqIOMsYRwGwvbNZgTrMI3F/KsmN.6",
-        "RFIdHash": "$2b$12$9tuHTR3VG/i1kbjDldEyhu01.xYasuj1WqG/s4x0PaCtuVRSYJ1y6"
+        "RFIdHash": [
+            "$2b$12$9tuHTR3VG/i1kbjDldEyhu01.xYasuj1WqG/s4x0PaCtuVRSYJ1y6",
+            "$2b$12$9tuHTR3VG/i1kbjDldEyhubBcBxke3LSrL21rGbw6qrrzWRsDOcge"
+        ]
     }
 }

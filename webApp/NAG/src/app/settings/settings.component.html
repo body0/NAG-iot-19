@@ -6,6 +6,12 @@
     <form novalidate [formGroup]="Form">
       <mat-checkbox formControlName="SilendAlarm" labelPosition="before">Silent Alarm</mat-checkbox>
       <mat-checkbox formControlName="DisableCamera" labelPosition="before">Disable Camera</mat-checkbox>
+      <mat-form-field>
+        <input matInput="Acces Password" formControlName="password" type="password">
+        <mat-error *ngIf="LoginForm.controls.password.hasError('required')">
+          Authorization is <strong>required</strong>
+        </mat-error>
+      </mat-form-field>
       <button mat-raised-button type="submit" (click)="submit()">Submint</button>
     </form>
   </div>

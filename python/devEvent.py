@@ -257,19 +257,20 @@ class RfId:
 
         def loop():
             (status, _) = self._Reader.MFRC522_Request(self._Reader.PICC_REQIDL)
-            print('S0', status)
+            #print('S0', status)
 
             if self._IsScannig and status == self._Reader.MI_OK:
                 (status, uid) = self._Reader.MFRC522_Anticoll()
 
-                print('S1', status)
+                #print('S1', status)
                 if status == self._Reader.MI_OK:
                     print("UID: "+str(uid[0])+","+str(uid[1])+","+str(uid[2])+","+str(uid[3]))
                     strUID = str(uid[0])+","+str(uid[1])+","+str(uid[2])+","+str(uid[3])
+                    print('|' + strUID + '|')
                     self._InterObs.emit(strUID)
 
         timer = Common.SensorTimer(loop)
-        timer.start(0.1)
+        timer.start(0.5)
 
     def enable(self):
         self._IsScannig = True
@@ -314,7 +315,8 @@ def cleanup():
     print("INFO: cleaning ...")
     eventLoger.emit('CLEANING', EventLog.EventType.SYSTEM_LOG)
     IO.cleanup()
-    
+    print("END")
+
     
 atexit.register(cleanup)
 

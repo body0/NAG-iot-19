@@ -119,6 +119,7 @@ def sendToUpstream(eventName, data):
         'Content-Type': 'application/json',
         'X-Api-Key': ApiKey
     }
+    print("https://api.nag-iot.zcu.cz/v2/value/" + eventName, header, jsonData)
     try:
         req = requests.post("https://api.nag-iot.zcu.cz/v2/value/" + eventName, json=jsonData, headers=header)
         return req.status_code
@@ -172,7 +173,7 @@ LogerService = _LogerService()
 """
 
 if __name__ == '__main__':
-    log = getLoginServise()
+    """ log = getLoginServise()
     def myPrint(prefix):
         def prefixPrint(data):
             print(prefix, data)
@@ -181,5 +182,5 @@ if __name__ == '__main__':
     #log.subscribeAny(myPrint('sub all'))
     log.subscribeAny(lambda arg: print(arg))
     log.emit('debug', EventType.LOG)
-    print('post all', log.getLastAny())
-    print('API', sendToUpstream('dev', -1), 'KEY', ApiKey)
+    print('post all', log.getLastAny()) """
+    print('API', sendToUpstream('light', -1), 'KEY', ApiKey)

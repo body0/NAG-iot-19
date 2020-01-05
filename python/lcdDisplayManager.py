@@ -58,18 +58,20 @@ class LcdDisplay:
                 for fun in self.Cycle:
                     arr = arr + splitToLines(fun())
                 if len(arr) > 4:
-                    toPrintArr = []
-                    for i in range(4):
+                    toPrintArr = arr[self._OfsetCount: self._OfsetCount + 4]
+                    """ for i in range(4):
                         line = arr[(self._OfsetCount + i) % len(arr)]
-                        toPrintArr.append(line)
+                        toPrintArr.append(line) """
                     printAll(toPrintArr)
                     #print('NEXT', self._OfsetCount, len(arr))
-                    self._OfsetCount += 1
-                    self._OfsetCount %= len(arr)
+                    self._OfsetCount += 4
+                    #self._OfsetCount %= len(arr)
+                    if self._OfsetCount >= len(arr):
+                        self._OfsetCount = 0
                 else:
                     printAll(arr)
                     
-                t = threading.Timer(3, moveLine)
+                t = threading.Timer(5, moveLine)
                 self._Timer = t
                 t.setDaemon(True)
                 t.start()

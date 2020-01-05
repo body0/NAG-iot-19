@@ -6,6 +6,7 @@ import lib.lightSensor as LightSensor
 import lib.BMP085 as BMP085
 
 import time
+import threading
 """
     BUSNIESS LOGIC
 """
@@ -18,7 +19,7 @@ def init():
         settings = SettingsService.getSettingsService()
 
         gate = DevServices.getGateService()
-        # auth = DevServices.getAuthService()
+        auth = DevServices.getAuthService()
         lights = DevServices.getLightService()
         userInput = DevServices.getUserInputs()
 
@@ -30,23 +31,41 @@ def init():
 
         loger.subscribeByName('Gate State Change', onGateStateChangeCallback)
 
-        def afterAuthSucces():
+        authTimer = None
+        def afterAuthSucces(_):
+                nonlocal authTimer
                 print('Succes')
-                lights.turnOnForFor(Common.LightsIds.AUTH_SUCCES_LED, 1)
-                gate.openFor(10)
+                lights.on(Common.LightsIds.AUTH_SUCCES_LED)
 
-        def afterAuthFails():
+                def unAuth():
+                        auth.unAuth()
+                        lights.off(Common.LightsIds.AUTH_SUCCES_LED)
+                        lights.turnOnLedFor(Common.LightsIds.ALARM_BUZZER, 0.5)
+
+                if authTimer != None:
+                        authTimer.cancel()
+                t = threading.Timer(60, unAuth)
+                t.setDaemon(True)
+                authTimer = t
+                t.start()
+
+        def afterAuthFails(_):
                 print('Fail')
-                if not settings.getSettingsAtribute(SettingsService.SettingsKeys.SILENT_ALARM):
-                        lights.turnOnForFor(Common.LightsIds.ALARM_BUZZER, 1)
-                lights.turnOnForFor(Common.LightsIds.ALARM_LED, 1000)
+                if not settings.getSettingsAtribute(SettingsService.SettingsKeys.SILENT_ALARM.value):
+                        lights.turnOnForFor(Common.LightsIds.ALARM_BUZZER)
+                lights.turnOnForFor(Common.LightsIds.ALARM_LED)
                 # oled.showDiferentTextFor([lambda : 'AUTH FAIL'], 1000)
         loger.subscribeByName('Auth Failed', afterAuthFails)
-        loger.subscribeByName('Auth succes', afterAuthSucces)
+        loger.subscribeByName('Auth Succes', afterAuthSucces)
 
         def gateButtonTrig(_):
-                # print('A')
-                gate.openFor(10)
+                print('A')
+                if auth.isAuth():
+                        gate.openFor(10)
+                else:
+                        if not settings.getSettingsAtribute(SettingsService.SettingsKeys.SILENT_ALARM.value):
+                                lights.turnOnForFor(Common.LightsIds.ALARM_BUZZER)
+                        lights.turnOnForFor(Common.LightsIds.ALARM_LED)   
         userInput.subscribe(Common.InputIds.GATE_BUTTON, gateButtonTrig)
 
         def lightButtonTrig(_):
@@ -56,20 +75,31 @@ def init():
 
         def pirButtonTrig(_):
                 #print('C')
-                if not settings.getSettingsAtribute(SettingsService.SettingsKeys.SILENT_ALARM):
-                        lights.turnOnForFor(Common.LightsIds.ALARM_BUZZER, 5)
-                lights.turnOnLedFor(Common.LightsIds.ALARM_LED, 5)
+                if not auth.isAuth():
+                        if not settings.getSettingsAtribute(SettingsService.SettingsKeys.SILENT_ALARM.value):
+                                lights.turnOnLedFor(Common.LightsIds.ALARM_BUZZER, 3)
+                        lights.turnOnLedFor(Common.LightsIds.ALARM_LED, 3)
         userInput.subscribe(Common.InputIds.PIR_SENSOR, pirButtonTrig)
 
         # INIT I2C SENZOR
         print('INIT SENSORS')
 
+        # send every 'lightReadCount' to server
+        sendToUperstreamEach = 10
+        lightReadCount = 0
         def loadLight():
+                nonlocal lightReadCount
                 value=LightSensor.readLight()
                 value=float("{0:.2f}".format(value))
-                EventLog.sendToUpstream('light', value)
-                print('VALUE', value)
-                if value < settings.getSettingsAtribute(SettingsService.SettingsKeys.OUT_LIGHT_LUM_TRIG):
+                lightReadCount+=1
+                if lightReadCount >= sendToUperstreamEach:
+                        status = EventLog.sendToUpstream('light', value)
+                        if not status == 200:
+                                print('Cannot send')
+                                loger.emit('Cannot send data to server', EventLog.EventType.SYSTEM_WARN)
+                        lightReadCount = 0
+                #print('VALUE', value)
+                if value < settings.getSettingsAtribute(SettingsService.SettingsKeys.OUT_LIGHT_LUM_TRIG.value):
                         lights.on(Common.LightsIds.OUT_HOUSE)
                 else:
                         lights.off(Common.LightsIds.OUT_HOUSE)
@@ -77,7 +107,7 @@ def init():
                 # print('Value -L', value)
 
         lightSensor=Common.SensorTimer(loadLight)
-        lightSensor.start(1.5)
+        lightSensor.start(0.5)
 
         bmp085=BMP085.BMP085()
         def loadPres():
@@ -85,13 +115,13 @@ def init():
                 loger.emit('Pres', EventLog.EventType.SYSTEM_LOG, value)
                 # print('Value -P', value)
         pressSensor=Common.SensorTimer(loadPres)
-        pressSensor.start(1.5)
+        pressSensor.start(2)
         def loadTemp():
                 value=bmp085.read_temperature()
                 loger.emit('Temp', EventLog.EventType.SYSTEM_LOG, value)
                 # print('Value -T', value)
         tempSensor=Common.SensorTimer(loadTemp)
-        tempSensor.start(1.5)
+        tempSensor.start(2)
 
 # DUBUG
 print('DEBUG')

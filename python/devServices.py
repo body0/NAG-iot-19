@@ -11,8 +11,6 @@ import sys
 import time
 import threading
 
-import hashlib
-
 """
     COMPLEX EXTERNAL DEVICE
 
@@ -97,8 +95,7 @@ class _LightService:
             Common.LightsIds.OUT_HOUSE.value: [DevEvent.LED(6), None, Common.LedState.OFF],
             Common.LightsIds.AUTH_SUCCES_LED.value: [DevEvent.LEDZeroLogic(23), None, Common.LedState.OFF],
             Common.LightsIds.ALARM_LED.value: [DevEvent.LEDZeroLogic(18), None, Common.LedState.OFF],
-            Common.LightsIds.ALARM_BUZZER.value: [
-                DevEvent.LED(15), None, Common.LedState.OFF]
+            Common.LightsIds.ALARM_BUZZER.value: [DevEvent.LED(19), None, Common.LedState.OFF]
         }
         #self._WhiteLed = [DevEvent.LED(-1), None, LedState.OFF]
 
@@ -106,12 +103,10 @@ class _LightService:
         def _turnOnLedFor(led):
             if led[1] != None:
                 led[1].cancel()
-            print('on')
             led[0].on()
             led[2] = Common.LedState.ON
 
             def afterLedOff():
-                print('off', led)
                 led[0].off()
                 led[2] = Common.LedState.OFF
                 self._Log.emit('Light state change', EventLog.EventType.LOG, {
@@ -138,7 +133,7 @@ class _LightService:
             self._Log.emit('lightId not found in LightsIds',
                            EventLog.EventType.SYSTEM_WARN)
 
-    def turnOnForFor(self, lightId, period=1000, rounds=5):
+    def turnOnForFor(self, lightId, period=0.75, rounds=2):
         def _oscilateFor(led):
             def generateUpdate(roundsRemaining, newState):
                 def update():
@@ -283,13 +278,14 @@ class _AuthService:
     """
 
     def __init__(self):
+        self._IsAuhtVar = False
         self._Log = EventLog.getLoginServise()
         self._Settings = SettingsService.getSettingsService()
         self._RfId = DevEvent.RfId(0, 0, 25)
         settings = SettingsService.getSettingsService()
 
         def idLoaded(uid):
-            if settings.matchAccesPassword(uid):
+            if settings.matchRfid(uid):
                 self._authSucces()
             else:
                 self._authFail()
@@ -297,13 +293,18 @@ class _AuthService:
         self._AfterSuccesfullAuthObservable = Common.Observable()
         self._AfterFailedAuthObservable = Common.Observable()
 
-    def _hash(self, string):
-        return hashlib.sha224(str.encode(string)).hexdigest()
+    def unAuth(self):
+        self._IsAuhtVar = False
+        self._Log.emit('Auth Suspended', EventLog.EventType.LOG)
+
+    def isAuth(self):
+        return self._IsAuhtVar
 
     def _authFail(self):
         self._Log.emit('Auth Failed', EventLog.EventType.WARN)
 
     def _authSucces(self):
+        self._IsAuhtVar = True
         self._Log.emit('Auth Succes', EventLog.EventType.LOG)
 
 
@@ -322,9 +323,17 @@ class _DisplayService:
             "Light": "UNKNOWN",
             "Presure": "UNKNOWN",
             "Temperature": "UNKNOWN",
-            "Gate State": "Down"
+            "Gate State": "Down",
+            #"Is Authorized": "No"
         }
         self._Log = EventLog.getLoginServise()
+
+        """ self._Log.subscribeByName(
+            'Auth Suspended', lambda pld: self.setEntry('Is Authorized', 'No')
+        )
+        self._Log.subscribeByName(
+            'Auth Succes', lambda pld: self.setEntry('Is Authorized', 'Yes')
+        ) """
 
         self._Log.subscribeByName(
             'Light', lambda pld: self.setEntry('Light', pld))
@@ -345,9 +354,19 @@ class _DisplayService:
 
         def lineLoader(curentLine):
             return lambda: curentLine + ' ' + self._Schema[curentLine]
-        for line in self._Schema:
-            #print('add line', line, self._Schema[line])
-            self._Display.addCycleLine(lineLoader(line))
+        """ for line in self._Schema:
+            self._Display.addCycleLine(lineLoader(line))"""
+
+        auth = getAuthService()
+        inputs = getUserInputs()
+        self._Display.addCycleLine(lineLoader('Light'))
+        self._Display.addCycleLine(lineLoader('Presure'))
+        self._Display.addCycleLine(lineLoader('Temperature'))
+        self._Display.addCycleLine(lambda : "Is Authorized " + ("YES" if auth.isAuth() else "No"))
+        self._Display.addCycleLine(lineLoader('Gate State'))
+        self._Display.addCycleLine(lambda : "Obsticle in gate " + ("YES" if inputs.getValue(Common.InputIds.IR_TRANSISTOR) == 1 else "No"))
+        self._Display.addCycleLine(lambda : "Someone outside " + ("YES" if inputs.getValue(Common.InputIds.PIR_SENSOR) == 1 else "No"))
+        
         self._Display.draw()
         """ def reDraw():
             self._Display.draw()
