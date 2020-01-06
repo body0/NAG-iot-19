@@ -3,7 +3,6 @@ import eventLog as EventLog
 import devEvent as DevEvent
 import slaveService as SlaveService
 import settingsService as SettingsService
-#import oledManager as OledManager
 import camera as Camera
 import lcdDisplayManager as LcdDisplayManager
 
@@ -12,18 +11,10 @@ import time
 import threading
 
 """
-    COMPLEX EXTERNAL DEVICE
+    ENABLE COMPLEX ONE PURPOSE SINGLETON SERVISES
 
-        - Define higher-level senzor information and pin numbers
-        - Do not define data flow betwen service and upstream
-        - Classes
-            - GateService (service)
-            - AuthService (service)
-            - SlaveSrvice (service)
-
-            - Oled (wraper)
-            - Camera (wraper)
-            - SensorTimer (base class for each sensor, that needs to be periodicly updated)
+        - Define some higher-level pheriphery information and define all pin numbers
+        - for more information refer to README.md
 """
 
 
@@ -263,14 +254,10 @@ class _GateService:
 
     def _open(self):
         self._isOpen = True
-        # self._slaveService.openGate()
-        # self._Servo.write(90)
         self._Servo.open()
 
     def _close(self):
         self._isOpen = False
-        # self._slaveService.closeGate()
-        # self._Servo.write(163)
         self._Servo.close()
 
 
