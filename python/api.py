@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import apiComponents as ApiComponents
 import settingsService as SettingsService
 import eventLog as EventLog
