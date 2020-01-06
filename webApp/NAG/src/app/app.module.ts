@@ -14,6 +14,7 @@ import { SettingsComponent } from './settings/settings.component';
 import { MaterialModule } from './material/material.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { EventsComponent } from './events/events.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { HttpClientModule } from '@angular/common/http';
     ActualStateComponent,
     StatisticComponent,
     NavComponent,
-    SettingsComponent
+    SettingsComponent,
+    EventsComponent
   ],
   imports: [
     BrowserModule,

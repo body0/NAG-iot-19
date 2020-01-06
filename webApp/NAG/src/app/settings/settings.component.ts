@@ -12,7 +12,8 @@ export class SettingsComponent implements OnInit {
   Form = new FormGroup({
     SilendAlarm: new FormControl(true),
     DisableCamera: new FormControl(false),
-    OutLightTrig: new FormControl(0),
+    OutLightOnTrig: new FormControl(0),
+    OutLightOffTrig: new FormControl(0),
     // RFID: new FormControl('')
   });
 
@@ -24,7 +25,8 @@ export class SettingsComponent implements OnInit {
   submit() {
     this.dataLoader.updateSettings({
       SilentAlarm: this.Form.controls.SilendAlarm.value,
-      OutLightTrig: this.Form.controls.OutLightTrig.value,
+      OutLightOnTrig: this.Form.controls.OutLightTrig.value,
+      OutLightOffTrig: this.Form.controls.OutLightTrig.value,
       DisableCamera: this.Form.controls.DisableCamera.value
     });
   }

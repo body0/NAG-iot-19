@@ -1,5 +1,6 @@
 import common as Common
-import datetime as Datetime
+
+import datetime
 import os
 import requests
 
@@ -85,11 +86,14 @@ class _LogerService:
             return self._Queue
         else:
             return self._Queue[len(self._Queue) - size : len(self._Queue) - 1]
+    def getAll(self):
+        #print('ALL EV', self._Queue)
+        return self._Queue
 
     """
         register new event
     """
-    def emit(self, name, eventType=5, pld=None):
+    def emit(self, name, eventType, pld=None):
         newEvent = Event(name, eventType, pld)
         if name in self._NameObserverMap:
             self._NameObserverMap[name].emit(newEvent)
@@ -134,7 +138,7 @@ class Event:
         self.Name = name
         self.Type = eventType
         self.Pld = pld
-        self.Timestamp = Datetime.datetime
+        self.Timestamp = datetime.datetime.now().isoformat()
 
     def getDictionary(self):
         return {

@@ -1,23 +1,26 @@
 import eventLog as EventLog
 import common as Common
 
-import datetime as Datetime
+import datetime
 
 class EventSinkAppState:
 
     DefaultState = {
         'Lights': {
-            'House Lights': {
-                'status': Common.LedState.OFF.value
+            'House Lights Inside': {
+                'status': False
             },
-            'Alarn': {
-                'status': Common.LedState.OFF.value
+            'House Lights Outside': {
+                'status': False
+            },
+            'Alarm': {
+                'status': False
             },
             'Alarm Led': {
-                'status': Common.LedState.OFF.value
+                'status': False
             },
             'Green Led': {
-                'status': Common.LedState.OFF.value
+                'status': False
             }
         },
         'Gate': {
@@ -57,15 +60,26 @@ class EventSinkAppState:
         def updateGate(state):
             self.SystemState['Gate'] = {
                 'status': state,
-                'lastOpened': Datetime.datetime
+                'lastOpened': datetime.datetime.now().isoformat()
             }
             self.emitUpdateEvent()
+        
+        def logIn():
+            self.SystemState['IsAuth'] = True
+            self.SystemState['LastSuccesfullAuth'] = datetime.datetime.now().isoformat()
+        def logOut():
+            self.SystemState['IsAuth'] = False
+        def logInFaill():
+            self.SystemState['LastFailedAuth'] = datetime.datetime.now().isoformat()
 
         self._Loger.subscribeByName('Gate State Change', updateGate)
         self._Loger.subscribeByName('Hum', systemStateUpdateFactory('HumSensor'))
         self._Loger.subscribeByName('Light', systemStateUpdateFactory('LightSensor'))
         self._Loger.subscribeByName('Pres', systemStateUpdateFactory('PresSensor'))
         self._Loger.subscribeByName('Light state change', lightUpdate)
+        self._Loger.subscribeByName('Auth Suspended', logOut)
+        self._Loger.subscribeByName('Auth Succes', logIn)
+        self._Loger.subscribeByName('Auth Failed', logInFaill)
 
     def get(self, name):
         return self.SystemState[name]

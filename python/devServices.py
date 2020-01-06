@@ -195,6 +195,10 @@ class _LightService:
             lightId == Common.LightsIds.ALARM_LED or
                 lightId == Common.LightsIds.AUTH_SUCCES_LED):
             self._Led[lightId.value][0].on()
+            self._Log.emit('Light state change', EventLog.EventType.LOG, pld={
+                'name': lightId,
+                'state': True
+            })
         else:
             self._Log.emit('lightId not found in LightsIds',
                            EventLog.EventType.SYSTEM_WARN)
@@ -206,6 +210,10 @@ class _LightService:
             lightId == Common.LightsIds.ALARM_LED or
                 lightId == Common.LightsIds.AUTH_SUCCES_LED):
             self._Led[lightId.value][0].off()
+            self._Log.emit('Light state change', EventLog.EventType.LOG, pld={
+                'name': lightId,
+                'state': False
+            })
         else:
             self._Log.emit('lightId not found in LightsIds',
                            EventLog.EventType.SYSTEM_WARN)

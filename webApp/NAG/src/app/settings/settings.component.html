@@ -3,16 +3,36 @@
     Settings
   </h2>
   <div class="main-conetnt">
-    <form novalidate [formGroup]="Form">
-      <mat-checkbox formControlName="SilendAlarm" labelPosition="before">Silent Alarm</mat-checkbox>
-      <mat-checkbox formControlName="DisableCamera" labelPosition="before">Disable Camera</mat-checkbox>
-      <mat-form-field>
-        <input matInput="Acces Password" formControlName="password" type="password">
-        <mat-error *ngIf="LoginForm.controls.password.hasError('required')">
-          Authorization is <strong>required</strong>
-        </mat-error>
-      </mat-form-field>
-      <button mat-raised-button type="submit" (click)="submit()">Submint</button>
+    <form [formGroup]="Form">
+      <div>
+        <mat-icon>
+          done_outline  
+        </mat-icon>
+        <mat-checkbox formControlName="SilendAlarm" labelPosition="before">Silent Alarm</mat-checkbox>
+        <mat-checkbox mat-color="secondary" formControlName="DisableCamera" labelPosition="before">Disable Camera
+        </mat-checkbox>
+      </div>
+      <div>
+        <mat-icon>
+          wb_sunny
+        </mat-icon>
+        <mat-form-field color="accent">
+          <input matInput placeholder="Out Ligth On Tiger Value" formControlName="OutLightOnTrig" type="number">
+          <mat-error *ngIf="Form.controls.OutLightOnTrig.hasError('required')">
+            Authorization is <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field color="accent">
+          <input matInput placeholder="Out Ligth Off Tiger Value" formControlName="OutLightOffTrig" type="number">
+          <mat-error *ngIf="Form.controls.OutLightOffTrig.hasError('required')">
+            Authorization is <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
+      <div style="margin-left: calc(2rem + 24px)">
+          <button mat-raised-button type="submit" (click)="submit()">Submint</button>
+      </div>
+      
     </form>
   </div>
 </div>

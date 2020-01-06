@@ -13,6 +13,7 @@ from flask_cors import CORS
 from flask_socketio import SocketIO
 import jwt
 
+import threading
 
 def generateRandomString():
     letters = string.ascii_lowercase
@@ -37,7 +38,8 @@ def tokenRequired(f):
             authHeader = request.headers.get('Authorization', '').split()[1]
             jwt.decode(authHeader.encode('utf-8'), app.config['SECRET_KEY'])
             return f(*args, **kwargs)
-        except Exception:
+        except Exception as e:
+            print('e', e)
             resp = Response('Can not auth.')
             resp.status_code = 401
             return resp
@@ -73,6 +75,7 @@ def statusGet():
     return resp
 
 @app.route('/api/settings')
+@tokenRequired
 def settingsGet():
     settings = settingsServiceInst.getFrontEndSettings()
     serializedSettings = json.dumps(settings)
@@ -80,16 +83,23 @@ def settingsGet():
     return resp
 
 @app.route('/api/events')
+@tokenRequired
 def eventGet():
-    events = loger.getLastAny()
-    eventsDir = map(lambda event: event.getDictionary(), events)
-    #print('Events', list(eventsDir))
+    events = loger.getAll()
+    #eventsDir = map(lambda event: event.__dict__, events)
+    eventsDir = []
+    for event in events:
+        eventsDir.append(event.__dict__)
+    print('Events', list(eventsDir), eventsDir)
     list(eventsDir)
-    serializedEvents = json.dumps(list(eventsDir))
+    serializedEvents = json.dumps(eventsDir)
+    #serializedEvents = json.dumps(events.__dict__)
+    print('Events', serializedEvents)
     resp = Response(serializedEvents)
     return resp
 
 @app.route('/api/settingsUpdate', methods=['POST'])
+@tokenRequired
 def settingsUpdate(): 
     try:
         print(request.json)
@@ -125,15 +135,21 @@ def onNewLog():
     socketio.emit('EVENT_EMITED', json) """
 
 if __name__ == '__main__':
-    socketio.run(app, port=5000)
     #app.run(app, port=5000)
 
-    login = EventLog.getLoginServise()
+    log = EventLog.getLoginServise()
 
-    def newSettigns():
+    def newSettigns(_):
         socketio.emit('NEW_STATE_AVAILIBLE')
-    login.subscribeByName('Settings Change', newSettigns)
+    log.subscribeByName('Settings Change', newSettigns)
 
-    def newEvent():
+    def newEvent(_):
+        print('Event emits')
         socketio.emit('EVENT_EMITED')
-    login.subscribeAny(newEvent)
+    log.subscribeAny(newEvent)
+    print('events', log.getLastAny(-1))
+    t = threading.Timer(7, lambda : log.emit('API TEST', EventLog.EventType.DEBUG))
+    t.setDaemon(True)
+    t.start()
+
+    socketio.run(app, port=5000)

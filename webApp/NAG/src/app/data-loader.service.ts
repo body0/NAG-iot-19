@@ -56,16 +56,7 @@ export class DataLoaderService {
       });
     });
 
-    // == TEST ==
-    /* this.updateSettings({
-      SilentAlarm: true
-    })
-      .then(pld => {
-        console.log('POST', pld);
-      })
-      .catch(e => {
-        console.log('POSE ERR:', e);
-      }); */
+    this.login('abc')
   }
 
   public subscribeOnLoginChange(callback: (state: boolean) => void): Subscription {
@@ -87,6 +78,12 @@ export class DataLoaderService {
       callback(this.Settings);
     }
     return this.NewSettings.subscribe(callback);
+  }
+  public subscribeOnNewEventsLoad(callback: (state: Event[]) => void): Subscription {
+    if (this.ElentList) {
+      callback(this.ElentList);
+    }
+    return this.NewEvent.subscribe(callback);
   }
 
   public updateSettings(settings: SettingsState) {
@@ -110,7 +107,7 @@ export class DataLoaderService {
       body,
       DataLoaderService.HttpOptions)
       .toPromise();
-    console.log('[INFO]: token loaded');
+    console.log('[INFO]: token loaded:', token.token);
     this.Token = token.token;
     this.loadAll();
     this.IsLogin.next(true);
@@ -153,7 +150,7 @@ export class DataLoaderService {
   }
 
   private loadAllEvents() {
-    this.Http.get(DataLoaderService.ApiBase + '/events')
+    this.Http.get(DataLoaderService.ApiBase + '/events', this.getAuthHeder())
       .toPromise()
       .then((body: any) => {
         console.log(body);
@@ -166,7 +163,7 @@ export class DataLoaderService {
   }
 
   private loadSettings() {
-    this.Http.get(DataLoaderService.ApiBase + '/settings')
+    this.Http.get(DataLoaderService.ApiBase + '/settings', this.getAuthHeder())
       .toPromise()
       .then((body: any) => {
         console.log(body);
@@ -201,7 +198,9 @@ export interface StateData {
   };
   LastSuccesfullAuth: string;
   LastFailedAuth: string;
-  LightLum: number;
+  LightSensor: number;
+  HumSensor: number;
+  PresSensor: number;
 }
 export interface LightStatus {
   status: boolean;
@@ -209,7 +208,8 @@ export interface LightStatus {
 
 export interface SettingsState {
   SilentAlarm: boolean;
-  OutLightTrig: number;
+  OutLightOnTrig: number;
+  OutLightOffTrig: number;
   DisableCamera: boolean;
 }
 

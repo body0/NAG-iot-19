@@ -34,10 +34,6 @@ export class ActualStateComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.Destructor.unsubscribe();
-  }
-
-  turnOnLight(lightName): void {
-
+    //this.Destructor.unsubscribe();
   }
 }

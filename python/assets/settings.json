@@ -1,7 +1,8 @@
 {
     "Basic": {
         "SilentAlarm": false,
-        "OutLightTrig": 4,
+        "OutLightOnTrig": 4,
+        "OutLightOffTrig": 6,
         "DisableCamera": false
     },
     "Hashed": {

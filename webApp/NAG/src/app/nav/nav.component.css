@@ -4,6 +4,7 @@
 
 .sidenav {
   width: 200px;
+  border-right: solid 1px #1f3bab;
 }
 
 .sidenav .mat-toolbar {
@@ -16,7 +17,6 @@
   z-index: 1;
 }
 
-
 .background-split {
   position: absolute;
   top: 0;
@@ -28,4 +28,17 @@
 }
 .backgroud {
   background-color: #B0B0B0;
+}
+
+.sideHeader {
+  display: flex;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+.sideHeader > span {
+  border-bottom: solid 3px #0c194b;
+}
+.sideHeader img {
+  height: 1.8rem;
+  margin-right: 12px; 
 }

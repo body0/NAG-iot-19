@@ -1,3 +1,16 @@
 .lineName {
     border-bottom: 1px solid gray;
 }
+.centerLine {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+.centerLine > * {
+    margin: 5px;
+}
+.onOff {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}

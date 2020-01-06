@@ -99,9 +99,9 @@ def init():
                                 loger.emit('Cannot send data to server', EventLog.EventType.SYSTEM_WARN)
                         lightReadCount = 0
                 #print('VALUE', value)
-                if value < settings.getSettingsAtribute(SettingsService.SettingsKeys.OUT_LIGHT_LUM_TRIG.value):
+                if value < settings.getSettingsAtribute(SettingsService.SettingsKeys.OUT_LIGHT_ON_LUM_TRIG.value) and lights.getLedState(Common.LightsIds.OUT_HOUSE) == Common.LedState.OFF:
                         lights.on(Common.LightsIds.OUT_HOUSE)
-                else:
+                elif value > settings.getSettingsAtribute(SettingsService.SettingsKeys.OUT_LIGHT_ON_LUM_TRIG.value) and lights.getLedState(Common.LightsIds.OUT_HOUSE) == Common.LedState.ON:
                         lights.off(Common.LightsIds.OUT_HOUSE)
                 loger.emit('Light', EventLog.EventType.SYSTEM_LOG, value)
                 # print('Value -L', value)

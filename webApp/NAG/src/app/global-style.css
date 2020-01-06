@@ -33,3 +33,7 @@ h2 {
     color: #e0e0e0;
     box-shadow:  2px 2px 4px #555555;
 }
+.warnMsg {
+    color: #ec1e16;
+    font-size: 1.3rem;
+}

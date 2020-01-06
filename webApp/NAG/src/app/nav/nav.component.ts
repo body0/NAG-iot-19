@@ -3,6 +3,7 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DataLoaderService } from '../data-loader.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-nav',
@@ -20,7 +21,8 @@ export class NavComponent {
 
   constructor(
     private breakpointObserver: BreakpointObserver,
-    private dataLoader: DataLoaderService) {
+    private dataLoader: DataLoaderService,
+    private router: Router) {
     dataLoader.subscribeOnLoginChange(state => {
       this.IsLogin = state;
     });
@@ -28,6 +30,10 @@ export class NavComponent {
 
   logOut() {
     this.dataLoader.logout();
+  }
+
+  changeRoute(newRoute){
+    this.router.navigate([newRoute]);
   }
 
 }
