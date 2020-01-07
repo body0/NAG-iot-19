@@ -26,7 +26,9 @@ import threading
 def getUserInputs():
     return UserInputs
 
-
+""" 
+    define button
+"""
 class _UserInputs:
     def __init__(self):
         self._LightsButton = DevEvent.Button(22)
@@ -34,13 +36,6 @@ class _UserInputs:
         self._PirSensor = DevEvent.Button(5)
         self._IR_Transistor = DevEvent.Button(24)
         self._Log = EventLog.getLoginServise()
-        # self._numPad = DevEvent.NumBoard([-1, -1, -1], [-])
-
-        """ def _generateInputButtonTuple(pinID):
-            button =  DevEvent.Button(pinID)
-            observable = Common.Observable()
-            button.subscribe(lambda data: observable.emit(data))
-            return (button, observable) """
 
     def subscribe(self, inputId, callback):
         if inputId == Common.InputIds.LIGTHS_BUTTON:

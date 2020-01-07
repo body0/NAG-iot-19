@@ -54,7 +54,7 @@ def login():
             raise Exception('Wrong password')
         print('OK',bool(settingsServiceInst.matchAccesPassword(request.json['password'])))
         token = jwt.encode({
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
         }, app.config['SECRET_KEY'])
         jsonResp = {
             'token': token.decode('utf-8')
