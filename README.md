@@ -30,7 +30,7 @@ pokusit se zprovoznit rfid
 
 ### Kamera
 
-### [Settings](../python/settingsService.py)
+### [Settings](python/settingsService.py)
 Umožnuje změnit některé parametry upravující chování domu (buď na webové stránce nebo v souboru)
 Při startu se pokusíme načíst nastavení ze souboru (.json), prokud při tomto prosecu nastane chyba, načte se defaultní nastavení
 
