@@ -29,7 +29,7 @@ h2 {
     margin: 0;
     padding: 1rem;
    /*  background-color: #065679; */
-    background-color: #0c194b;
+    background-color: #1f3bab;
     color: #e0e0e0;
     box-shadow:  2px 2px 4px #555555;
 }
@@ -37,3 +37,6 @@ h2 {
     color: #ec1e16;
     font-size: 1.3rem;
 }
+/* * {
+    color: #555555;
+} */

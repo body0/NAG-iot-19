@@ -5,8 +5,8 @@
   <div *ngIf="State">
     <div class="lightsGrid">
       <h2>Lights</h2>
-      <div *ngFor="let light of Lights" class="centerLine">
-        <span>{{light.name}}</span>
+      <div *ngFor="let light of Lights" class="centerLine ofset">
+        <span class="lineName">{{light.name}}</span>
         <span *ngIf="light.status" class="onOff" style="color: #87bc47;">
           <mat-icon>fiber_manual_record</mat-icon>
           <span>On</span>
@@ -19,43 +19,50 @@
     </div>
     <div class="gateGrid">
       <h2>Gate</h2>
-      <div class="centerLine">
-        <span *ngIf="State.Gate.status" class="onOff" style="color: #87bc47;">
+      <div class="ofset">
+        <p *ngIf="State.Gate.status" class="onOff" style="color: #87bc47;">
           <mat-icon>fiber_manual_record</mat-icon>
           <span>On</span>
-        </span>
-        <span *ngIf="!State.Gate.status" class="onOff" style="color: #f44336;">
+        </p>
+        <p *ngIf="!State.Gate.status" class="onOff" style="color: #f44336;">
           <mat-icon>fiber_manual_record</mat-icon>
           <span>Off</span>
-          <span style="color: initial;">&nbsp;({{State.Gate.lastOpened | date}})</span>
-        </span>
+        </p>
+        <p>
+          <span class="lineName">Last opened:</span>
+          <span>&nbsp;{{State.Gate.lastOpened | date:'d. M. y, h:mm:ss'}}</span>
+        </p>
       </div>
     </div>
     <div class="sensors">
       <h2>Sensors</h2>
-      <p>
-        <span class="lineName">Light:</span>
-        <span> &nbsp;{{State.LightSensor}}</span>
-      </p>
-      <p>
-        <span class="lineName">Humidity:</span>
-        <span> &nbsp;{{State.HumSensor}}</span>
-      </p>
-      <p>
-        <span class="lineName">Presure:</span>
-        <span> &nbsp;{{State.PresSensor}}</span>
-      </p>
+      <div class="ofset">
+        <p>
+          <span class="lineName">Light:</span>
+          <span> &nbsp;{{State.LightSensor}}</span>
+        </p>
+        <p>
+          <span class="lineName">Humidity:</span>
+          <span> &nbsp;{{State.HumSensor}}</span>
+        </p>
+        <p>
+          <span class="lineName">Presure:</span>
+          <span> &nbsp;{{State.PresSensor}}</span>
+        </p>
+      </div>
     </div>
     <div class="accesGrid">
       <h2>Auth</h2>
-      <p>
-        <span class="lineName">Last Sucesfull auth:</span>
-        <span> &nbsp;{{State.LastSuccesfullAuth | date}}</span>
-      </p>
-      <p>
-        <span class="lineName">Last Failed auth:</span>
-        <span> &nbsp;{{State.LastFailedAuth | date}}</span>
-      </p>
+      <div class="ofset">
+        <p>
+          <span class="lineName">Last Sucesfull auth:</span>
+          <span> &nbsp;{{State.LastSuccesfullAuth | date:'d. M. y, h:mm:ss' }}</span>
+        </p>
+        <p>
+          <span class="lineName">Last Failed auth:</span>
+          <span> &nbsp;{{State.LastFailedAuth | date:'d. M. y, h:mm:ss'}}</span>
+        </p>
+      </div>
     </div>
   </div>
   <div *ngIf="!State">

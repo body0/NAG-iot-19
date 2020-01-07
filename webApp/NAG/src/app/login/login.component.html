@@ -1,8 +1,9 @@
 <div class="floating">
   <h2 class="floating-header">
-    Lights status
+    Log In
   </h2>
   <div class="main-conetnt">
+    <p class="headerLine">To acces data verify with pin code</p>
     <form novalidate [formGroup]="LoginForm">
       <mat-form-field>
         <input matInput="Acces Password" formControlName="password" type="password">
@@ -10,9 +11,8 @@
           Authorization is <strong>required</strong>
         </mat-error>
       </mat-form-field>
-      <button class="submit-button" mat-raised-button type="submit" [disabled]='!LoginForm.valid' (click)="login()">Login</button>
+      <button class="submitButton" mat-raised-button type="submit" [disabled]='!LoginForm.valid' (click)="login()">Login</button>
     </form>
     <p>{{ErrMsg}}</p>
   </div>
-
 </div>

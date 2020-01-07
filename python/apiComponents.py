@@ -41,7 +41,7 @@ class EventSinkAppState:
 
         def systemStateUpdateFactory(updatedString):
             def systemStateUpdateFactoryFunc(value):
-                self.SystemState[updatedString] = value
+                self.SystemState[updatedString] = value.Pld
                 self.emitUpdateEvent()
             return systemStateUpdateFactoryFunc
 
@@ -85,6 +85,7 @@ class EventSinkAppState:
         return self.SystemState[name]
     
     def getAll(self):
+        print('State', self.SystemState)
         return self.SystemState
 
     def emitUpdateEvent(self):

@@ -3,6 +3,7 @@
 import apiComponents as ApiComponents
 import settingsService as SettingsService
 import eventLog as EventLog
+#import main as Main
 
 import random
 import string
@@ -149,9 +150,8 @@ if __name__ == '__main__':
         print('Event emits')
         socketio.emit('EVENT_EMITED')
     log.subscribeAny(newEvent)
-    print('events', log.getLastAny(-1))
     t = threading.Timer(7, lambda : log.emit('API TEST', EventLog.EventType.DEBUG))
     t.setDaemon(True)
     t.start()
-
+    #Main.init()
     socketio.run(app, port=5000)

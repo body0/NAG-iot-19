@@ -3,8 +3,40 @@
     Events
   </h2>
   <div class="main-conetnt">
-    <div *ngFor="let event of EventList">
-      <pre>{{event}}</pre>
+    <div class="eventLine" style="margin: 15px 0; font-size: 1.4rem;">
+      <span style="grid-column: 1;">Name</span>
+      <span style="grid-column: 2;">Type</span>
+      <span style="grid-column: 3;">Timestamp</span>
+    </div>
+    <div *ngFor="let event of EventList" class="eventLine">
+      <span style="grid-column: 1;">{{event.Name}}</span>
+      <span style="grid-column: 2;" class="onOff">
+        <span *ngIf="event.Type === '0'">
+          <mat-icon style="color: blue;">fiber_manual_record</mat-icon>
+          <span>DEBUG</span>
+        </span>
+        <span *ngIf="event.Type === '1'">
+          <mat-icon style="color: gray;">fiber_manual_record</mat-icon>
+          <span>LOG</span>
+        </span>
+        <span *ngIf="event.Type === '2'">
+          <mat-icon style="color: #ec1e16;">fiber_manual_record</mat-icon>
+          <span>WARN</span>
+        </span>
+        <span *ngIf="event.Type === '3'">
+          <mat-icon style="color: gray;">fiber_manual_record</mat-icon>
+          <span>SYSTEM_LOG</span>
+        </span>
+        <span *ngIf="event.Type === '4'">
+          <mat-icon style="color: #ec1e16;">fiber_manual_record</mat-icon>
+          <span>SYSTEM_WARN</span>
+        </span>
+        <span *ngIf="event.Type === '5'">
+          <mat-icon style="color: red;">fiber_manual_record</mat-icon>
+          <span>SYSTEM_ERR</span>
+        </span>
+      </span>
+      <span style="grid-column: 3;">{{event.Timestamp | date:'d. M. y, h:mm:ss'}}</span>
     </div>
   </div>
 </div>

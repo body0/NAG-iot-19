@@ -107,19 +107,19 @@ def init():
                 loger.emit('Light', EventLog.EventType.SYSTEM_LOG, value)
 
         lightSensor=Common.SensorTimer(loadLight)
-        lightSensor.start(0.5)
+        lightSensor.start(5)
 
         bmp085=BMP085.BMP085()
         def loadPres():
                 value=bmp085.read_pressure()
                 loger.emit('Pres', EventLog.EventType.SYSTEM_LOG, value)
         pressSensor=Common.SensorTimer(loadPres)
-        pressSensor.start(2)
+        pressSensor.start(5)
         def loadTemp():
                 value=bmp085.read_temperature()
                 loger.emit('Temp', EventLog.EventType.SYSTEM_LOG, value)
         tempSensor=Common.SensorTimer(loadTemp)
-        tempSensor.start(2)
+        tempSensor.start(5)
 
-init()
-#time.sleep(5000)
+#nit()
+#time.sleep(50000)

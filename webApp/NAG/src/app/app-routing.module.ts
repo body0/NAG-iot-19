@@ -5,6 +5,7 @@ import { ActualStateComponent } from './actual-state/actual-state.component';
 import { SettingsComponent } from './settings/settings.component';
 import { LoginComponent } from './login/login.component';
 import { EventsComponent } from './events/events.component';
+import { StreamComponent } from './stream/stream.component';
 
 const routes: Routes = [
   // { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -13,6 +14,7 @@ const routes: Routes = [
   { path: 'events', component: EventsComponent },
   { path: 'state', component: ActualStateComponent },
   { path: 'settings', component: SettingsComponent },
+  { path: 'stream', component: StreamComponent },
   { path: '**', redirectTo: '' }
 ];
 

@@ -1,0 +1,12 @@
+.eventLine{
+    /* display: flex;
+    flex-direction: row;
+    justify-content: space-around; */
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+.onOff > span{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}

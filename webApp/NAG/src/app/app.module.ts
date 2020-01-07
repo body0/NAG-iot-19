@@ -15,6 +15,7 @@ import { MaterialModule } from './material/material.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { EventsComponent } from './events/events.component';
+import { StreamComponent } from './stream/stream.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { EventsComponent } from './events/events.component';
     StatisticComponent,
     NavComponent,
     SettingsComponent,
-    EventsComponent
+    EventsComponent,
+    StreamComponent
   ],
   imports: [
     BrowserModule,

@@ -1,5 +1,6 @@
 .lineName {
-    border-bottom: 1px solid gray;
+    /* border-bottom: 1px solid gray; */
+    font-size: 1.1rem;
 }
 .centerLine {
     display: flex;
@@ -13,4 +14,7 @@
     display: flex;
     justify-content: flex-start;
     align-items: center;
+}
+.ofset {
+    margin-left: 20px;
 }

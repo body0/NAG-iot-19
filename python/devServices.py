@@ -1,7 +1,6 @@
 import common as Common
 import eventLog as EventLog
 import devEvent as DevEvent
-import slaveService as SlaveService
 import settingsService as SettingsService
 import camera as Camera
 import lcdDisplayManager as LcdDisplayManager
@@ -174,7 +173,7 @@ class _LightService:
             lightId == Common.LightsIds.ALARM_BUZZER or
             lightId == Common.LightsIds.ALARM_LED or
                 lightId == Common.LightsIds.AUTH_SUCCES_LED):
-            self._Led[lightId.value][2]
+            return self._Led[lightId.value][2]
         else:
             self._Log.emit('lightId not found in LightsIds',
                            EventLog.EventType.SYSTEM_WARN)

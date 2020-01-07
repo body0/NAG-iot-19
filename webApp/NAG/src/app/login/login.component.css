@@ -4,6 +4,10 @@
     align-items: center;
     flex-direction: column;
 }
-.submit-button {
-    margin-right: 10px;
+.headerLine {
+    margin: 1rem 0; 
+    font-size: 1.3rem;
+}
+.submitButton {
+    margin-left: 10px;
 }

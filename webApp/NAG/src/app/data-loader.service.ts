@@ -45,6 +45,7 @@ export class DataLoaderService {
       console.log('Socket open');
 
       ws.on('NEW_STATE_AVAILIBLE', (_) => {
+        console.log('NS');
         this.loadNewStateData();
       });
       /* ws.on('EVENT_EMITED', pld => {
@@ -52,11 +53,12 @@ export class DataLoaderService {
         this.addEvent(event);
       }); */
       ws.on('EVENT_EMITED', pld => {
+        console.log('EE');
         this.loadAllEvents();
       });
     });
 
-    this.login('abc')
+    //this.login('abc')
   }
 
   public subscribeOnLoginChange(callback: (state: boolean) => void): Subscription {
