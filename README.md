@@ -26,11 +26,27 @@ pokusit se zprovoznit rfid
 
 ## Základní funkce
 
+### Autoriční systém 
+
+Pro vybranou skupinu lidí po přiložení čipu systém přejde do autorizovaného stavu, když se přiloží neznámý čip zabliká červená led a zapíská bzučák.
+
+### Brána
+
+Brána se otevře jen při autorizovaném stavu, bez autorizace začne blikat červená led a zapíská bzučák. Brána se zavře po 10s, pokud se v ní nachází objekt nezavře se do jeho odstranění.
+
+### LCD
+
+Na LCD se zobrazují základní informace o domě jako je intenzita osvětlení, teplota, tlak, autorizace, přítomnost někoho v zahradě, přítomnost objektu v bráně.
+
+### Osvětlení 
+
+Jsou zde dvě LED diody jedna je uvnitř, jedna venku. Ta uvnitř je ovládána dvěmi tlačítky po stisku tlačítka svítí 10s, poté zhasne. Venkovní je připojena na senzor osvětlení, úrovně při kterých se rozsvítí a zhasne jde nastavit v [Settings](python/assets/settings.json)
+
 ## Dodatečné funkce
 
 ### Kamera
 
-### Settings
+### [Settings](python/assets/settings.json)
 Umožnuje změnit některé parametry upravující chování domu (buď na webové stránce nebo v souboru)
 Při startu se pokusíme načíst nastavení ze souboru (.json), prokud při tomto prosecu nastane chyba, načte se defaultní nastavení
 
