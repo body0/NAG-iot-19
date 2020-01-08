@@ -73,7 +73,7 @@ class EventSinkAppState:
             self.SystemState['LastFailedAuth'] = datetime.datetime.now().isoformat()
 
         self._Loger.subscribeByName('Gate State Change', updateGate)
-        self._Loger.subscribeByName('Hum', systemStateUpdateFactory('HumSensor'))
+        self._Loger.subscribeByName('Temp', systemStateUpdateFactory('TempSensor'))
         self._Loger.subscribeByName('Light', systemStateUpdateFactory('LightSensor'))
         self._Loger.subscribeByName('Pres', systemStateUpdateFactory('PresSensor'))
         self._Loger.subscribeByName('Light state change', lightUpdate)

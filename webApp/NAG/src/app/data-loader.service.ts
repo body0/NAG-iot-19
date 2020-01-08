@@ -201,7 +201,7 @@ export interface StateData {
   LastSuccesfullAuth: string;
   LastFailedAuth: string;
   LightSensor: number;
-  HumSensor: number;
+  TempSensor: number;
   PresSensor: number;
 }
 export interface LightStatus {

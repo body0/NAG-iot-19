@@ -18,3 +18,9 @@
 .ofset {
     margin-left: 20px;
 }
+h2 {
+    margin: 0 0 .6rem 0;
+}
+mat-divider {
+    margin: .5rem 0;
+}
