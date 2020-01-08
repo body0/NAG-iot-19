@@ -16,6 +16,8 @@ import requests
             - subscribe: O(1)
             - getLast: O(n) // n = number of event stored in _Queue (max length = MAX_RECORD_QUEUE)
 """
+
+# Safely load api key from env
 ApiKey = ''
 if 'KEYAPI' in os.environ:
     ApiKey = os.environ['KEYAPI']
@@ -34,7 +36,7 @@ class _LogerService:
 
     def __init__(self):
             if(LogerService != None):
-                raise Exception('Triing to instanciate singleton')
+                raise Exception('Trying to instantiate singleton!')
             self._AnyObserver = Common.Observable()
             self._NameObserverMap = {}
             self._TypeObserverMap = {
@@ -112,11 +114,6 @@ class _LogerService:
         - auth to server
 """
 def sendToUpstream(eventName, data):
-    """
-    :param eventName: name of variable on website
-    :param data: integer data, that will be posted to server
-    :return: status code
-    """
     jsonData = {'value': data}
     header = {
         'accept': 'application/json',
@@ -171,20 +168,3 @@ class EventType:
 """
 
 LogerService = _LogerService()
-
-""" 
-    ===== DEBUG =====
-"""
-
-if __name__ == '__main__':
-    """ log = getLoginServise()
-    def myPrint(prefix):
-        def prefixPrint(data):
-            print(prefix, data)
-        return prefixPrint
-    print('pre all', log.getLastAny())
-    #log.subscribeAny(myPrint('sub all'))
-    log.subscribeAny(lambda arg: print(arg))
-    log.emit('debug', EventType.LOG)
-    print('post all', log.getLastAny()) """
-    print('API', sendToUpstream('light', -1), 'KEY', ApiKey)
