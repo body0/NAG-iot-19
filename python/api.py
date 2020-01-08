@@ -109,7 +109,7 @@ def settingsUpdate():
     try:
         print(request.json)
         newSettings = request.json
-        settingsServiceInst.saveNewSettings(newSettings)
+        settingsServiceInst.saveNewBasicSettings(newSettings)
         resp = Response('Succes')
         return resp
     except ValueError as e:

@@ -16,7 +16,6 @@ import atexit
 
         - init and ceanup of gpio
         - manage simple trigers and write to pins
-        - manage all pin alocation
  """
 
 IO.setmode(IO.BCM)
@@ -24,13 +23,10 @@ IO.setmode(IO.BCM)
 
 class Button:
     """
-    Button Class
+        param channel: pin ID 
+        param bounceTime: minimum time betwen trigering
     """
     def __init__(self, channel, bounceTime=300, hasPullDown=True):
-        """
-        :param channel: inpot pin
-        :param bounceTime: minimum time betwen trigering
-        """
         if hasPullDown:
             IO.setup(channel, IO.IN, pull_up_down=IO.PUD_DOWN)
         else:
@@ -43,28 +39,26 @@ class Button:
 
         IO.add_event_detect(channel, IO.RISING, callback=emit, bouncetime=bounceTime)
 
+    """
+        return: state of button True>high, False>low
+    """
     def getState(self):
-        """
-        :return: state of button True>high, False>low
-        """
         return IO.input(self._Channel)
 
     def subscribe(self, fun):
-        self._InterObs.subscrie(fun)
+        return self._InterObs.subscrie(fun)
 
     def clearAllSubscriptions(self):
         self._InterObs = Common.MemObservable()
 
 class RotEnc:
     """
-    RotEnc Class
-    """
-    def __init__(self, channelA, channelB, bounceTime=150):
-        """
         :param channelA: input pin A
         :param channelB: input pin B
         :param int bounceTime: minimum time betwen trigering
-        """
+        -- NOT IN USE --
+    """
+    def __init__(self, channelA, channelB, bounceTime=150):
         IO.setup(channelA, IO.IN, pull_up_down=IO.PUD_UP)
         IO.setup(channelB, IO.IN, pull_up_down=IO.PUD_UP)
         self._Channels = (channelA, channelB)
@@ -96,14 +90,12 @@ class RotEnc:
 
 class NumBoard:
     """
-    Class NumBoard
-    """
-    def __init__(self, inCh, outCh, bounceTime=500):
-        """
+        simle num keyboard 
         :param inCh: list of pin conected to colums in order of 1 to 3
         :param outCh: list of pin conected to colums in order of 1 to 4
-        :param bounceTime:
-        """
+        -- NOT IN USE --
+    """
+    def __init__(self, inCh, outCh, bounceTime=500):
         self._InterObs = Common.MemObservable()
 
         if len(inCh) != 3 or len(outCh) != 4:
@@ -156,26 +148,21 @@ class NumBoard:
 
 class LED:
     """
-    LED Class
+        param channel: pin ID 
+        param frequency: int frequency for PWM
     """
     def __init__(self, channel, frequency=50):
-        """
-        :param channel:
-        :param int frequency:
-        """
         IO.setup(channel, IO.OUT)
         self.PWM = IO.PWM(channel, frequency)
         self.PWM.start(0)
         self.Intensity = 0
         self.off()
 
+    """
+        param intensity: range from 0 to 255
+        - set led brightness according to intensity parameter (0 - 255)
+    """
     def write(self, intensity):
-        """
-        set led brightness according to intensity parameter (0 - 255)
-
-        :param int intensity:  range from 0 to 255
-        :return:
-        """
         if intensity > 255 or intensity < 0:  # invalid parameter
             print("WARNING: out of range")
             sys.stdout.flush()
@@ -190,9 +177,6 @@ class LED:
         self.write(0)
 
 class LEDZeroLogic(LED):
-    """
-    LED Class
-    """
     def __init__(self, channel, frequency=50):
         super().__init__(channel, frequency)
 
@@ -206,11 +190,9 @@ class LEDZeroLogic(LED):
         self.write(0)
 
 class Sevro:
+    """ 
+        param channel: pin ID (best to use pin with hardware PWM suport)
     """
-    Servo Class
-    """
-
-
     def __init__(self, channel, minDutyCycle = 5, maxDutyCycle = 10):
         #IO.setup(channel, IO.OUT)
         #self.servo = IO.PWM(channel, 50) # GPIO chan for PWM with 50Hz
@@ -220,7 +202,6 @@ class Sevro:
         self.maxDutyCycle = maxDutyCycle
         self.pi = pigpio.pi()
         self.Channel = channel
-        #2070 - close
         self.pi.set_servo_pulsewidth(self.Channel, 1000)
 
     def open(self):
@@ -228,45 +209,22 @@ class Sevro:
 
     def close(self):
         self.pi.set_servo_pulsewidth(self.Channel, 2070)
-    """ def write(self, angle):
-        #print((angle / 18) + 2.5)
-        #self.servo.ChangeDutyCycle((angle / 18) + 2.5)
-        #angle = float(input('Please enter a angle: '))
-        pw = self.angleToPulseWidth(angle)
-        self.pi.set_servo_pulsewidth(self.Channel, pw) """
-
-    """ def angleToPulseWidth(self, angle):
-        MIN_ANG=-180.0 #degrees
-        MAX_ANG=180.0  #degrees
-
-        MIN_PW=1000 # microseconds
-        MAX_PW=2000 # microseconds
-        RAD2DEG=180.0/math.pi
-        ANG_RANGE=MAX_ANG-MIN_ANG
-        PW_RANGE=MAX_PW-MIN_PW
-        PWAR=float(PW_RANGE)/ANG_RANGE
-        
-        assert MIN_ANG <= angle <= MAX_ANG
-        return MIN_PW + ((angle - MIN_ANG) * PWAR) """
 
 class RfId:
-    def __init__(self, spi_bus, spi_device, reset_pin):
+    def __init__(self, spi_bus=0, spi_device=0, reset_pin):
         self._Reader = MFRC522(bus=spi_bus, device=spi_device, pin_rst=reset_pin)
         self._IsScannig = True
         self._InterObs = Common.Observable()
 
         def loop():
             (status, _) = self._Reader.MFRC522_Request(self._Reader.PICC_REQIDL)
-            #print('S0', status)
 
             if self._IsScannig and status == self._Reader.MI_OK:
                 (status, uid) = self._Reader.MFRC522_Anticoll()
 
-                #print('S1', status)
                 if status == self._Reader.MI_OK:
                     print("UID: "+str(uid[0])+","+str(uid[1])+","+str(uid[2])+","+str(uid[3]))
                     strUID = str(uid[0])+","+str(uid[1])+","+str(uid[2])+","+str(uid[3])
-                    print('|' + strUID + '|')
                     self._InterObs.emit(strUID)
 
         timer = Common.SensorTimer(loop)
@@ -282,11 +240,11 @@ class RfId:
         return self._InterObs.subscrie(callback)
 
 
-
-def wait_for_interrupts():
-    """
+"""
     wait until callbacks are ivoked or program is terminated (then init clean up step)
-    """
+    -- NOT IN USE --
+"""
+def wait_for_interrupts():
     eventLoger = EventLog.getLoginServise()
     try:
         # infinite sleep on main thread

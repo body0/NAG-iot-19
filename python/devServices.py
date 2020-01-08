@@ -18,27 +18,26 @@ import threading
 
 
 LightService = None
-UserInputs = None
+UserInputsService = None
 CameraService = None
 AuthService = None
 GateService = None
-DisplayService = None
 
 """
     ===== SERVICES =====
 """
 
 
-def getUserInputs():
-    return UserInputs
-class _UserInputs:
+def getUserInputsService():
+    return UserInputsService
+class _UserInputsService:
     """ 
         ! SINGLETON !
         Define button pins and operation, can be extended by button unlike input.
     """
 
     def __init__(self):
-        if(UserInputs != None):
+        if(UserInputsService != None):
             raise Exception('Trying to instantiate singleton!')
         """ 
         self._LightsButton = DevEvent.Button(22)
@@ -222,7 +221,7 @@ class _GateService:
 
     """
         ! SINGLETON !
-        DO NOT CHECK IF USER IS AUTH
+        warn: Do not check if user is authorized to open gate
     """
 
     def __init__(self):
@@ -232,7 +231,8 @@ class _GateService:
         self._isOpen = False
         self._Servo = DevEvent.Sevro(12)
         self._close()
-        self._inputs = getUserInputs()
+        # for IR_TRANSISTOR
+        self._inputs = getUserInputsService()
     """
         open gate for "timeOn" second
     """
@@ -278,7 +278,7 @@ class _AuthService:
             raise Exception('Trying to instantiate singleton!')
         self._IsAuhtVar = False
         self._Log = EventLog.getLoginServise()
-        self._RfId = DevEvent.RfId(0, 0, 25)
+        self._RfId = DevEvent.RfId(25)
         self._Settings = SettingsService.getSettingsService()
         settings = SettingsService.getSettingsService()
 
@@ -306,92 +306,14 @@ class _AuthService:
         self._IsAuhtVar = True
         self._Log.emit('Auth Succes', EventLog.EventType.LOG)
 
-def getDisplayService():
-    return DisplayService
-
-
-class _DisplayService:
-    """
-        ! SINGLETON !
-         Lisen for events and update them if needed.
-         Init lcdDisplayManager and let him cysle throught the data.
-    """
-
-    def __init__(self):
-        self._Log = EventLog.getLoginServise()
-        self._Schema = {
-            "Light": "UNKNOWN",
-            "Presure": "UNKNOWN",
-            "Temperature": "UNKNOWN",
-            "Gate State": "Down",
-            # "Is Authorized": "No"
-        }
-        self._Log = EventLog.getLoginServise()
-
-        """ self._Log.subscribeByName(
-            'Auth Suspended', lambda pld: self.setEntry('Is Authorized', 'No')
-        )
-        self._Log.subscribeByName(
-            'Auth Succes', lambda pld: self.setEntry('Is Authorized', 'Yes')
-        ) """
-
-        self._Log.subscribeByName(
-            'Light', lambda pld: self.setEntry('Light', pld))
-        self._Log.subscribeByName(
-            'Pres', lambda pld: self.setEntry('Presure', pld))
-        self._Log.subscribeByName(
-            'Temp', lambda pld: self.setEntry('Temperature', pld))
-
-        def gateStateChange(newState):
-            if newState:
-                self._Schema['Gate State'] = 'Up'
-            else:
-                self._Schema['Gate State'] = 'Down'
-
-        self._Log.subscribeByName('Gate State Change', gateStateChange)
-
-        self._Display = LcdDisplayManager.LcdDisplay()
-
-        def lineLoader(curentLine):
-            return lambda: curentLine + ' ' + self._Schema[curentLine]
-        """ for line in self._Schema:
-            self._Display.addCycleLine(lineLoader(line))"""
-
-        auth = getAuthService()
-        inputs = getUserInputs()
-        self._Display.addCycleLine(lineLoader('Light'))
-        self._Display.addCycleLine(lineLoader('Presure'))
-        self._Display.addCycleLine(lineLoader('Temperature'))
-        self._Display.addCycleLine(
-            lambda: "Is Authorized " + ("YES" if auth.isAuth() else "No"))
-        self._Display.addCycleLine(lineLoader('Gate State'))
-        self._Display.addCycleLine(lambda: "Obsticle in gate " + (
-            "YES" if inputs.getValue(Common.InputIds.IR_TRANSISTOR) == 1 else "No"))
-        self._Display.addCycleLine(lambda: "Someone outside " + (
-            "YES" if inputs.getValue(Common.InputIds.PIR_SENSOR) == 1 else "No"))
-
-        self._Display.draw()
-        """ def reDraw():
-            self._Display.draw()
-        displayTimer = Common.SensorTimer(reDraw)
-        displayTimer.start(5) """
-
-    def setEntry(self, name, text):
-        #print('SET', name, text.Pld)
-        self._Schema[name] = str(text.Pld)
-        # self._Display.draw()
-
-    def showDiferentTextFor(self, textCallbackList, milis):
-        self._Display.overwriteMsg(textCallbackList)
-
 
 def getCameraService():
     return CameraService
-
-
 class _CameraService:
     """
         ! SINGLETON !
+        used to auth with fase racofnition
+        -- NOT IN USE --
     """
 
     def __init__(self):
@@ -414,16 +336,8 @@ class _CameraService:
 """
 
 LightService = _LightService()
-UserInputs = _UserInputs()
+UserInputsService = _UserInputsService()
 CameraService = _CameraService()
 AuthService = _AuthService()
 GateService = _GateService()
-DisplayService = _DisplayService()
 
-
-if __name__ == "__main__":
-    GateService._open()
-    # DisplayService.setEntry()
-    """ time.sleep(10)
-    GateService._close()
-    time.sleep(20) """

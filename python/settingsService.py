@@ -44,6 +44,7 @@ class _SettingsService:
         self._Settings = self._DefalutSettings
         self._Log = EventLog.getLoginServise()
 
+        # try load setting from file
         try:
             file = open(self._SettingsPath, "r")
             self._Settings = json.load(file)
@@ -65,41 +66,52 @@ class _SettingsService:
     def getSettingsAtribute(self, key):
         return self._Settings['Basic'][key]
     
+    """
+         param uid: string
+         - try match "uid" hash to any hash from settings 
+    """
     def matchRfid(self, uid):
         if (not type(uid) == str) or len(uid) == 0:
             return False
         #print('IN_A', password, self._Settings)
         for hashUid in self._Settings['Hashed'][SettingsHashKeys.RFID_HASH.value]:
             if bcrypt.checkpw(uid.encode('utf-8'), hashUid.encode('utf-8')):
-                print('Auth True')
                 return True
-        print('Auth False')
         return False
 
+    """
+         -- NOT IN USE --
+    """
     def recomputePassword(self, password):
         salt = bcrypt.gensalt()
         hash = bcrypt.hashpw(bytes(password, 'utf-8'), salt)
         self._Settings['AccesPasswordHash'] = hash
         self.saveUsedSettings()
 
+    """
+         param password: string
+         - try match "password" hash to hash from settings 
+    """
     def matchAccesPassword(self, password):
         if (not type(password) == str) or len(password) == 0:
             return False
         #print('IN_A', password, self._Settings)
         if bcrypt.checkpw(password.encode('utf-8'), self._Settings['Hashed'][SettingsHashKeys.ACCES_PASSWORK_HASH.value].encode('utf-8')):
-            print('Auth True')
             return True
-        else:
-            print('Auth False')
-            return False
-
-    def saveNewSettings(self, newSettings):
+        return False
+    """
+        - update Basic part of running setting (self._Settings) to newSettings and save setting to file 
+    """
+    def saveNewBasicSettings(self, newSettings):
         if not testJsonStructure(newSettings):
             raise Exception('Wrong Settings')
 
         self._Settings['Basic'] = newSettings
         self.saveUsedSettings()
 
+    """
+        - save running setting (self._Settings) to file 
+    """
     def saveUsedSettings(self):
         try:
             file = open(self._SettingsPath, "w")
@@ -111,10 +123,8 @@ class _SettingsService:
 
 SettingsService = _SettingsService()
 
-def testJsonStructure(jsonObj):
+def testJsonStructure(newSettings):
     for settingsKey in SettingsKeys:
-        if settingsKey.value not in jsonObj:
+        if settingsKey.value not in newSettings:
             return False
-    """ if SettingsKeys.SILENT_ALARM.value not in jsonObj:
-        return False """
     return True
