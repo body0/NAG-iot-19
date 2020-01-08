@@ -3,6 +3,10 @@ import common as Common
 
 import datetime
 
+"""
+    EventSinkAppState:
+        listen for event signaling for change in house state and collect them for web to display
+"""
 class EventSinkAppState:
 
     DefaultState = {
@@ -67,13 +71,16 @@ class EventSinkAppState:
         def logIn():
             self.SystemState['IsAuth'] = True
             self.SystemState['LastSuccesfullAuth'] = datetime.datetime.now().isoformat()
+            self.emitUpdateEvent()
         def logOut():
             self.SystemState['IsAuth'] = False
+            self.emitUpdateEvent()
         def logInFaill():
             self.SystemState['LastFailedAuth'] = datetime.datetime.now().isoformat()
+            self.emitUpdateEvent()
 
         self._Loger.subscribeByName('Gate State Change', updateGate)
-        self._Loger.subscribeByName('Hum', systemStateUpdateFactory('HumSensor'))
+        self._Loger.subscribeByName('Temp', systemStateUpdateFactory('TempSensor'))
         self._Loger.subscribeByName('Light', systemStateUpdateFactory('LightSensor'))
         self._Loger.subscribeByName('Pres', systemStateUpdateFactory('PresSensor'))
         self._Loger.subscribeByName('Light state change', lightUpdate)

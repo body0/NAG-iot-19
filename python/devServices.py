@@ -17,72 +17,91 @@ import threading
 """
 
 
+LightService = None
+UserInputsService = None
+CameraService = None
+AuthService = None
+GateService = None
+
 """
     ===== SERVICES =====
 """
 
 
-def getUserInputs():
-    return UserInputs
+def getUserInputsService():
+    return UserInputsService
+class _UserInputsService:
+    """ 
+        ! SINGLETON !
+        Define button pins and operation, can be extended by button unlike input.
+    """
 
-""" 
-    define button
-"""
-class _UserInputs:
     def __init__(self):
+        if(UserInputsService != None):
+            raise Exception('Trying to instantiate singleton!')
+        """ 
         self._LightsButton = DevEvent.Button(22)
         self._GateButton = DevEvent.Button(27)
         self._PirSensor = DevEvent.Button(5)
-        self._IR_Transistor = DevEvent.Button(24)
+        self._IR_Transistor = DevEvent.Button(24) 
+        """
         self._Log = EventLog.getLoginServise()
+        self._ButtonLikeInput = {
+            Common.InputIds.LIGTHS_BUTTON.value: DevEvent.Button(22),
+            Common.InputIds.GATE_BUTTON.value: DevEvent.Button(27),
+            Common.InputIds.PIR_SENSOR.value: DevEvent.Button(5),
+            Common.InputIds.IR_TRANSISTOR.value: DevEvent.Button(24)
+        }
+    """
+        param: callback: (_:Null) => void
+        return: subscription destructor
+        - call callback when input activated
+    """
 
     def subscribe(self, inputId, callback):
-        if inputId == Common.InputIds.LIGTHS_BUTTON:
-            self._LightsButton.subscribe(callback)
-        elif inputId == Common.InputIds.GATE_BUTTON:
-            self._GateButton.subscribe(callback)
-        elif inputId == Common.InputIds.PIR_SENSOR:
-            self._PirSensor.subscribe(callback)
-        elif inputId == Common.InputIds.IR_TRANSISTOR:
-            self._IR_Transistor.subscribe(callback)
+        if inputId.value in self._ButtonLikeInput:
+            return self._ButtonLikeInput[inputId].subscribe(callback)
         else:
-            self._Log.emit('lightId not found in LightsIds',
+            self._Log.emit('LightId not found in LightsIds',
                            EventLog.EventType.SYSTEM_WARN)
+    """
+         return: True/False
+         Return if input is active
+    """
 
     def getValue(self, inputId):
-        if inputId == Common.InputIds.LIGTHS_BUTTON:
-            return self._LightsButton.getState()
-        elif inputId == Common.InputIds.GATE_BUTTON:
-            return self._GateButton.getState()
-        elif inputId == Common.InputIds.PIR_SENSOR:
-            return self._PirSensor.getState()
-        elif inputId == Common.InputIds.IR_TRANSISTOR:
-            return self._IR_Transistor.getState()
+        if inputId.value in self._ButtonLikeInput:
+            return self._ButtonLikeInput[inputId].getState()
         else:
-            return self._Log.emit('lightId not found in LightsIds',
-                           EventLog.EventType.SYSTEM_WARN)
+            return self._Log.emit('LightId not found in LightsIds',
+                                  EventLog.EventType.SYSTEM_WARN)
 
 
 def getLightService():
     return LightService
-
 class _LightService:
     """
         ! SINGLETON !
-        used to turn on and off lights (led, led strip, led connected to arduino)
+        Used to turn on and off lights or other led like objects
     """
 
     def __init__(self):
+        if(LightService != None):
+            raise Exception('Trying to instantiate singleton!')
         self._Log = EventLog.getLoginServise()
-
         self._Led = {
             Common.LightsIds.IN_HOUSE.value: [DevEvent.LED(17), None, Common.LedState.OFF],
             Common.LightsIds.OUT_HOUSE.value: [DevEvent.LED(6), None, Common.LedState.OFF],
             Common.LightsIds.AUTH_SUCCES_LED.value: [DevEvent.LEDZeroLogic(23), None, Common.LedState.OFF],
             Common.LightsIds.ALARM_LED.value: [DevEvent.LEDZeroLogic(18), None, Common.LedState.OFF],
-            Common.LightsIds.ALARM_BUZZER.value: [DevEvent.LED(19), None, Common.LedState.OFF]
+            Common.LightsIds.ALARM_BUZZER.value: [
+                DevEvent.LED(19), None, Common.LedState.OFF]
         }
-        #self._WhiteLed = [DevEvent.LED(-1), None, LedState.OFF]
+    """ 
+        param onFor: number in second
+        param lightId: value from Enum (Common.LightsIds)
+        - turn on light for onFor second
+    """
 
     def turnOnLedFor(self, lightId, onFor):
         def _turnOnLedFor(led):
@@ -108,17 +127,20 @@ class _LightService:
             })
             t.start()
 
-        if (lightId == Common.LightsIds.IN_HOUSE or
-            lightId == Common.LightsIds.OUT_HOUSE or
-            lightId == Common.LightsIds.ALARM_BUZZER or
-            lightId == Common.LightsIds.ALARM_LED or
-                lightId == Common.LightsIds.AUTH_SUCCES_LED):
+        if (lightId.value in self._Led):
             _turnOnLedFor(self._Led[lightId.value])
         else:
             self._Log.emit('lightId not found in LightsIds',
                            EventLog.EventType.SYSTEM_WARN)
 
-    def turnOnForFor(self, lightId, period=0.75, rounds=2):
+    """ 
+        param period: delay in seconds betwen led change
+        param rounds: number of turn cicle
+        param lightId: value from Enum (Common.LightsIds)
+        - blink light several times
+    """
+
+    def turnOnForFor(self, lightId, period=0.75, rounds=3):
         def _oscilateFor(led):
             def generateUpdate(roundsRemaining, newState):
                 def update():
@@ -148,7 +170,8 @@ class _LightService:
                 'name': lightId,
                 'state': True
             })
-            t = threading.Timer(period, generateUpdate(rounds * 2, False))
+            t = threading.Timer(
+                period, generateUpdate((rounds - 1) * 2, False))
             t.setDaemon(True)
             t.start()
 
@@ -163,22 +186,14 @@ class _LightService:
                            EventLog.EventType.SYSTEM_WARN)
 
     def getLedState(self, lightId):
-        if (lightId == Common.LightsIds.IN_HOUSE or
-            lightId == Common.LightsIds.OUT_HOUSE or
-            lightId == Common.LightsIds.ALARM_BUZZER or
-            lightId == Common.LightsIds.ALARM_LED or
-                lightId == Common.LightsIds.AUTH_SUCCES_LED):
+        if (lightId.value in self._Led):
             return self._Led[lightId.value][2]
         else:
             self._Log.emit('lightId not found in LightsIds',
                            EventLog.EventType.SYSTEM_WARN)
 
     def on(self, lightId):
-        if (lightId == Common.LightsIds.IN_HOUSE or
-            lightId == Common.LightsIds.OUT_HOUSE or
-            lightId == Common.LightsIds.ALARM_BUZZER or
-            lightId == Common.LightsIds.ALARM_LED or
-                lightId == Common.LightsIds.AUTH_SUCCES_LED):
+        if (lightId.value in self._Led):
             self._Led[lightId.value][0].on()
             self._Log.emit('Light state change', EventLog.EventType.LOG, pld={
                 'name': lightId,
@@ -187,13 +202,9 @@ class _LightService:
         else:
             self._Log.emit('lightId not found in LightsIds',
                            EventLog.EventType.SYSTEM_WARN)
-    
+
     def off(self, lightId):
-        if (lightId == Common.LightsIds.IN_HOUSE or
-            lightId == Common.LightsIds.OUT_HOUSE or
-            lightId == Common.LightsIds.ALARM_BUZZER or
-            lightId == Common.LightsIds.ALARM_LED or
-                lightId == Common.LightsIds.AUTH_SUCCES_LED):
+        if (lightId.value in self._Led):
             self._Led[lightId.value][0].off()
             self._Log.emit('Light state change', EventLog.EventType.LOG, pld={
                 'name': lightId,
@@ -206,42 +217,41 @@ class _LightService:
 
 def getGateService():
     return GateService
-
-
 class _GateService:
+
     """
         ! SINGLETON !
-        user can autentificate by rf-id, password or camera
-        callback: (isOpened: boolealn) => void
+        warn: Do not check if user is authorized to open gate
     """
 
     def __init__(self):
+        if(GateService != None):
+            raise Exception('Trying to instantiate singleton!')
         self._Log = EventLog.getLoginServise()
         self._isOpen = False
-        #self._slaveService = SlaveService.getSlaveService()
         self._Servo = DevEvent.Sevro(12)
         self._close()
-        self._inputs = getUserInputs()
+        # for IR_TRANSISTOR
+        self._inputs = getUserInputsService()
+    """
+        open gate for "timeOn" second
+    """
 
     def openFor(self, timeOn):
-        # print('In')
         if self._isOpen:
             return
         self._open()
-        # print('open')
+        self._Log.emit('Gate State Change', EventLog.EventType.LOG, pld=True)
 
         def tryClose():
             while(self._inputs.getValue(Common.InputIds.IR_TRANSISTOR)):
                 time.sleep(0.5)
             self._close()
-            # print('close')
             self._Log.emit('Gate State Change',
                            EventLog.EventType.LOG, pld=False)
         t = threading.Timer(timeOn, tryClose)
         t.setDaemon(True)
         t.start()
-
-        self._Log.emit('Gate State Change', EventLog.EventType.LOG, pld=True)
 
     def isOpen(self):
         return self._isOpen
@@ -257,20 +267,19 @@ class _GateService:
 
 def getAuthService():
     return AuthService
-
-
 class _AuthService:
     """
         ! SINGLETON !
-        user can autentificate by rf-id, password or camera
-        callback: (methond: AuthMethod) => void
+        user can autentificate and authorize by rf-id
     """
 
     def __init__(self):
+        if(AuthService != None):
+            raise Exception('Trying to instantiate singleton!')
         self._IsAuhtVar = False
         self._Log = EventLog.getLoginServise()
+        self._RfId = DevEvent.RfId(25)
         self._Settings = SettingsService.getSettingsService()
-        self._RfId = DevEvent.RfId(0, 0, 25)
         settings = SettingsService.getSettingsService()
 
         def idLoaded(uid):
@@ -279,9 +288,10 @@ class _AuthService:
             else:
                 self._authFail()
         self._RfId.subscribe(idLoaded)
-        self._AfterSuccesfullAuthObservable = Common.Observable()
-        self._AfterFailedAuthObservable = Common.Observable()
 
+    """
+         revoke authorization
+    """
     def unAuth(self):
         self._IsAuhtVar = False
         self._Log.emit('Auth Suspended', EventLog.EventType.LOG)
@@ -297,87 +307,13 @@ class _AuthService:
         self._Log.emit('Auth Succes', EventLog.EventType.LOG)
 
 
-def getDisplayService():
-    return DisplayService
-
-
-class _DisplayService:
-    """
-        ! SINGLETON !
-    """
-
-    def __init__(self):
-        self._Log = EventLog.getLoginServise()
-        self._Schema = {
-            "Light": "UNKNOWN",
-            "Presure": "UNKNOWN",
-            "Temperature": "UNKNOWN",
-            "Gate State": "Down",
-            #"Is Authorized": "No"
-        }
-        self._Log = EventLog.getLoginServise()
-
-        """ self._Log.subscribeByName(
-            'Auth Suspended', lambda pld: self.setEntry('Is Authorized', 'No')
-        )
-        self._Log.subscribeByName(
-            'Auth Succes', lambda pld: self.setEntry('Is Authorized', 'Yes')
-        ) """
-
-        self._Log.subscribeByName(
-            'Light', lambda pld: self.setEntry('Light', pld))
-        self._Log.subscribeByName(
-            'Pres', lambda pld: self.setEntry('Presure', pld))
-        self._Log.subscribeByName(
-            'Temp', lambda pld: self.setEntry('Temperature', pld))
-
-        def gateStateChange(newState):
-            if newState:
-                self._Schema['Gate State'] = 'Up'
-            else:
-                self._Schema['Gate State'] = 'Down'
-
-        self._Log.subscribeByName('Gate State Change', gateStateChange)
-
-        self._Display = LcdDisplayManager.LcdDisplay()
-
-        def lineLoader(curentLine):
-            return lambda: curentLine + ' ' + self._Schema[curentLine]
-        """ for line in self._Schema:
-            self._Display.addCycleLine(lineLoader(line))"""
-
-        auth = getAuthService()
-        inputs = getUserInputs()
-        self._Display.addCycleLine(lineLoader('Light'))
-        self._Display.addCycleLine(lineLoader('Presure'))
-        self._Display.addCycleLine(lineLoader('Temperature'))
-        self._Display.addCycleLine(lambda : "Is Authorized " + ("YES" if auth.isAuth() else "No"))
-        self._Display.addCycleLine(lineLoader('Gate State'))
-        self._Display.addCycleLine(lambda : "Obsticle in gate " + ("YES" if inputs.getValue(Common.InputIds.IR_TRANSISTOR) == 1 else "No"))
-        self._Display.addCycleLine(lambda : "Someone outside " + ("YES" if inputs.getValue(Common.InputIds.PIR_SENSOR) == 1 else "No"))
-        
-        self._Display.draw()
-        """ def reDraw():
-            self._Display.draw()
-        displayTimer = Common.SensorTimer(reDraw)
-        displayTimer.start(5) """
-
-    def setEntry(self, name, text):
-        #print('SET', name, text.Pld)
-        self._Schema[name] = str(text.Pld)
-        # self._Display.draw()
-
-    def showDiferentTextFor(self, textCallbackList, milis):
-        self._Display.overwriteMsg(textCallbackList)
-
-
 def getCameraService():
     return CameraService
-
-
 class _CameraService:
     """
         ! SINGLETON !
+        used to auth with fase racofnition
+        -- NOT IN USE --
     """
 
     def __init__(self):
@@ -400,16 +336,8 @@ class _CameraService:
 """
 
 LightService = _LightService()
-UserInputs = _UserInputs()
+UserInputsService = _UserInputsService()
 CameraService = _CameraService()
 AuthService = _AuthService()
 GateService = _GateService()
-DisplayService = _DisplayService()
 
-
-if __name__ == "__main__":
-    GateService._open()
-    # DisplayService.setEntry()
-    """ time.sleep(10)
-    GateService._close()
-    time.sleep(20) """
