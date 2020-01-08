@@ -36,7 +36,14 @@ Na LCD se zobrazují základní informace o domě jako je intenzita osvětlení,
 
 Jsou zde dvě LED diody jedna je uvnitř, jedna venku. Ta uvnitř je ovládána dvěmi tlačítky po stisku tlačítka svítí 10s, poté zhasne. Venkovní je připojena na senzor osvětlení, úrovně při kterých se rozsvítí a zhasne jde nastavit v [Settings](python/assets/settings.json)
 
+### PIR čidlo
+
+Detekuje pohyb na zahradě, když ho detekuje rozsvítí se LED a zapne bzučák. Dá se hardwarově vypnout přepínačem, který odpojí napájení, je také vypnutý při autorizovaném režimu(na LCD se pořád zobrazuje)
+
 ## Dodatečné funkce
+
+### Měření tlaku a teploty
+Používáme senzor BMP180
 
 ### Kamera
 
