@@ -1,27 +1,3 @@
-# NAG TEMP REP
-## TO DO
-```
-
-=====PUDIL=====
-tisk
-dodělat modely
-návrh komunikace rasbery-arduino
-dodělat návrh pythnu
-
-=====NYKL=====
-obecně naplánovat architekturu v pythnu
-složitější funkce rasbery (camera; log; ...)
-webové rozhraní + pytho api
-
-=====DŽONIS=====
-arduino periferie
-
-=====POOL=====
-stříhání videa
-pokusit se zprovoznit rfid
-
-```
-
 # CHYTRÝ DUM
 
 ## Základní funkce
@@ -71,8 +47,7 @@ kontrola periferií je rozdělena především mezi 3 soubory, kde každý repre
 - devEvent
     jako jediný inportuje GPIO, jedná se v podtatě o slabou abstrakční brstvu sloužící na !!!!!.
 - devServise
-    zde se skládají v jednotlivé periferie do jednoúčelových služeb, které poskytují velice jednoduché api navržené pro nase účel <br>
-    enum služeb:<br>
+    Zde se skládají v jednotlivé periferie do jednoúčelových služeb, které poskytují velice jednoduché api navržené pro nase účel. Jedna se take o dalsi decoupling layer například pro případ kdy na raspberry pi dojdou pin a bude se muset použít arduino jako slave zařízení<br>
     př: Light servis umožňje zapnout/vypnout/rozsvítit_po_dobu/blikat_po_dobu; Auth sevis inicializuje rfid a testuje pomocí settings servise jeho autorizovanost, následně emitne příslušný event
 - main
     zde se propojují závislosti mezi služby. řeší se zde otázky jako je například co se má stát po autorizaci, jak dlouho má být otevřená brána ...
