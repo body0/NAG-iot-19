@@ -4,7 +4,7 @@ import time
 
 
 class LcdDisplay:
-    """
+    """"
         manage Lcd higher function like: 
             - displayng text to right line
             - cycle throught multiple pagees of lines if all lines cannot be displayed simultaneously
