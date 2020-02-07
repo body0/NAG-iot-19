@@ -34,8 +34,8 @@ class InputIds(Enum):
 
 class Observable:
     """
-        call 'callback' when emit is called
-        callback: (data: any) => () => void
+        - call 'callback' when emit is called
+        - callback: (data: any) => () => void
                 - returs destructor for this substription
     """
     def __init__(self):
@@ -63,9 +63,10 @@ class Observable:
 
 class MemObservable(Observable):
     """
-        call 'callback' when emit is called
-        callback: (data: any) => () => void
+        - call 'callback' when emit is called
+        - callback: (data: any) => () => void
                 - returs destructor for this substription
+        - last value is saved and can be get from "getLast"
     """
     def __init__(self):
         super(MemObservable, self).__init__()
@@ -87,7 +88,9 @@ class Timeout:
 
     def cansel(self):
         self._Timer.cancel()
-
+"""
+    - periodicly call callback
+"""
 class SensorTimer:
     def __init__(self, loadNewValCallback):
         self._InterObs = MemObservable()

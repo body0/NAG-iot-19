@@ -3,7 +3,7 @@
 import apiComponents as ApiComponents
 import settingsService as SettingsService
 import eventLog as EventLog
-#import main as Main
+import main as Main
 
 import random
 import string
@@ -23,17 +23,19 @@ def generateRandomString():
     return ''.join(random.choice(letters) for i in range(10))
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = generateRandomString()
+# JWT KEY
+app.config['SECRET_KEY'] = generateRandomString() 
 CORS(app)
 loger = EventLog.getLoginServise()
 systemStatus = ApiComponents.EventSinkAppState()
 settingsServiceInst = SettingsService.SettingsService
 
-
+# Test route
 @app.route('/api')
 def hello_world():
     return 'Api root'
 
+# Auth midleware
 def tokenRequired(f):
     @wraps(f)
     def _verify(*args, **kwargs):
@@ -107,7 +109,7 @@ def settingsUpdate():
     try:
         print(request.json)
         newSettings = request.json
-        settingsServiceInst.saveNewSettings(newSettings)
+        settingsServiceInst.saveNewBasicSettings(newSettings)
         resp = Response('Succes')
         return resp
     except ValueError as e:
@@ -123,23 +125,7 @@ def settingsUpdate():
 
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-""" @socketio.on('connect')
-def test_connect():
-    print('Client connected')
-
-@socketio.on('disconnect')
-def test_disconnect():
-    print('Client disconnected')
-
-def onNewData():
-    socketio.emit('NEW_STATE_AVAILIBLE', json)
-
-def onNewLog():
-    socketio.emit('EVENT_EMITED', json) """
-
 if __name__ == '__main__':
-    #app.run(app, port=5000)
-
     log = EventLog.getLoginServise()
 
     def newSettigns(_):
@@ -147,11 +133,7 @@ if __name__ == '__main__':
     log.subscribeByName('Settings Change', newSettigns)
 
     def newEvent(_):
-        print('Event emits')
         socketio.emit('EVENT_EMITED')
     log.subscribeAny(newEvent)
-    t = threading.Timer(7, lambda : log.emit('API TEST', EventLog.EventType.DEBUG))
-    t.setDaemon(True)
-    t.start()
-    #Main.init()
+    Main.init()
     socketio.run(app, port=5000)

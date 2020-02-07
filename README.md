@@ -1,12 +1,53 @@
 # CHYTRÝ DUM
+| Úloha | Splněno |
+|-------|---------|
+| 1. | ANO |
+| 2. | ANO |
+| 3. | ANO |
+| 4. | ANO |
+| 5. | ANO |
+| 6. | ANO |
+| 7. | ANO |
+| 8. | ANO |
+| 9. | ANO |
+| 10. | ANO |
+| 11. | ANO |
+| 12. | ANO |
+Video týmu je na adrese: https://www.youtube.com/watch?v=iWtRl39DOC8 
+#### !!! IMPORTANT !!!
+Projek je řešen jako jediné komplexní řešení, jehož kód naleznete v src. V jednotlivých souborech úkolů pak naleznete již pouze readme s odkazy na příslušné části kódu.
+
 
 ## Základní funkce
 
+### Autoriční systém 
+
+Pro vybranou skupinu lidí po přiložení čipu systém přejde do autorizovaného stavu, když se přiloží neznámý čip zabliká červená led a zapíská bzučák.
+
+### Brána
+
+Brána se otevře jen při autorizovaném stavu, bez autorizace začne blikat červená led a zapíská bzučák. Brána se zavře po 10s, pokud se v ní nachází objekt nezavře se do jeho odstranění.
+
+### LCD
+
+Na LCD se zobrazují základní informace o domě jako je intenzita osvětlení, teplota, tlak, autorizace, přítomnost někoho v zahradě, přítomnost objektu v bráně.
+
+### Osvětlení 
+
+Jsou zde dvě LED diody jedna je uvnitř, jedna venku. Ta uvnitř je ovládána dvěmi tlačítky po stisku tlačítka svítí 10s, poté zhasne. Venkovní je připojena na senzor osvětlení, úrovně při kterých se rozsvítí a zhasne jde nastavit v [Settings](python/assets/settings.json)
+
+### PIR čidlo
+
+Detekuje pohyb na zahradě, když ho detekuje rozsvítí se LED a zapne bzučák. Dá se hardwarově vypnout přepínačem, který odpojí napájení, je také vypnutý při autorizovaném režimu(na LCD se pořád zobrazuje)
+
 ## Dodatečné funkce
+
+### Měření tlaku a teploty
+Používáme senzor BMP180
 
 ### Kamera
 
-### Settings
+### [Settings](python/assets/settings.json)
 Umožnuje změnit některé parametry upravující chování domu (buď na webové stránce nebo v souboru)
 Při startu se pokusíme načíst nastavení ze souboru (.json), prokud při tomto prosecu nastane chyba, načte se defaultní nastavení
 
@@ -29,9 +70,9 @@ obsahuje jak python scritpy pro ovládáná jednotlivých funkcí domu tak api k
 - entry point: apy.py
 - to run:
 ```
-    export APIKEY="..."
-    chmod +x api.py
-    ./api.py
+    export APIKEY="..." &&
+    chmod +x api.py &&
+    ./api.py 
 ```
 
 ## [/python/lib](python/lib)
