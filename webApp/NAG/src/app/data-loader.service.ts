@@ -28,7 +28,7 @@ export class DataLoaderService {
   private Settings: SettingsState;
 
   private IsLogin = new Subject<boolean>();
-  private Token = null;
+  private Token = '';
   /*
     Load house state on creation
     Start lisening on socket for new data event, then load (by busic http tequest) new home state
@@ -58,7 +58,7 @@ export class DataLoaderService {
       });
     });
 
-    //this.login('abc')
+    this.login('abc')
   }
 
   public subscribeOnLoginChange(callback: (state: boolean) => void): Subscription {

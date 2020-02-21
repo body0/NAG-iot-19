@@ -130,14 +130,10 @@ def initDisplay():
             self._Schema[name] = str(text.Pld)
         def lineLoader(curentLine):
             return lambda: curentLine + ' ' + self._Schema[curentLine]
-
-       loger.subscribeByName(
-            'Light', lambda pld: setEntry('Light', pld))
-       loger.subscribeByName(
-            'Pres', lambda pld: setEntry('Presure', pld))
-       loger.subscribeByName(
-            'Temp', lambda pld: setEntry('Temperature', pld))
-    
+        loger.subscribeByName('Light', lambda pld: setEntry('Light', pld))
+        loger.subscribeByName('Pres', lambda pld: setEntry('Presure', pld))
+        loger.subscribeByName('Temp', lambda pld: setEntry('Temperature', pld))
+        
         auth = getAuthService()
         gate = getGateService()
         inputs = getUserInputs()
