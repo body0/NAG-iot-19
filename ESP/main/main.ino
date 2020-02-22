@@ -2,6 +2,9 @@
 #include <WiFiClientSecure.h> 
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPClient.h>
+#include <Wire.h>
+#include <Adafruit_HTU21DF.h>
+#include <hp_BH1750.h>
 
 #define deepSleepTime 60e6 // 1m
 
@@ -14,6 +17,9 @@ const char *route = "/espPld";
 const int httpsPort = 4000;  //HTTPS= 443 and HTTP = 80
  
 const char fingerprint[] PROGMEM = "06 38 72 65 EE 6A EC AC 8E F0 B7 1F E9 A5 43 CF 0F 1F F9 18";
+
+Adafruit_HTU21DF htu = Adafruit_HTU21DF();
+hp_BH1750 BH1750;  
 
 void setup() {
     delay(500);
@@ -32,6 +38,9 @@ void setup() {
       Serial.print(".");
     }
     Serial.println("Connected!!!!");
+
+    BH1750.begin(BH1750_TO_GROUND);   
+    htu.begin();
 
 
     WiFiClientSecure httpsClient;    //Declare object of class WiFiClient
@@ -63,12 +72,13 @@ void setup() {
         Serial.println("Connected to web");
     }
 
-    int temp = 10;
+    int temp = htu.readTemperature();
     int pres = 10;
-    int hum = 10;
-    int light = 10;
+    int hum = htu.readHumidity();
+    BH1750.start(); 
+    int light = BH1750.getLux();
     int batteryState = 10;
-    String body = String("{\"temp\":") + light + ", \"pres\":" + pres + ", \"hum\":" + hum + ", \"light\":" + light + ", \"batteryState\":" + batteryState + " }";
+    String body = String("{\"temp\":") + temp + ", \"pres\":" + pres + ", \"hum\":" + hum + ", \"light\":" + light + ", \"batteryState\":" + batteryState + " }";
     Serial.println(String("POST ") + route + " HTTP/1.1\r\n" +
                 "Host: " + host + "\r\n" +
                 "Content-Type: application/json\r\n" +              
