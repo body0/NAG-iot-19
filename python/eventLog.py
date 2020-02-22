@@ -127,6 +127,45 @@ def sendToUpstream(eventName, data):
         print(e)
         return 500
 
+def sendStateToBroker(appState):
+    jsonData = {
+        'temp': appState['TempSensor'],
+        'pres': appState['PresSensor'],
+        'light': appState['LightSensor'],
+        'gateState': appState['Gate']['status']
+    }
+    header = {
+        'accept': 'application/json',
+        'Content-Type': 'application/json'
+    }
+    print("https://body0.ml/api/homePld", header, jsonData)
+    try:
+        req = requests.post("http://192.168.1.198:5000/homePld", json=jsonData, headers=header)
+        return req.status_code
+    except Exception as e:  # time out
+        print(e)
+        return 500
+
+def sendEvent(event):
+    jsonData = {
+        'name': event['name'],
+        'type': event['type'],
+        'pld': event['pld'],
+        'timeOfCreation': event['timeOfCreation']
+    }
+    header = {
+        'accept': 'application/json',
+        'Content-Type': 'application/json'
+    }
+    print("https://body0.ml/api/addEvent", header, jsonData)
+    try:
+        req = requests.post("http://192.168.1.198:5000/addEvent", json=jsonData, headers=header)
+        return req.status_code
+    except Exception as e:  # time out
+        print(e)
+        return 500
+
+
 
 class Event:
 

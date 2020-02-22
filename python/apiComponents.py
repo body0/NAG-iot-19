@@ -35,7 +35,7 @@ class EventSinkAppState:
         'LastFailedAuth': '1970-01-01T00:00:00',
         'IsAuth': False,
         'LightSensor': -1,
-        'HumSensor': -1,
+        'TempSensor': -1,
         'PresSensor': -1
     }
 
