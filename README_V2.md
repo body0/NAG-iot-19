@@ -1,0 +1,1 @@
+proc jsme pouzili 2 senzory svetla
