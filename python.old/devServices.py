@@ -3,6 +3,7 @@ import eventLog as EventLog
 import devEvent as DevEvent
 import settingsService as SettingsService
 import camera as Camera
+import lcdDisplayManager as LcdDisplayManager
 
 import sys
 import time
@@ -59,7 +60,7 @@ class _UserInputsService:
 
     def subscribe(self, inputId, callback):
         if inputId.value in self._ButtonLikeInput:
-            return self._ButtonLikeInput[inputId.value].subscribe(callback)
+            return self._ButtonLikeInput[inputId].subscribe(callback)
         else:
             self._Log.emit('LightId not found in LightsIds',
                            EventLog.EventType.SYSTEM_WARN)
@@ -70,7 +71,7 @@ class _UserInputsService:
 
     def getValue(self, inputId):
         if inputId.value in self._ButtonLikeInput:
-            return self._ButtonLikeInput[inputId.value].getState()
+            return self._ButtonLikeInput[inputId].getState()
         else:
             return self._Log.emit('LightId not found in LightsIds',
                                   EventLog.EventType.SYSTEM_WARN)

@@ -109,6 +109,7 @@ class _LogerService:
 
 """
     HTTP CLIENT
+
         - send data to server
         - auth to server
 """

@@ -4,7 +4,6 @@ import common as Common
 import settingsService as SettingsService
 import lib.lightSensor as LightSensor
 import lib.BMP085 as BMP085
-import lcdDisplayManager as LcdDisplayManager
 
 import time
 import threading
@@ -121,28 +120,34 @@ def sensorInit():
 def initDisplay():
         display = LcdDisplayManager.LcdDisplay()
         # asynch values (aren't loaded at will)
-        schema = {
+        self._Schema = {
             "Light": "UNKNOWN",
             "Presure": "UNKNOWN",
             "Temperature": "UNKNOWN"
         }
 
-        def setEntry(name, text, sufix):
-            schema[name] = str(text.Pld) + ' ' + sufix
+        def setEntry(name, text):
+            self._Schema[name] = str(text.Pld)
         def lineLoader(curentLine):
-            return lambda: curentLine + ' ' + schema[curentLine]
-
-        loger.subscribeByName('Light', lambda pld: setEntry('Light', pld, 'lux') )
-        loger.subscribeByName('Pres', lambda pld: setEntry('Presure', pld, 'Pa'))
-        loger.subscribeByName('Temp', lambda pld: setEntry('Temperature', pld, 'C'))
+            return lambda: curentLine + ' ' + self._Schema[curentLine]
+        loger.subscribeByName('Light', lambda pld: setEntry('Light', pld))
+        loger.subscribeByName('Pres', lambda pld: setEntry('Presure', pld))
+        loger.subscribeByName('Temp', lambda pld: setEntry('Temperature', pld))
+        
+        auth = getAuthService()
+        gate = getGateService()
+        inputs = getUserInputs()
 
         display.addCycleLine(lineLoader('Light'))
         display.addCycleLine(lineLoader('Presure'))
         display.addCycleLine(lineLoader('Temperature'))
-        display.addCycleLine(lambda: "Is Authorized " + ("YES" if auth.isAuth() else "No"))
-        display.addCycleLine(lambda: "Gate State " + ("Up" if gate.isOpen() else "Down"))
-        display.addCycleLine(lambda: "Obsticle in gate " + ("YES" if userInput.getValue(Common.InputIds.IR_TRANSISTOR) == 1 else "No"))
-        display.addCycleLine(lambda: "Someone outside " + ("YES" if userInput.getValue(Common.InputIds.PIR_SENSOR) == 1 else "No"))
+        display.addCycleLine(lambda: "Is Authorized " + 
+            "YES" if auth.isAuth() else "No")
+        display.addCycleLine(lambda: "Gate State " + "Up" if gate.isOpen() else "Down")
+        display.addCycleLine(lambda: "Obsticle in gate " + 
+            "YES" if inputs.getValue(Common.InputIds.IR_TRANSISTOR) == 1 else "No")
+        display.addCycleLine(lambda: "Someone outside " + 
+            "YES" if inputs.getValue(Common.InputIds.PIR_SENSOR) == 1 else "No")
 
         display.draw()
 

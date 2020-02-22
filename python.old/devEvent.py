@@ -211,7 +211,7 @@ class Sevro:
         self.pi.set_servo_pulsewidth(self.Channel, 2070)
 
 class RfId:
-    def __init__(self, reset_pin, spi_bus=0, spi_device=0):
+    def __init__(self, spi_bus=0, spi_device=0, reset_pin):
         self._Reader = MFRC522(bus=spi_bus, device=spi_device, pin_rst=reset_pin)
         self._IsScannig = True
         self._InterObs = Common.Observable()

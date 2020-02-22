@@ -1,5 +1,4 @@
 # -*- coding: utf8 -*-
-# https://github.com/mxgxw/MFRC522-python/blob/master/MFRC522.py
 
 try:
     import RPi.GPIO as GPIO
