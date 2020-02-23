@@ -92,7 +92,7 @@ class EventSinkAppState:
         return self.SystemState[name]
     
     def getAll(self):
-        print('State', self.SystemState)
+        # print('State', self.SystemState)
         return self.SystemState
 
     def emitUpdateEvent(self):

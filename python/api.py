@@ -35,18 +35,23 @@ gate = DevServices.getGateService()
 
 def init():
     Main.init()
+    eventList = []
 
     def updateUpstream():
+        nonlocal eventList
         appState = systemStatus.getAll()
         """ print('\n\n')
         print(appState)
         print('\n\n') """
         EventLog.sendStateToBroker(appState)
+        EventLog.sendEvent(eventList)
+        eventList = []
     timer = Common.SensorTimer(updateUpstream)
     timer.start(6)
     def newEvent(event):
-        print('EVENT', event)
-        EventLog.sendEvent(event)
+        # print('EVENT', event)
+        # EventLog.sendEvent(event)
+        eventList.append(event)
     loger.subscribeAny(newEvent)
 
 # Test route

@@ -56,6 +56,7 @@ class Observable:
                 self._Subscriptions[callbackName](data)
             except Exception as e:
                 print('[ERR]: callback did not exit cleanly: ', e)
+                raise e
                 if hasattr(data, 'Name'):
                     print(data.Name)
                 else:

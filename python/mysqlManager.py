@@ -144,28 +144,45 @@ def homePld():
 @app.route('/addEvent', methods=['POST'])
 def addEvent():
     try:
-        if (('name' not in request.json) or
-            ('type' not in request.json) or
-            ('pld' not in request.json) or
-            ('timeOfCreation' not in request.json)):
+        if (('arr' not in request.json)):
             resp = Response('Wrong argument')
             resp.status_code = 400
             return resp
 
-        # print(request.json)
-        name = request.json['name']
-        typeObj = request.json['type']
-        pld = request.json['pld']
-        timeOfCreation = request.json['timeOfCreation']
+        exitFlag = False
 
-        cursor = cnx.cursor()
+        def testArrAtribute(event):
+            if (('name' not in event) or
+                ('type' not in event) or
+                ('pld' not in event) or
+                ('timeOfCreation' not in event)):
+                nonlocal exitFlag
+                exitFlag = True
+            else: 
+                return event
+        parsedEventList = list(map(testArrAtribute, request.json['arr']))
+        if (exitFlag):
+            resp = Response('Wrong argument')
+            resp.status_code = 400
+            return resp
 
-        insetQuery = "INSERT INTO temperature_home  (name, type, pld, timeOfCreation) VALUES (%s, %s, %s, %s)"
-        insetQueryVal = [str(name), str(typeObj), str(pld), str(timeOfCreation)]
-        cursor.execute(insetQuery, insetQueryVal)
+        for event in parsedEventList:
 
-        cnx.commit()
-        cursor.close()
+            name = event['name']
+            typeObj = event['type']
+            pld = event['pld']
+            """ timeOfCreation = event['timeOfCreation']
+            datetime(timeOfCreation).strftime('%Y-%m-%d %H:%M:%S') """
+            print(name, typeObj, pld)
+
+            cursor = cnx.cursor()
+
+            insetQuery = "INSERT INTO event  (name, type, pld) VALUES (%s, %s, %s)"
+            insetQueryVal = [str(name), str(typeObj), str(pld)]
+            cursor.execute(insetQuery, insetQueryVal)
+
+            cnx.commit()
+            cursor.close()
 
         resp = Response('Succes')
         resp.status_code = 201
@@ -173,6 +190,7 @@ def addEvent():
 
     except Exception as e:
         print('[WARN]: Can not auth.', e)
+        #raise e
         resp = Response('Internal error')
         resp.status_code = 500
         return resp

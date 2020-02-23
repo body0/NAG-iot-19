@@ -24,46 +24,53 @@ if 'KEYAPI' in os.environ:
 
 
 LogerService = None
+
+
 def getLoginServise():
     """ global _LogerServiceInstance
     if _LogerServiceInstance == None:
         _LogerServiceInstance = _LogerService() """
     return LogerService
 
+
 class _LogerService:
 
     MAX_RECORD_QUEUE = 20
 
     def __init__(self):
-            if(LogerService != None):
-                raise Exception('Trying to instantiate singleton!')
-            self._AnyObserver = Common.Observable()
-            self._NameObserverMap = {}
-            self._TypeObserverMap = {
-                EventType.DEBUG: Common.Observable(),
-                EventType.LOG: Common.Observable(),
-                EventType.WARN: Common.Observable(),
-                EventType.SYSTEM_LOG: Common.Observable(),
-                EventType.SYSTEM_WARN: Common.Observable(),
-                EventType.SYSTEM_ERR: Common.Observable(),
-            }
-            self._Queue = []
+        if(LogerService != None):
+            raise Exception('Trying to instantiate singleton!')
+        self._AnyObserver = Common.Observable()
+        self._NameObserverMap = {}
+        self._TypeObserverMap = {
+            EventType.DEBUG: Common.Observable(),
+            EventType.LOG: Common.Observable(),
+            EventType.WARN: Common.Observable(),
+            EventType.SYSTEM_LOG: Common.Observable(),
+            EventType.SYSTEM_WARN: Common.Observable(),
+            EventType.SYSTEM_ERR: Common.Observable(),
+        }
+        self._Queue = []
 
     """
         lisen for event to occure, then call callback
     """
+
     def subscribeByName(self, name, callback):
         if name not in self._NameObserverMap:
             self._NameObserverMap[name] = Common.Observable()
         return self._NameObserverMap[name].subscrie(callback)
+
     def subscribeByTypeList(self, eventTypeList, callback):
         return self._TypeObserverMap[eventTypeList].subscrie(callback)
+
     def subscribeAny(self, callback):
         return self._AnyObserver.subscrie(callback)
 
     """
         get last 'size' events (-1 for all events)
     """
+
     def getLastByName(self, name, size=-1):
         arr = []
         for i in range(len(self._Queue)):
@@ -73,6 +80,7 @@ class _LogerService:
             if event.Name == name:
                 arr.append(event)
         return arr
+
     def getLastByTypeList(self, eventType, size=-1):
         arr = []
         for i in range(len(self._Queue)):
@@ -82,12 +90,14 @@ class _LogerService:
             if event.Type == eventType:
                 arr.append(event)
         return arr
+
     def getLastAny(self, size=-1):
         #print('arr', self._Queue)
         if size < 0:
             return self._Queue
         else:
-            return self._Queue[len(self._Queue) - size : len(self._Queue) - 1]
+            return self._Queue[len(self._Queue) - size: len(self._Queue) - 1]
+
     def getAll(self):
         #print('ALL EV', self._Queue)
         return self._Queue
@@ -95,6 +105,7 @@ class _LogerService:
     """
         register new event
     """
+
     def emit(self, name, eventType, pld=None):
         newEvent = Event(name, eventType, pld)
         if name in self._NameObserverMap:
@@ -104,7 +115,7 @@ class _LogerService:
         while len(self._Queue) > self.MAX_RECORD_QUEUE:
             self._Queue.pop(0)
         self._Queue.append(newEvent)
-        #print('aft', self._Queue)    
+        #print('aft', self._Queue)
 
 
 """
@@ -112,6 +123,8 @@ class _LogerService:
         - send data to server
         - auth to server
 """
+
+
 def sendToUpstream(eventName, data):
     jsonData = {'value': data}
     header = {
@@ -121,11 +134,13 @@ def sendToUpstream(eventName, data):
     }
     print("https://api.nag-iot.zcu.cz/v2/value/" + eventName, header, jsonData)
     try:
-        req = requests.post("https://api.nag-iot.zcu.cz/v2/value/" + eventName, json=jsonData, headers=header)
+        req = requests.post("https://api.nag-iot.zcu.cz/v2/value/" +
+                            eventName, json=jsonData, headers=header)
         return req.status_code
     except Exception as e:  # time out
         print(e)
         return 500
+
 
 def sendStateToBroker(appState):
     jsonData = {
@@ -140,18 +155,24 @@ def sendStateToBroker(appState):
     }
     print("https://body0.ml/api/homePld", header, jsonData)
     try:
-        req = requests.post("http://192.168.1.198:5000/homePld", json=jsonData, headers=header)
+        req = requests.post("http://192.168.1.198:5000/homePld",
+                            json=jsonData, headers=header)
         return req.status_code
     except Exception as e:  # time out
         print(e)
         return 500
 
-def sendEvent(event):
+
+def sendEvent(eventList):
+    def eventToJson(event):
+        return {
+            'name': event.Name,
+            'type': event.Type,
+            'pld': event.Pld,
+            'timeOfCreation': event.Timestamp
+        }
     jsonData = {
-        'name': event['name'],
-        'type': event['type'],
-        'pld': event['pld'],
-        'timeOfCreation': event['timeOfCreation']
+        'arr': list(map(eventToJson, eventList))
     }
     header = {
         'accept': 'application/json',
@@ -159,12 +180,12 @@ def sendEvent(event):
     }
     print("https://body0.ml/api/addEvent", header, jsonData)
     try:
-        req = requests.post("http://192.168.1.198:5000/addEvent", json=jsonData, headers=header)
+        req = requests.post("http://192.168.1.198:5000/addEvent",
+                            json=jsonData, headers=header)
         return req.status_code
     except Exception as e:  # time out
         print(e)
         return 500
-
 
 
 class Event:
@@ -183,6 +204,7 @@ class Event:
             'Timestamp': self.Timestamp
         }
 
+
 """
     LOG > informuje o běžné akci uživatele
     WARN > informuje o podezřelé/nestandartní akci uživatele
@@ -191,6 +213,8 @@ class Event:
     SYSTEM_LOG > informuje o nečekané, nepřekonatelné systémové chybě
     DEBUG > dočasné
 """
+
+
 class EventType:
     DEBUG = '0'
 
@@ -200,6 +224,7 @@ class EventType:
     SYSTEM_LOG = '3'
     SYSTEM_WARN = '4'
     SYSTEM_ERR = '5'
+
 
 """ 
     ===== INIT =====
