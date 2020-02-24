@@ -15,7 +15,7 @@ const char *password = "staromak104";
 // const char *host = "192.168.1.198";
 const char *host = "body0.ml";
 const char *route = "/espPld";
-const int httpsPort = 4000;  //HTTPS= 443 and HTTP = 80
+const int httpsPort = 3010;  //HTTPS= 443 and HTTP = 80
  
 const char fingerprint[] PROGMEM = "06 38 72 65 EE 6A EC AC 8E F0 B7 1F E9 A5 43 CF 0F 1F F9 18";
 
