@@ -138,9 +138,9 @@ def sendStateToBroker(appState):
         'accept': 'application/json',
         'Content-Type': 'application/json'
     }
-    print("https://body0.ml/api/homePld", header, jsonData)
+    print("https://body0.ml/nagDbIntf/homePld", header, jsonData)
     try:
-        req = requests.post("http://192.168.1.198:5000/homePld", json=jsonData, headers=header)
+        req = requests.post("https://body0.ml/nagDbIntf/homePld", json=jsonData, headers=header)
         return req.status_code
     except Exception as e:  # time out
         print(e)
@@ -157,9 +157,9 @@ def sendEvent(event):
         'accept': 'application/json',
         'Content-Type': 'application/json'
     }
-    print("https://body0.ml/api/addEvent", header, jsonData)
+    print("https://body0.ml/nagDbIntf/addEvent", header, jsonData)
     try:
-        req = requests.post("http://192.168.1.198:5000/addEvent", json=jsonData, headers=header)
+        req = requests.post("https://body0.ml/nagDbIntf/addEvent", json=jsonData, headers=header)
         return req.status_code
     except Exception as e:  # time out
         print(e)
@@ -192,14 +192,14 @@ class Event:
     DEBUG > dočasné
 """
 class EventType:
-    DEBUG = '0'
+    DEBUG = '0DEBUG'
 
-    LOG = '1'
-    WARN = '2'
+    LOG = 'LOG'
+    WARN = 'WARN'
 
-    SYSTEM_LOG = '3'
-    SYSTEM_WARN = '4'
-    SYSTEM_ERR = '5'
+    SYSTEM_LOG = 'SYSTEM_LOG'
+    SYSTEM_WARN = 'SYSTEM_WARN'
+    SYSTEM_ERR = 'SYSTEM_ERR'
 
 """ 
     ===== INIT =====

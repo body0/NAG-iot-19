@@ -12,7 +12,8 @@ const char *ssid = "pudil.cz";  //ENTER YOUR WIFI SETTINGS
 const char *password = "staromak104";
 
 
-const char *host = "192.168.1.198";
+// const char *host = "192.168.1.198";
+const char *host = "body0.ml";
 const char *route = "/espPld";
 const int httpsPort = 4000;  //HTTPS= 443 and HTTP = 80
  

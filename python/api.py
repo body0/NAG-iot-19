@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import devServices as DevServices
 import common as Common
-import apiComponents as ApiComponents
 import settingsService as SettingsService
 import eventLog as EventLog
 import main as Main
@@ -35,19 +34,6 @@ gate = DevServices.getGateService()
 
 def init():
     Main.init()
-
-    def updateUpstream():
-        appState = systemStatus.getAll()
-        """ print('\n\n')
-        print(appState)
-        print('\n\n') """
-        EventLog.sendStateToBroker(appState)
-    timer = Common.SensorTimer(updateUpstream)
-    timer.start(6)
-    def newEvent(event):
-        print('EVENT', event)
-        EventLog.sendEvent(event)
-    loger.subscribeAny(newEvent)
 
 # Test route
 @app.route('/api')

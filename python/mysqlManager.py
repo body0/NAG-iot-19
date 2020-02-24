@@ -25,7 +25,7 @@ def ret():
 def espPld():
     try:
         #print('Q', request.data, request.headers, request.json)
-        print('D', request.json)
+        #print('D', request.json)
         if (('temp' not in request.json) or
             ('pres' not in request.json) or
             ('hum' not in request.json) or
@@ -73,7 +73,7 @@ def espPld():
         cursor.execute(insetQuery, insetQueryVal)
 
         insetQuery = "INSERT INTO batteryState (value) VALUES (%s);"
-        insetQueryVal = [int()]
+        insetQueryVal = [int(batteryState)]
         cursor.execute(insetQuery, insetQueryVal)
 
         cnx.commit()

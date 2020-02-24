@@ -5,6 +5,7 @@ import settingsService as SettingsService
 import lib.lightSensor as LightSensor
 import lib.BMP085 as BMP085
 import lcdDisplayManager as LcdDisplayManager
+import apiComponents as ApiComponents
 
 import time
 import threading
@@ -17,11 +18,13 @@ import threading
 # INIT ALL SERVICES
 loger = EventLog.getLoginServise()
 settings = SettingsService.getSettingsService()
+systemStatus = ApiComponents.EventSinkAppState()
 
 gate = DevServices.getGateService()
 auth = DevServices.getAuthService()
 lights = DevServices.getLightService()
 userInput = DevServices.getUserInputsService()
+
 
 def init():
         initBusic()
@@ -145,6 +148,18 @@ def initDisplay():
         display.addCycleLine(lambda: "Someone outside " + ("YES" if userInput.getValue(Common.InputIds.PIR_SENSOR) == 1 else "No"))
 
         display.draw()
+
+def setUpstreamUpdate(): 
+        def updateUpstream():
+                appState = systemStatus.getAll()
+                EventLog.sendStateToBroker(appState)
+        timer = Common.SensorTimer(updateUpstream)
+        timer.start(6)
+        def newEvent(event):
+                if (event.Type == EventLog.EventType.SYSTEM_LOG):
+                        return
+                EventLog.sendEvent(event)
+        loger.subscribeAny(newEvent)
 
 #debug
 if __name__ == '__main__':
