@@ -8,8 +8,8 @@
 
 #define deepSleepTime 60e6 // 1m
 
-const char *ssid = "HUAWEI P10";  //ENTER YOUR WIFI SETTINGS
-const char *password = "123456789";
+const char *ssid = "pudil.cz";  //ENTER YOUR WIFI SETTINGS
+const char *password = "staromak104";
 
 
 // const char *host = "192.168.1.198";
@@ -85,7 +85,7 @@ void setup() {
     int hum = htu.readHumidity();
     BH1750.start(); 
     int light = BH1750.getLux();
-    int batteryState = getBattVoltage();
+    float batteryState = getBattVoltage();
     String body = String("{\"temp\":") + temp + ", \"pres\":" + pres + ", \"hum\":" + hum + ", \"light\":" + light + ", \"batteryState\":" + batteryState + " }";
     Serial.println(String("POST ") + route + " HTTP/1.1\r\n" +
                 "Host: " + host + "\r\n" +
@@ -106,7 +106,7 @@ void setup() {
     Serial.println("request sent");
     digitalWrite(13, 0);
     Serial.print("deepSleep");
-    //ESP.deepSleep(deepSleepTime);
+    ESP.deepSleep(deepSleepTime);
                     
    /*  while (httpsClient.connected()) {
         String line = httpsClient.readStringUntil('\n');
