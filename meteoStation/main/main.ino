@@ -37,6 +37,7 @@ void warnBlink()
 void warnSleep()
 {
     Serial.print("Entering deepSleep, timeout");
+    digitalWrite(13, 0);
     ESP.deepSleep(deepSleepTime);
 }
 
@@ -122,7 +123,7 @@ void setup()
     Serial.println(requestBody);
     httpsClient.print(requestBody);
     Serial.println(analogRead(0));
-    Serial.println("request sent");
+    Serial.println("request send");
     digitalWrite(13, 0);
     Serial.print("Entering deepSleep");
     ESP.deepSleep(deepSleepTime);

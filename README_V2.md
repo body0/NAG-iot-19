@@ -71,12 +71,15 @@ Jako nabíjecí obvod jsme použili klasický nabíjecí obvod na Li-Ion baterie
     - Jak je psané na oficiálních stránkách jedná se o profesionální oupen-source webovou aplikaci pro vizualizaci dat.
     - Jako datový zdroj je zde použita MySql databáze, do které jsou zapicovány data ze všech zdrojů.
     - Celou aplikaci si hostujeme sami pomocí předpřipraveného image
+![Schéma](ReadMeAssets/Grafana1.png)
+![Schéma](ReadMeAssets/Grafana2.png)
 ### Návrh Propojení Jednotlivých Služeb 
     - Grafana spolu s databází (MySql) a Webové rozhraví/BD REAT API (nakonec v pythnu/flask) jsou hostovány na naSem soukromém serveru. 
     - Grafana a BD REAT API jsou přístupné skrzreverse-proxi (Nginx) terá zajišťuje "přidání" domeny, zabezpečení (HTTPS) a přesmérováváni z nezabezpečených linků.
     - Docker je zde také vzužit pro lepši managment všech služeb
     - Posílání data z Rasberi-Pi na DB API je vcelku přímočaré, Problém nastáná pokud bzchom chtéli posílat příkazy zpátky na Rasberi-Pi. Rasberi-Pi je v siti bez veřejné adresi (respektive siť je natovaná a na routr dál v síti se nedostaneme), zde se nám nabíyí únedka neklik možných variant pro zpřistupnéní takovéto konekce (Vpn + Nginx; Web Socket; SSH tunel), my jsme si vybrali třetí variantu.
     - ESP bude svá ďata posílat také na DB interface. Avšak abychom nemusei měnit firmware ESP pokaždé, co jsme budeme nuset obnovit náš certifikát, DB API je dostupné i přes druhou url (port), která má námi vygenerovaný certifikát (námi podepsaný) s neomezenou platností (ne že by na té posledni části záleželo, jedná se přeci jenom o fingerprint certifikátu, který je na ESP kontrolován). Takto se můžeme vyhnout odchycení a zneužití správy na lokální síti.
+![Schéma](ReadMeAssets/net_chema_v3.png)
 ### DB
     - MySql (docker img)
     - sql injection neni možná, protože:
