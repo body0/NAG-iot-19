@@ -48,19 +48,19 @@ def hello_world():
 
 @app.route('/api/ledOn')
 def ledOn():
-    """ if (not request.json['accesToken'] == RspAccesToken):
+    if (not request.json['accesToken'] == RspAccesToken):
             resp = Response('Wrong acces token')
             resp.status_code = 401
-            return resp """
+            return resp
     lights.turnOnForFor(Common.LightsIds.IN_HOUSE)
 
 
 @app.route('/api/gateOn')
 def gateOn():
-    """ if (not request.json['accesToken'] == RspAccesToken):
+    if (not request.json['accesToken'] == RspAccesToken):
             resp = Response('Wrong acces token')
             resp.status_code = 401
-            return resp """
+            return resp
     gate.openFor(10)
 
 init()

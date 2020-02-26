@@ -34,8 +34,6 @@ def hello_world():
 @app.route('/nagDbIntf/espPld', methods=['POST'])
 def espPld():
     try:
-        #print('Q', request.data, request.headers, request.json)
-        #print('D', request.json)
         if (('temp' not in request.json) or
             ('pres' not in request.json) or
             ('hum' not in request.json) or
@@ -56,19 +54,6 @@ def espPld():
         hum = request.json['hum']
         light = request.json['light']
         batteryState = request.json['batteryState']
-
-        """ insetQuery = "START TRANSACTION; \
-                    INSERT INTO temperature (value) VALUES (%s); \
-                    INSERT INTO humidity (value) VALUES (%s); \
-                    INSERT INTO light (value) VALUES (%s); \
-                    INSERT INTO presure (value) VALUES (%s); \
-                    INSERT INTO batteryState (value) VALUES (%s); \
-                    COMMIT;"
-        insetQueryVal = (temp, pres, hum, light, batteryState)
-
-        cursor = cnx.cursor()
-        cursor.execute(insetQuery, insetQueryVal)
-        cursor.close() """
 
         cursor = cnx.cursor()
 
@@ -94,6 +79,11 @@ def espPld():
 
         cnx.commit()
         cursor.close()
+
+        sendToUpstream('lightesp', temp)
+        sendToUpstream('humesp', temp)
+        sendToUpstream('tempesp', temp)
+            
 
         resp = Response('Succes')
         resp.status_code = 201
@@ -152,6 +142,9 @@ def homePld():
         cnx.commit()
         cursor.close()
 
+        sendToUpstream('lightpi', temp)
+        sendToUpstream('temppi', temp)
+
         resp = Response('Succes')
         resp.status_code = 201
         return resp
@@ -166,7 +159,13 @@ def homePld():
 @app.route('/nagDbIntf/addEvent', methods=['POST'])
 def addEvent():
     try:
-        if (('arr' not in request.json)):
+        """ if (('arr' not in request.json)):
+            resp = Response('Wrong argument')
+            resp.status_code = 400
+            return resp """
+        if (('name' not in request.json) or 
+            ('type' not in request.json) or
+            ('pld' not in request.json)):
             resp = Response('Wrong argument')
             resp.status_code = 400
             return resp
@@ -182,20 +181,15 @@ def addEvent():
         pld = request.json['pld']
         timeOfCreation = request.json['timeOfCreation']
 
-        for event in parsedEventList:
+        # for event in parsedEventList:
+        cursor = cnx.cursor()
 
-        insetQuery = "INSERT INTO event (name, type, pld, timeOfCreation) VALUES (%s, %s, %s, %s)"
-        insetQueryVal = [str(name), str(typeObj), str(pld), str(timeOfCreation)]
+        insetQuery = "INSERT INTO event  (name, type, pld) VALUES (%s, %s, %s)"
+        insetQueryVal = [str(name), str(typeObj), str(pld)]
         cursor.execute(insetQuery, insetQueryVal)
 
-            cursor = cnx.cursor()
-
-            insetQuery = "INSERT INTO event  (name, type, pld) VALUES (%s, %s, %s)"
-            insetQueryVal = [str(name), str(typeObj), str(pld)]
-            cursor.execute(insetQuery, insetQueryVal)
-
-            cnx.commit()
-            cursor.close()
+        cnx.commit()
+        cursor.close()
 
         resp = Response('Succes')
         resp.status_code = 201
@@ -222,12 +216,12 @@ def sendToUpstream(eventName, data):
         'Content-Type': 'application/json',
         'X-Api-Key': ApiKey
     }
-    print("https://api.nag-iot.zcu.cz/v2/value/" + eventName, header, jsonData)
+    #print("https://api.nag-iot.zcu.cz/v2/value/" + eventName, header, jsonData)
     try:
         req = requests.post("https://api.nag-iot.zcu.cz/v2/value/" + eventName, json=jsonData, headers=header)
         return req.status_code
     except Exception as e:  # time out
-        print(e)
+        print('[WARN]: error osured when sending data to upperstream', e)
         return 500
 
 

@@ -212,15 +212,6 @@ class Event:
     SYSTEM_LOG > informuje o nečekané, nepřekonatelné systémové chybě
     DEBUG > dočasné
 """
-""" class EventType:
-    DEBUG = 'DEBUG'
-
-    LOG = 'LOG'
-    WARN = 'WARN'
-
-    SYSTEM_LOG = 'SYSTEM_LOG'
-    SYSTEM_WARN = 'SYSTEM_WARN'
-    SYSTEM_ERR = 'SYSTEM_ERR' """
 class EventType:
     DEBUG = '0'
 
