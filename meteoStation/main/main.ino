@@ -2,6 +2,9 @@
 #include <WiFiClientSecure.h> 
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPClient.h>
+#include <Wire.h>
+#include <Adafruit_HTU21DF.h>
+#include <hp_BH1750.h>
 
 #define deepSleepTime 60e6 // 1m
 
@@ -9,13 +12,24 @@ const char *ssid = "pudil.cz";  //ENTER YOUR WIFI SETTINGS
 const char *password = "staromak104";
 
 
-const char *host = "192.168.1.198";
+// const char *host = "192.168.1.198";
+const char *host = "body0.ml";
 const char *route = "/espPld";
-const int httpsPort = 4000;  //HTTPS= 443 and HTTP = 80
+const int httpsPort = 3010;
  
 const char fingerprint[] PROGMEM = "06 38 72 65 EE 6A EC AC 8E F0 B7 1F E9 A5 43 CF 0F 1F F9 18";
 
+Adafruit_HTU21DF htu = Adafruit_HTU21DF();
+hp_BH1750 BH1750;  
+
+float getBattVoltage() {
+  return analogRead(0) / 215.58 ;
+}
+
 void setup() {
+    pinMode(13, OUTPUT);
+    digitalWrite(13, 1);
+    
     delay(500);
     Serial.begin(115200);
     Serial.println("");
@@ -32,6 +46,9 @@ void setup() {
       Serial.print(".");
     }
     Serial.println("Connected!!!!");
+
+    BH1750.begin(BH1750_TO_GROUND);   
+    htu.begin();
 
 
     WiFiClientSecure httpsClient;    //Declare object of class WiFiClient
@@ -63,12 +80,13 @@ void setup() {
         Serial.println("Connected to web");
     }
 
-    int temp = 10;
-    int pres = 10;
-    int hum = 10;
-    int light = 10;
-    int batteryState = 10;
-    String body = String("{\"temp\":") + light + ", \"pres\":" + pres + ", \"hum\":" + hum + ", \"light\":" + light + ", \"batteryState\":" + batteryState + " }";
+    int temp = htu.readTemperature();
+    int pres = -1;
+    int hum = htu.readHumidity();
+    BH1750.start(); 
+    int light = BH1750.getLux();
+    float batteryState = getBattVoltage();
+    String body = String("{\"temp\":") + temp + ", \"pres\":" + pres + ", \"hum\":" + hum + ", \"light\":" + light + ", \"batteryState\":" + batteryState + " }";
     Serial.println(String("POST ") + route + " HTTP/1.1\r\n" +
                 "Host: " + host + "\r\n" +
                 "Content-Type: application/json\r\n" +              
@@ -84,9 +102,11 @@ void setup() {
                 "Content-Length: " + body.length() + "\r\n" +
                 "\r\n" +
                 body + "\r\n");
-
+    Serial.println(analogRead(0));
     Serial.println("request sent");
-    // ESP.deepSleep(deepSleepTime);
+    digitalWrite(13, 0);
+    Serial.print("deepSleep");
+    ESP.deepSleep(deepSleepTime);
                     
    /*  while (httpsClient.connected()) {
         String line = httpsClient.readStringUntil('\n');

@@ -96,4 +96,5 @@ class EventSinkAppState:
         return self.SystemState
 
     def emitUpdateEvent(self):
-        self._Loger.emit('Settings Change', EventLog.EventType.LOG)
+        pass
+        # self._Loger.emit('Settings Change', EventLog.EventType.LOG)

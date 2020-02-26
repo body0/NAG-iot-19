@@ -22,6 +22,10 @@ ApiKey = ''
 if 'KEYAPI' in os.environ:
     ApiKey = os.environ['KEYAPI']
 
+DbApiAccesToken = ''
+if 'DB_API_ACCES_TOKEN' in os.environ:
+    DbApiAccesToken = os.environ['DB_API_ACCES_TOKEN']
+
 
 LogerService = None
 
@@ -38,19 +42,20 @@ class _LogerService:
     MAX_RECORD_QUEUE = 20
 
     def __init__(self):
-        if(LogerService != None):
-            raise Exception('Trying to instantiate singleton!')
-        self._AnyObserver = Common.Observable()
-        self._NameObserverMap = {}
-        self._TypeObserverMap = {
-            EventType.DEBUG: Common.Observable(),
-            EventType.LOG: Common.Observable(),
-            EventType.WARN: Common.Observable(),
-            EventType.SYSTEM_LOG: Common.Observable(),
-            EventType.SYSTEM_WARN: Common.Observable(),
-            EventType.SYSTEM_ERR: Common.Observable(),
-        }
-        self._Queue = []
+            if(LogerService != None):
+                raise Exception('Trying to instantiate singleton!')
+            self._AnyObserver = Common.Observable()
+            self._NameObserverMap = {}
+            self._TypeObserverMap = {
+                EventType.DEBUG: Common.Observable(),
+                EventType.LOG: Common.Observable(),
+                EventType.READ: Common.Observable(),
+                EventType.WARN: Common.Observable(),
+                EventType.SYSTEM_LOG: Common.Observable(),
+                EventType.SYSTEM_WARN: Common.Observable(),
+                EventType.SYSTEM_ERR: Common.Observable(),
+            }
+            self._Queue = []
 
     """
         lisen for event to occure, then call callback
@@ -147,41 +152,34 @@ def sendStateToBroker(appState):
         'temp': appState['TempSensor'],
         'pres': appState['PresSensor'],
         'light': appState['LightSensor'],
-        'gateState': appState['Gate']['status']
+        'gateState': appState['Gate']['status'],
+        'accesToken': DbApiAccesToken
     }
     header = {
         'accept': 'application/json',
         'Content-Type': 'application/json'
     }
-    print("https://body0.ml/api/homePld", header, jsonData)
+    # print("https://body0.ml/nagDbIntf/homePld", header, jsonData)
     try:
-        req = requests.post("http://192.168.1.198:5000/homePld",
-                            json=jsonData, headers=header)
+        req = requests.post("https://body0.ml/nagDbIntf/homePld", json=jsonData, headers=header)
         return req.status_code
     except Exception as e:  # time out
         print(e)
         return 500
 
-
-def sendEvent(eventList):
-    def eventToJson(event):
-        return {
-            'name': event.Name,
-            'type': event.Type,
-            'pld': event.Pld,
-            'timeOfCreation': event.Timestamp
-        }
+def sendEvent(eventDirecotry):
     jsonData = {
-        'arr': list(map(eventToJson, eventList))
+        'name': eventDirecotry['Name'],
+        'type': eventDirecotry['Type'],
+        'pld': eventDirecotry['Pld'],
+        'timeOfCreation': eventDirecotry['Timestamp']
     }
     header = {
         'accept': 'application/json',
         'Content-Type': 'application/json'
     }
-    print("https://body0.ml/api/addEvent", header, jsonData)
     try:
-        req = requests.post("http://192.168.1.198:5000/addEvent",
-                            json=jsonData, headers=header)
+        req = requests.post("https://body0.ml/nagDbIntf/addEvent", json=jsonData, headers=header)
         return req.status_code
     except Exception as e:  # time out
         print(e)
@@ -208,22 +206,31 @@ class Event:
 """
     LOG > informuje o běžné akci uživatele
     WARN > informuje o podezřelé/nestandartní akci uživatele
+    READ > pravidelné čtení ze senzorů
     SYSTEM_LOG > informuje o běžné proběhnuté systémové akci
     SYSTEM_LOG > informuje o proběhnuté podezřelé/nestandartní systémové akci
     SYSTEM_LOG > informuje o nečekané, nepřekonatelné systémové chybě
     DEBUG > dočasné
 """
+""" class EventType:
+    DEBUG = 'DEBUG'
 
+    LOG = 'LOG'
+    WARN = 'WARN'
 
+    SYSTEM_LOG = 'SYSTEM_LOG'
+    SYSTEM_WARN = 'SYSTEM_WARN'
+    SYSTEM_ERR = 'SYSTEM_ERR' """
 class EventType:
     DEBUG = '0'
 
     LOG = '1'
-    WARN = '2'
+    READ = '2'
+    WARN = '4'
 
     SYSTEM_LOG = '3'
-    SYSTEM_WARN = '4'
-    SYSTEM_ERR = '5'
+    SYSTEM_WARN = '5'
+    SYSTEM_ERR = '6'
 
 
 """ 
