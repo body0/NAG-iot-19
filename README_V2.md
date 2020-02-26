@@ -7,15 +7,18 @@
     - deep sleep
 ### Čip
 
-Místo celé desky esp8266 jsme použily jen její čip esp12 kvůli menším rozměrům a spotřebě. A je zapojen tímto způsobem:
+Místo celé desky esp8266 jsme použily jen její čip/modul esp-12F kvůli menším rozměrům a spotřebě. A je zapojen tímto způsobem:
 
 ### DeepSleep
 
 Vždy po vykonání programu(připojení se k wifi, odesílání dat, atd.) se esp uvede do deep sleepu na danou dobu. Pro deep sleep jsme museli propojit pin GPIO16 s resetem, kvůli programování jsme to museli udělat přes jumper. 
 
+### Odesílání na server
+Po probuzení se esp pokusí připojit k místní wifi (30 pokusů), pokud se mu to nepovede 1x zabliká a usne. Poté se pokusí navázat spojení se servrem a ověří si jestli podpis poslaného certifikátu odpovídá poslanému sertifikátu (po 30 pokusech 2x zabliká a usne). Pokud i toto proběhne bez problémů, pošle POST (PUT by dával asi lepší smysl ale už se nám taková drobnost nechtěla měnit) request na server s naměřenými hodnotami. Na odpově serveru nečeká a usímá. 
+
 ### Programování
 
-Pro programování esp12 jsme použili desku esp8266 dle následujícího zapojení:
+Pro programování esp-12F jsme použili desku esp8266 dle následujícího zapojení:
 
 ### Senzory
 

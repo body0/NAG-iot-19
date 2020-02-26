@@ -27,6 +27,19 @@ float getBattVoltage()
     return analogRead(0) / 215.58;
 }
 
+void warnBlink()
+{
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(500);
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(500);
+}
+void warnSleep()
+{
+    Serial.print("Entering deepSleep, timeout");
+    ESP.deepSleep(deepSleepTime);
+}
+
 void setup()
 {
     pinMode(13, OUTPUT);
@@ -42,26 +55,36 @@ void setup()
 
     WiFi.begin(ssid, password);
     Serial.print("Connecting");
+
+    int r = 0; //retry counter
     // Wait for connection
-    while (WiFi.status() != WL_CONNECTED)
+    while ((WiFi.status() != WL_CONNECTED) && (r < 30))
     {
         delay(500);
         Serial.print(".");
+        r++;
     }
-    Serial.println("Connected!!!!");
+    if (r == 30)
+    { // can not connect to wifi
+        warnBlink();
+        warnBlink();
+        warnSleep();
+        return; // unnecessary
+    }
+
+    Serial.println("Connected!");
 
     BH1750.begin(BH1750_TO_GROUND);
     htu.begin();
 
     WiFiClientSecure httpsClient; //Declare object of class WiFiClient
 
-    Serial.printf("Using fingerprint '%s'\n", fingerprint);
     httpsClient.setFingerprint(fingerprint);
     httpsClient.setTimeout(15000); // 15 Seconds
     delay(1000);
 
     Serial.print("HTTPS Connecting");
-    int r = 0; //retry counter
+    r = 0; //retry counter
     while ((!httpsClient.connect(host, httpsPort)) && (r < 30))
     {
         delay(100);
@@ -70,23 +93,15 @@ void setup()
     }
     if (r == 30)
     { // can not connect to server
-        digitalWrite(LED_BUILTIN, HIGH);
-        delay(500);
-        digitalWrite(LED_BUILTIN, LOW);
-        delay(500);
-        digitalWrite(LED_BUILTIN, HIGH);
-        delay(500);
-        digitalWrite(LED_BUILTIN, LOW);
-        delay(500);
-        // ESP.deepSleep(deepSleepTime);
-    }
-    else
-    {
-        Serial.println("Connected to web");
+        warnBlink();
+        warnSleep();
+        return; // unnecessary
     }
 
+    Serial.println("Connected to web");
+
     int temp = htu.readTemperature();
-    int pres = -1;
+    int pres = -1; // not coonected sensor
     int hum = htu.readHumidity();
     BH1750.start();
     int light = BH1750.getLux();
@@ -97,44 +112,20 @@ void setup()
                   ", \"light\":" + light +
                   ", \"batteryState\":" + batteryState +
                   ", \"accesToken\':" + asccecToken + "}";
-    Serial.println(String("POST ") + route + " HTTP/1.1\r\n" +
-                   "Host: " + host + "\r\n" +
-                   "Content-Type: application/json\r\n" +
-                   "Connection: close\r\n" +
-                   "Content-Length: " + body.length() + "\r\n" +
-                   "\r\n" +
-                   body + "\r\n");
-
-    httpsClient.print(String("POST ") + route + " HTTP/1.1\r\n" +
-                      "Host: " + host + "\r\n" +
-                      "Content-Type: application/json\r\n" +
-                      "Connection: close\r\n" +
-                      "Content-Length: " + body.length() + "\r\n" +
-                      "\r\n" +
-                      body + "\r\n");
+    String requestBody = String("POST ") + route + " HTTP/1.1\r\n" +
+                         "Host: " + host + "\r\n" +
+                         "Content-Type: application/json\r\n" +
+                         "Connection: close\r\n" +
+                         "Content-Length: " + body.length() + "\r\n" +
+                         "\r\n" +
+                         body + "\r\n";
+    Serial.println(requestBody);
+    httpsClient.print(requestBody);
     Serial.println(analogRead(0));
     Serial.println("request sent");
     digitalWrite(13, 0);
-    Serial.print("deepSleep");
+    Serial.print("Entering deepSleep");
     ESP.deepSleep(deepSleepTime);
-
-    /*  while (httpsClient.connected()) {
-        String line = httpsClient.readStringUntil('\n');
-        if (line == "\r") {
-        Serial.println("headers received");
-        break;
-        }
-    }
-
-    Serial.println("reply was:");
-    Serial.println("==========");
-    String line;
-    while(httpsClient.available()){        
-        line = httpsClient.readStringUntil('\n');  //Read Line by Line
-        Serial.println(line); //Print response
-    }
-    Serial.println("==========");
-    Serial.println("closing connection"); */
 }
 
 void loop()

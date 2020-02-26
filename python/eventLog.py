@@ -172,7 +172,8 @@ def sendEvent(eventDirecotry):
         'name': eventDirecotry['Name'],
         'type': eventDirecotry['Type'],
         'pld': eventDirecotry['Pld'],
-        'timeOfCreation': eventDirecotry['Timestamp']
+        'timeOfCreation': eventDirecotry['Timestamp'],
+        'accesToken': DbApiAccesToken
     }
     header = {
         'accept': 'application/json',

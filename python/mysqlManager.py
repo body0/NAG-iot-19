@@ -12,6 +12,7 @@ ApiKey = ''
 if 'KEYAPI' in os.environ:
     ApiKey = os.environ['KEYAPI']
 
+# token, that will be used to confirm client identity
 DbApiAccesToken = ''
 if 'DB_API_ACCES_TOKEN' in os.environ:
     DbApiAccesToken = os.environ['DB_API_ACCES_TOKEN']
@@ -20,16 +21,16 @@ CleanExit = False
 
 
 app = Flask(__name__)
-CORS(app)
+CORS(app) # not needed
 cnx = mysql.connector.connect(user='GRAFANA_ADMIN', password='abc',
                               host='80.211.204.64', port='3031',
                               database='GRAFANA')
 
-
-# Test route
+# debug route
 @app.route('/nagDbIntf')
 def hello_world():
     return 'DB api root'
+
 
 @app.route('/nagDbIntf/espPld', methods=['POST'])
 def espPld():
@@ -43,10 +44,10 @@ def espPld():
             resp.status_code = 400
             return resp
 
-        """ if (not request.json['accesToken'] == DbApiAccesToken):
+        if (not request.json['accesToken'] == DbApiAccesToken):
             resp = Response('Wrong acces token')
             resp.status_code = 401
-            return resp """
+            return resp
  
 
         temp = request.json['temp']
@@ -95,11 +96,9 @@ def espPld():
         resp.status_code = 500
         return resp
 
-
 @app.route('/nagDbIntf/homePld', methods=['POST'])
 def homePld():
     try:
-        # print(request.json['temp'])
         if (('temp' not in request.json) or
             ('pres' not in request.json) or
             ('light' not in request.json) or
@@ -108,18 +107,15 @@ def homePld():
             resp.status_code = 400
             return resp
 
-        """ if (not request.json['accesToken'] == DbApiAccesToken):
+        if (not request.json['accesToken'] == DbApiAccesToken):
             resp = Response('Wrong acces token')
             resp.status_code = 401
-            return resp """
+            return resp
 
-        # print(request.json)
         temp = request.json['temp']
         pres = request.json['pres']
         light = request.json['light']
         batteryState = request.json['gateState']
-
-        print(temp, pres, light, batteryState)
 
         cursor = cnx.cursor()
 
@@ -155,7 +151,6 @@ def homePld():
         resp.status_code = 500
         return resp
 
-
 @app.route('/nagDbIntf/addEvent', methods=['POST'])
 def addEvent():
     try:
@@ -170,16 +165,16 @@ def addEvent():
             resp.status_code = 400
             return resp
 
-        """ if (not request.json['accesToken'] == DbApiAccesToken):
+        if (not request.json['accesToken'] == DbApiAccesToken):
             resp = Response('Wrong acces token')
             resp.status_code = 401
-            return resp """
+            return resp
 
         # print(request.json)
         name = request.json['name']
         typeObj = request.json['type']
         pld = request.json['pld']
-        timeOfCreation = request.json['timeOfCreation']
+        # timeOfCreation = request.json['timeOfCreation']
 
         # for event in parsedEventList:
         cursor = cnx.cursor()
@@ -201,7 +196,6 @@ def addEvent():
         resp = Response('Internal error')
         resp.status_code = 500
         return resp
-
 
 
 """
