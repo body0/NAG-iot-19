@@ -30,6 +30,8 @@ def init():
         initBusic()
         sensorInit()
         initDisplay()
+        setUpstreamUpdate()
+        loger.emit('System Init Complete', EventLog.EventType.SYSTEM_LOG)
 
 def initBusic():
         # After login wait 60s, then log out
@@ -104,7 +106,7 @@ def sensorInit():
                 elif value > settings.getSettingsAtribute(SettingsService.SettingsKeys.OUT_LIGHT_ON_LUM_TRIG.value) and lights.getLedState(Common.LightsIds.OUT_HOUSE) == Common.LedState.ON:
                         lights.off(Common.LightsIds.OUT_HOUSE)
 
-                loger.emit('Light', EventLog.EventType.SYSTEM_LOG, value)
+                loger.emit('Light', EventLog.EventType.READ, value)
 
         lightSensor=Common.SensorTimer(loadLight)
         lightSensor.start(5)
@@ -112,12 +114,12 @@ def sensorInit():
         bmp085=BMP085.BMP085()
         def loadPres():
                 value=bmp085.read_pressure()
-                loger.emit('Pres', EventLog.EventType.SYSTEM_LOG, value)
+                loger.emit('Pres', EventLog.EventType.READ, value)
         pressSensor=Common.SensorTimer(loadPres)
         pressSensor.start(5)
         def loadTemp():
                 value=bmp085.read_temperature()
-                loger.emit('Temp', EventLog.EventType.SYSTEM_LOG, value)
+                loger.emit('Temp', EventLog.EventType.READ, value)
         tempSensor=Common.SensorTimer(loadTemp)
         tempSensor.start(5)
 
@@ -156,9 +158,9 @@ def setUpstreamUpdate():
         timer = Common.SensorTimer(updateUpstream)
         timer.start(6)
         def newEvent(event):
-                if (event.Type == EventLog.EventType.SYSTEM_LOG):
+                if (event.Type == EventLog.EventType.READ):
                         return
-                EventLog.sendEvent(event)
+                EventLog.sendEvent(event.getDictionary())
         loger.subscribeAny(newEvent)
 
 #debug

@@ -4,24 +4,34 @@ from flask_cors import CORS
 
 import json
 import atexit
+import os
+import requests
+
+# Safely load api key from env
+ApiKey = ''
+if 'KEYAPI' in os.environ:
+    ApiKey = os.environ['KEYAPI']
+
+DbApiAccesToken = ''
+if 'DB_API_ACCES_TOKEN' in os.environ:
+    DbApiAccesToken = os.environ['DB_API_ACCES_TOKEN']
+
+CleanExit = False
+
 
 app = Flask(__name__)
 CORS(app)
 cnx = mysql.connector.connect(user='GRAFANA_ADMIN', password='abc',
                               host='80.211.204.64', port='3031',
                               database='GRAFANA')
+
+
 # Test route
-@app.route('/')
+@app.route('/nagDbIntf')
 def hello_world():
     return 'DB api root'
 
-
-@app.route('/test')
-def ret():
-    return 'DB api root'
-
-
-@app.route('/espPld', methods=['POST'])
+@app.route('/nagDbIntf/espPld', methods=['POST'])
 def espPld():
     try:
         #print('Q', request.data, request.headers, request.json)
@@ -30,10 +40,16 @@ def espPld():
             ('pres' not in request.json) or
             ('hum' not in request.json) or
             ('light' not in request.json) or
-                ('batteryState' not in request.json)):
+            ('batteryState' not in request.json)):
             resp = Response('Wrong argument')
             resp.status_code = 400
             return resp
+
+        """ if (not request.json['accesToken'] == DbApiAccesToken):
+            resp = Response('Wrong acces token')
+            resp.status_code = 401
+            return resp """
+ 
 
         temp = request.json['temp']
         pres = request.json['pres']
@@ -57,7 +73,7 @@ def espPld():
         cursor = cnx.cursor()
 
         insetQuery = "INSERT INTO temperature  (value) VALUES (%s)"
-        insetQueryVal = [int(temp)]
+        insetQueryVal = [float(temp)]
         cursor.execute(insetQuery, insetQueryVal)
 
         insetQuery = "INSERT INTO humidity (value) VALUES (%s);"
@@ -65,7 +81,7 @@ def espPld():
         cursor.execute(insetQuery, insetQueryVal)
 
         insetQuery = "INSERT INTO light (value) VALUES (%s);"
-        insetQueryVal = [int(light)]
+        insetQueryVal = [float(light)]
         cursor.execute(insetQuery, insetQueryVal)
 
         insetQuery = "INSERT INTO presure (value) VALUES (%s);"
@@ -73,7 +89,7 @@ def espPld():
         cursor.execute(insetQuery, insetQueryVal)
 
         insetQuery = "INSERT INTO batteryState (value) VALUES (%s);"
-        insetQueryVal = [int(batteryState)]
+        insetQueryVal = [float(batteryState)]
         cursor.execute(insetQuery, insetQueryVal)
 
         cnx.commit()
@@ -90,9 +106,10 @@ def espPld():
         return resp
 
 
-@app.route('/homePld', methods=['POST'])
+@app.route('/nagDbIntf/homePld', methods=['POST'])
 def homePld():
     try:
+        # print(request.json['temp'])
         if (('temp' not in request.json) or
             ('pres' not in request.json) or
             ('light' not in request.json) or
@@ -100,6 +117,11 @@ def homePld():
             resp = Response('Wrong argument')
             resp.status_code = 400
             return resp
+
+        """ if (not request.json['accesToken'] == DbApiAccesToken):
+            resp = Response('Wrong acces token')
+            resp.status_code = 401
+            return resp """
 
         # print(request.json)
         temp = request.json['temp']
@@ -112,19 +134,19 @@ def homePld():
         cursor = cnx.cursor()
 
         insetQuery = "INSERT INTO temperature_home  (value) VALUES (%s)"
-        insetQueryVal = [int(temp)]
+        insetQueryVal = [float(temp)]
         cursor.execute(insetQuery, insetQueryVal)
 
         insetQuery = "INSERT INTO light_home (value) VALUES (%s);"
-        insetQueryVal = [int(pres)]
+        insetQueryVal = [float(light)]
         cursor.execute(insetQuery, insetQueryVal)
 
         insetQuery = "INSERT INTO presure_home (value) VALUES (%s);"
-        insetQueryVal = [int(light)]
+        insetQueryVal = [int(pres)]
         cursor.execute(insetQuery, insetQueryVal)
 
         insetQuery = "INSERT INTO gateState (value) VALUES (%s);"
-        insetQueryVal = [batteryState]
+        insetQueryVal = [float(batteryState)]
         cursor.execute(insetQuery, insetQueryVal)
 
         cnx.commit()
@@ -141,16 +163,18 @@ def homePld():
         return resp
 
 
-@app.route('/addEvent', methods=['POST'])
+@app.route('/nagDbIntf/addEvent', methods=['POST'])
 def addEvent():
     try:
-        if (('name' not in request.json) or
-            ('type' not in request.json) or
-            ('pld' not in request.json) or
-            ('timeOfCreation' not in request.json)):
+        if (('arr' not in request.json)):
             resp = Response('Wrong argument')
             resp.status_code = 400
             return resp
+
+        """ if (not request.json['accesToken'] == DbApiAccesToken):
+            resp = Response('Wrong acces token')
+            resp.status_code = 401
+            return resp """
 
         # print(request.json)
         name = request.json['name']
@@ -158,14 +182,20 @@ def addEvent():
         pld = request.json['pld']
         timeOfCreation = request.json['timeOfCreation']
 
-        cursor = cnx.cursor()
+        for event in parsedEventList:
 
-        insetQuery = "INSERT INTO temperature_home  (name, type, pld, timeOfCreation) VALUES (%s, %s, %s, %s)"
+        insetQuery = "INSERT INTO event (name, type, pld, timeOfCreation) VALUES (%s, %s, %s, %s)"
         insetQueryVal = [str(name), str(typeObj), str(pld), str(timeOfCreation)]
         cursor.execute(insetQuery, insetQueryVal)
 
-        cnx.commit()
-        cursor.close()
+            cursor = cnx.cursor()
+
+            insetQuery = "INSERT INTO event  (name, type, pld) VALUES (%s, %s, %s)"
+            insetQueryVal = [str(name), str(typeObj), str(pld)]
+            cursor.execute(insetQuery, insetQueryVal)
+
+            cnx.commit()
+            cursor.close()
 
         resp = Response('Succes')
         resp.status_code = 201
@@ -173,12 +203,37 @@ def addEvent():
 
     except Exception as e:
         print('[WARN]: Can not auth.', e)
+        #raise e
         resp = Response('Internal error')
         resp.status_code = 500
         return resp
 
 
+
+"""
+    HTTP CLIENT
+        - send data to server
+        - auth to server
+"""
+def sendToUpstream(eventName, data):
+    jsonData = {'value': data}
+    header = {
+        'accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-Api-Key': ApiKey
+    }
+    print("https://api.nag-iot.zcu.cz/v2/value/" + eventName, header, jsonData)
+    try:
+        req = requests.post("https://api.nag-iot.zcu.cz/v2/value/" + eventName, json=jsonData, headers=header)
+        return req.status_code
+    except Exception as e:  # time out
+        print(e)
+        return 500
+
+
 def cleanup():
+    global CleanExit
+    CleanExit = True
     cnx.commit()
     # cursor.close()
     cnx.close()
@@ -186,4 +241,4 @@ def cleanup():
 
 
 atexit.register(cleanup)
-app.run(host='0.0.0.0')
+app.run(host='0.0.0.0', port=3005)
