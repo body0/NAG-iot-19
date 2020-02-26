@@ -7,7 +7,8 @@
     - deep sleep
 ### Čip
 
-Místo celé desky esp8266 jsme použily jen její čip/modul esp-12F kvůli menším rozměrům a spotřebě. A je zapojen tímto způsobem:
+Místo celé desky esp8266 jsme použily jen její čip/modul esp-12F kvůli menším rozměrům a spotřebě. Zapojení viz. schéma níže
+![Schéma](ReadMeAssets/ESP.PNG)
 
 ### DeepSleep
 
@@ -28,6 +29,10 @@ Pro měření svítivosti je použito čidlo BH1750 a pro vlhkost a teplotu je p
 
 Jako regulátor jsme použili HT7333-7, který je velmi efektivní. Pro lepší zvládání špičkových proudů jsme použili 220 uf kondenzátor.
 
+### Krabička
+
+Celý obvod je dán do tištěné krabičky kterou je požné zavěsit, připevnit popruhy nebo přišroubovat. Jsou v ní větrací průduchy aby šlo spolehlivě číst vlhkost a teplotu. Pro měření teploty je zde díra ve které je silikonem(kvůli vodotěsnosti) vlepen plátek průhlehného plastu.
+
 
 ## Solární panel
 
@@ -38,6 +43,8 @@ Jako regulátor jsme použili HT7333-7, který je velmi efektivní. Pro lepší 
 Pro natáčení panelu jsme použily kříž z fotorezistorů a servomotory, původně jsem se snažil upravit  zpětnou vazbu servomotorů tím že jsem nahradil potenciometry v servech fotorezistory zapojenými v úhlopříčce již zmíněného kříže jako děliče napětí (do serva se musí posílat signál 90 stupňů aby se snažilo mít odpory 1:1) tím pádem jsem dostal zpětnou vazbu nezávislou na poloze osy ale na poloze slunce na obloze. Tato strategie moc nevyšla kvůli pomalé reakci fotorezistorů kterým chvíli trvá změnit odpor se změnou osvětlení což způsobovalo nechtěné oscilace solárního panelu kdy se natočil o moc velký úhel a poté se vracel zpátky, snažil jsem se to vyřešit přidáním 51k ohm odporů to by zmenšilo změnu odporu vůči celkovému odporu a čím blíže je servo bodu vyvážení pohybuje se pomaleji což by zmenšilo oscilace, to bohužel také nevyšlo kvůli nepřesnosti odporů. Další pokus bylo použit attiny13 kvůli malé spotřebě a ideálnímu počtu pinů. Toto řešení také nebylo funkční, kvůli nedostatku časovacích registrů nutných pro řízení servo motorů a celkově nedostatku paměti, projekt zabíral dvakrát více paměti programu než je na čipu. Nakonec jsme tam dali upravené ardnuino Nano na kterém jsme rno menší spotřebu přemostily regulátor a odstranily LEDky indikující stav arduina protože v neprůhledné krabičce nejsou vidět. Napsali jsme na něho jednoduchý kód. Další věc na úsporu pro nás tak drahé energie je spínání arduina a servo motorů mosfetem ovládaným z ESP.
 Mecchanická konstrukce je provedena pomocí 3D tištěných dílů z bílého PLA. Osy okolo kterých se solár otáčí jsou udělány z závitové tyče m4 seříznuté a zabroušené na míru, lehký pohyb zajišťují kuličková ložiska r4.
 
+![Schéma](ReadMeAssets/Solar.PNG)
+
 ### Baterie a nabíjecí obvod
 
 Jsou umístěny spolu s kontrolním obvodem natočení v 3D tištěné krabičce z bílého PLA která je spojena 4 šrouby a matičkami m3. Na krabičce je konektor který zajišťuje propojení se stanicí viz. Obrázek. 
@@ -47,6 +54,7 @@ Enable - pin připojený na gate N-Channel mosfetu pomocí kterého se spíná o
 Ucc - Napájení meteo stanice
 GND - Zem
 
+![Schéma](ReadMeAssets/Konektor.PNG)
 
 #### Baterie
 
