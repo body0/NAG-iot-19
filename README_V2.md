@@ -89,8 +89,8 @@ sql injection neni možná, protože:
 MySQL Connector sanatizuje tuto query parametry
 připojit se mohou jemon klienti se správným DB_API_ACCES_TOKEN (esp, pi) 
 ### Kód spravujíci Raspbery-Pi
-védšina funkci zUstává z předchozí verze aplikace
-původní aplikace na managment apky byla zrušena (všechnz její funkce nahradila grafana)
+většina funkci zústává z předchozí verze aplikace
+původní aplikace na managment apky byla zrušena (všechny její funkce nahradila grafana)
 ### MQTT vs HTTP
 jedna z našich původních myšlenek byla požití MQTT oprototi HTTP, tuto myšleku jsme zahodily ze 2 důvodů
 když jsme se pokoušeli připojit na soutěžní mqtt broker, dostávali jsme connection timeout,
