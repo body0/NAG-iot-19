@@ -14,8 +14,13 @@ const char *password = "staromak104";
 
 // const char *host = "192.168.1.198";
 const char *host = "body0.ml";
+<<<<<<< HEAD
 const char *route = "/nagDblntf/espPld";
 const int httpsPort = 4000;  //HTTPS= 443 and HTTP = 80
+=======
+const char *route = "/nagDbIntf/espPld";
+const int httpsPort = 3010;
+>>>>>>> 0dee64557089271ae68290d62f7a8173d399c635
  
 const char fingerprint[] PROGMEM = "06 38 72 65 EE 6A EC AC 8E F0 B7 1F E9 A5 43 CF 0F 1F F9 18";
 
