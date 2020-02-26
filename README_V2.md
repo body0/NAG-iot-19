@@ -46,6 +46,7 @@ Pro natáčení panelu jsme použily kříž z fotorezistorů a servomotory, pů
 Mecchanická konstrukce je provedena pomocí 3D tištěných dílů z bílého PLA. Osy okolo kterých se solár otáčí jsou udělány z závitové tyče m4 seříznuté a zabroušené na míru, lehký pohyb zajišťují kuličková ložiska r4.
 
 ![Schéma](ReadMeAssets/Solar.PNG)
+![Schéma](ReadMeAssets/Obvod.JPG)
 
 ### Baterie a nabíjecí obvod
 
