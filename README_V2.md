@@ -7,7 +7,8 @@
     - deep sleep
 ### Čip
 
-Místo celé desky esp8266 jsme použily jen její čip esp12 kvůli menším rozměrům a spotřebě. A je zapojen tímto způsobem:
+Místo celé desky esp8266 jsme použily jen její čip esp12 kvůli menším rozměrům a spotřebě.
+![Schéma](ReadMeAssets/ESP.PNG)
 
 ### DeepSleep
 
