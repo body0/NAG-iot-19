@@ -34,7 +34,7 @@ Jako regulátor jsme použili HT7333-7, který je velmi efektivní. Pro lepší 
 Celý obvod je dán do tištěné krabičky kterou je požné zavěsit, připevnit popruhy nebo přišroubovat. Jsou v ní větrací průduchy aby šlo spolehlivě číst vlhkost a teplotu. Pro měření teploty je zde díra ve které je silikonem(kvůli vodotěsnosti) vlepen plátek průhlehného plastu.
 
 Panel a Krabička
-![Schéma](ReadMeAssets/SolarAStanice.PNG)
+![Schéma](ReadMeAssets/SolarAStanice.JPG)
 
 ## Solární panel
 
@@ -56,7 +56,7 @@ Enable - pin připojený na gate N-Channel mosfetu pomocí kterého se spíná o
 Ucc - Napájení meteo stanice
 GND - Zem
 
-![Schéma](ReadMeAssets/Konektor.PNG)
+![Schéma](ReadMeAssets/Konektor.png)
 
 #### Baterie
 
