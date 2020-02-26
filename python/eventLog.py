@@ -22,6 +22,10 @@ ApiKey = ''
 if 'KEYAPI' in os.environ:
     ApiKey = os.environ['KEYAPI']
 
+DbApiAccesToken = ''
+if 'DB_API_ACCES_TOKEN' in os.environ:
+    DbApiAccesToken = os.environ['DB_API_ACCES_TOKEN']
+
 
 LogerService = None
 def getLoginServise():
@@ -42,6 +46,7 @@ class _LogerService:
             self._TypeObserverMap = {
                 EventType.DEBUG: Common.Observable(),
                 EventType.LOG: Common.Observable(),
+                EventType.READ: Common.Observable(),
                 EventType.WARN: Common.Observable(),
                 EventType.SYSTEM_LOG: Common.Observable(),
                 EventType.SYSTEM_WARN: Common.Observable(),
@@ -132,13 +137,14 @@ def sendStateToBroker(appState):
         'temp': appState['TempSensor'],
         'pres': appState['PresSensor'],
         'light': appState['LightSensor'],
-        'gateState': appState['Gate']['status']
+        'gateState': appState['Gate']['status'],
+        'accesToken': DbApiAccesToken
     }
     header = {
         'accept': 'application/json',
         'Content-Type': 'application/json'
     }
-    print("https://body0.ml/nagDbIntf/homePld", header, jsonData)
+    # print("https://body0.ml/nagDbIntf/homePld", header, jsonData)
     try:
         req = requests.post("https://body0.ml/nagDbIntf/homePld", json=jsonData, headers=header)
         return req.status_code
@@ -146,18 +152,17 @@ def sendStateToBroker(appState):
         print(e)
         return 500
 
-def sendEvent(event):
+def sendEvent(eventDirecotry):
     jsonData = {
-        'name': event['name'],
-        'type': event['type'],
-        'pld': event['pld'],
-        'timeOfCreation': event['timeOfCreation']
+        'name': eventDirecotry['Name'],
+        'type': eventDirecotry['Type'],
+        'pld': eventDirecotry['Pld'],
+        'timeOfCreation': eventDirecotry['Timestamp']
     }
     header = {
         'accept': 'application/json',
         'Content-Type': 'application/json'
     }
-    print("https://body0.ml/nagDbIntf/addEvent", header, jsonData)
     try:
         req = requests.post("https://body0.ml/nagDbIntf/addEvent", json=jsonData, headers=header)
         return req.status_code
@@ -186,20 +191,31 @@ class Event:
 """
     LOG > informuje o běžné akci uživatele
     WARN > informuje o podezřelé/nestandartní akci uživatele
+    READ > pravidelné čtení ze senzorů
     SYSTEM_LOG > informuje o běžné proběhnuté systémové akci
     SYSTEM_LOG > informuje o proběhnuté podezřelé/nestandartní systémové akci
     SYSTEM_LOG > informuje o nečekané, nepřekonatelné systémové chybě
     DEBUG > dočasné
 """
-class EventType:
-    DEBUG = '0DEBUG'
+""" class EventType:
+    DEBUG = 'DEBUG'
 
     LOG = 'LOG'
     WARN = 'WARN'
 
     SYSTEM_LOG = 'SYSTEM_LOG'
     SYSTEM_WARN = 'SYSTEM_WARN'
-    SYSTEM_ERR = 'SYSTEM_ERR'
+    SYSTEM_ERR = 'SYSTEM_ERR' """
+class EventType:
+    DEBUG = '0'
+
+    LOG = '1'
+    READ = '2'
+    WARN = '4'
+
+    SYSTEM_LOG = '3'
+    SYSTEM_WARN = '5'
+    SYSTEM_ERR = '6'
 
 """ 
     ===== INIT =====
