@@ -8,8 +8,8 @@
 
 #define deepSleepTime 60e6 // 1m
 
-const char *ssid = "pudil.cz"; //ENTER YOUR WIFI SETTINGS
-const char *password = "staromak104";
+const char *ssid = "ssid"; //ENTER YOUR WIFI SETTINGS
+const char *password = "password";
 
 // const char *host = "192.168.1.198";
 const char *host = "body0.ml";
